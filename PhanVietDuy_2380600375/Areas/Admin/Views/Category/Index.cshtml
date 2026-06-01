@@ -1,0 +1,123 @@
+@using PhanVietDuy_2380600375.Models.Domain
+@model IEnumerable<Category>
+@{
+  ViewData["Title"] = "Quản lý danh mục";
+  Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="data-table-wrap reveal">
+  <div class="data-table-header">
+    <h2 class="data-table-header__title">Danh sách danh mục</h2>
+    <div style="display:flex;gap:8px">
+      <a href="/admin/danh-muc/create" class="btn btn--gold btn--sm">
+        <i class="fa-regular fa-plus" aria-hidden="true" style="margin-right:6px"></i>Thêm mới
+      </a>
+    </div>
+  </div>
+
+  <div style="overflow-x:auto">
+    <table class="data-table" aria-label="Danh sách danh mục">
+      <thead>
+        <tr>
+          <th scope="col">Hình ảnh</th>
+          <th scope="col">Tên danh mục</th>
+          <th scope="col">Nhãn (Label)</th>
+          <th scope="col">Đường dẫn (Slug)</th>
+          <th scope="col" style="text-align:center">Thứ tự</th>
+          <th scope="col" style="text-align:center">Số sản phẩm</th>
+          <th scope="col" style="text-align:center">Trạng thái</th>
+          <th scope="col"><span class="sr-only">Thao tác</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (Model != null && Model.Any())
+        {
+          foreach (var cat in Model)
+          {
+            int pCount = 0;
+            if (ViewBag.CategoryStats != null)
+            {
+              foreach (var stat in ViewBag.CategoryStats)
+              {
+                if (stat.Category.Id == cat.Id)
+                {
+                  pCount = stat.ProductCount;
+                  break;
+                }
+              }
+            }
+
+            <tr id="row-@cat.Id">
+              <td>
+                @if (!string.IsNullOrEmpty(cat.ImageUrl))
+                {
+                  <img src="@cat.ImageUrl" alt="@cat.Name" style="width:48px;height:48px;object-fit:cover;border-radius:var(--r-md)" />
+                }
+                else
+                {
+                  <div style="width:48px;height:48px;background:var(--c-border);display:flex;align-items:center;justify-content:center;border-radius:var(--r-md);color:var(--c-ink-lt)">
+                    <i class="fa-regular fa-image" aria-hidden="true"></i>
+                  </div>
+                }
+              </td>
+              <td>
+                <span style="font-weight:500;color:var(--c-ink)">@cat.Name</span>
+              </td>
+              <td>@cat.Label</td>
+              <td style="color:var(--c-ink-lt);font-size:var(--fs-xs)">@cat.Slug</td>
+              <td style="text-align:center">@cat.SortOrder</td>
+              <td style="text-align:center;font-weight:500">@pCount</td>
+              <td style="text-align:center">
+                <span class="status-badge @(cat.IsActive ? "status-badge--shipped" : "status-badge--cancelled")">
+                  @(cat.IsActive ? "Hoạt động" : "Tạm khóa")
+                </span>
+              </td>
+              <td>
+                <div style="display:flex;gap:8px;justify-content:flex-end">
+                  <a href="/admin/danh-muc/edit/@cat.Id" class="quick-action-btn">Sửa</a>
+                  <button class="quick-action-btn quick-action-btn--danger" onclick="deleteCategory(@cat.Id)" type="button">Xóa</button>
+                </div>
+              </td>
+            </tr>
+          }
+        }
+        else
+        {
+          <tr>
+            <td colspan="8" style="text-align:center;padding:var(--sp-8);color:var(--c-ink-lt)">
+              Chưa có danh mục nào.
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+
+@section Scripts {
+  <script>
+    function deleteCategory(id) {
+      if (confirm("Bạn có chắc chắn muốn xóa danh mục này?")) {
+        fetch(`/admin/danh-muc/delete/${id}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+          }
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            alert(data.message || "Xóa thành công!");
+            document.getElementById(`row-${id}`).remove();
+          } else {
+            alert(data.message || "Xóa thất bại!");
+          }
+        })
+        .catch(err => {
+          alert("Lỗi hệ thống khi xóa!");
+          console.error(err);
+        });
+      }
+    }
+  </script>
+}

@@ -1,0 +1,233 @@
+@using PhanVietDuy_2380600375.Models.Domain
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+@inject Microsoft.AspNetCore.Identity.UserManager<ApplicationUser> UserManager
+@inject PhanVietDuy_2380600375.Repositories.Interfaces.ICategoryRepository CategoryRepository
+@{
+  var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+  var action = ViewContext.RouteData.Values["action"]?.ToString();
+  var isHome = controller == "Home";
+  var isProduct = controller == "Product";
+  var isContact = controller == "Contact";
+
+  bool IsActive(string ctrl) => controller?.Equals(ctrl, StringComparison.OrdinalIgnoreCase) == true;
+
+  var wishlistCookie = HttpContextAccessor.HttpContext?.Request.Cookies["Wishlist"] ?? "";
+  var wishlistCount = string.IsNullOrEmpty(wishlistCookie) 
+    ? 0 
+    : wishlistCookie.Split(',', StringSplitOptions.RemoveEmptyEntries).Length;
+
+  // Load all active categories for mega-menu
+  var navCategories = await CategoryRepository.GetAllActiveAsync();
+}
+
+<header class="header" id="siteHeader" role="banner">
+  <nav class="nav" aria-label="Điều hướng chính">
+
+    @* Brand *@
+    <a href="/" class="nav__brand" aria-label="Vietduy Atelier - Trang chủ">Vietduy</a>
+
+    @* Main links *@
+    <ul class="nav__links" id="navLinks" role="list">
+      <li>
+        <a href="/" class="nav__link @(isHome ? "nav__link--active" : "")">Trang chủ</a>
+      </li>
+      <li class="nav__item--has-mega">
+        <a href="/categories" class="nav__link @(isHome && action == "Categories" ? "nav__link--active" : "")">Danh mục</a>
+      </li>
+      <li>
+        <a href="/product" class="nav__link @(isProduct ? "nav__link--active" : "")">Sản phẩm</a>
+      </li>
+      <li>
+        <a href="/contact" class="nav__link @(isContact ? "nav__link--active" : "")">Liên hệ</a>
+      </li>
+    </ul>
+
+    @* Actions *@
+    <div class="nav__actions">
+      @* Search *@
+      <button class="nav__icon-btn" id="searchToggle" aria-label="Mở tìm kiếm" aria-expanded="false">
+        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+      </button>
+
+      @* Cart *@
+      <button class="nav__cart-btn" id="cartToggle" aria-label="Mở giỏ hàng" aria-haspopup="true" aria-expanded="false">
+        <i class="fa-solid fa-bag-shopping" aria-hidden="true"></i>
+        <span class="nav__cart-count" id="cartCount" aria-label="Số sản phẩm trong giỏ"></span>
+      </button>
+
+
+      @* User menu *@
+      @if (User.Identity?.IsAuthenticated == true)
+      {
+        var currentUser = await UserManager.GetUserAsync(User);
+        var dispName = currentUser?.FullName ?? User.Identity.Name ?? "Tài khoản";
+        <div class="nav__user-dropdown" id="userDropdown">
+          <button class="nav__user-btn" id="userToggle" aria-label="Tài khoản của tôi" aria-haspopup="true" aria-expanded="false">
+            <i class="fa-solid fa-circle-user" style="font-size:18px;"></i>
+          </button>
+          <div class="dropdown-menu" id="userMenu" role="menu" aria-hidden="true">
+            <div class="dropdown-header" style="padding:14px 16px 8px;border-bottom:1px solid var(--c-border);margin-bottom:4px">
+              <span style="font-size:10px;color:var(--c-ink-light);text-transform:uppercase;letter-spacing:0.05em;display:block">Tài khoản</span>
+              <strong style="font-size:var(--fs-sm);font-weight:500;color:var(--c-ink);display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">@dispName</strong>
+            </div>
+            <a href="/account/profile" class="dropdown-item" role="menuitem">
+              <i class="fa-solid fa-user"></i> Hồ sơ
+            </a>
+            <a href="/wishlist" class="dropdown-item" role="menuitem">
+              <i class="fa-solid fa-heart"></i> Yêu thích (@wishlistCount)
+            </a>
+            <a href="/order" class="dropdown-item" role="menuitem">
+              <i class="fa-solid fa-box"></i> Đơn hàng
+            </a>
+            <div class="dropdown-divider"></div>
+            <a href="/account/logout" class="dropdown-item dropdown-item--danger" role="menuitem">
+              <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
+            </a>
+          </div>
+        </div>
+      }
+      else
+      {
+        <a href="/account/login" class="nav__icon-btn" id="loginToggle" aria-label="Đăng nhập">
+          <i class="fa-solid fa-circle-user" style="font-size:18px;"></i>
+        </a>
+      }
+
+      @* Hamburger *@
+      <button class="nav__hamburger" id="navToggle" aria-label="Mở menu di động" aria-expanded="false" aria-controls="navLinks">
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+      </button>
+    </div>
+  </nav>
+
+  </div>
+</header>
+
+@* Search overlay — Luxurious Full Screen Glassmorphism Edition *@
+<div class="search-overlay" id="searchOverlay" hidden role="search" aria-label="Tìm kiếm sản phẩm">
+  <button type="button" id="searchClose" class="search-close-btn" aria-label="Đóng tìm kiếm">
+    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+  </button>
+  <div class="search-overlay__content">
+    <div class="search-overlay__header">
+      <span class="search-overlay__subtitle">Vietduy Atelier</span>
+      <h2 class="search-overlay__title">TÌM KIẾM BỘ SƯU TẬP</h2>
+    </div>
+
+    <form action="/product" method="get" class="search-form">
+      <input type="search" name="q" id="searchInput" class="search-form__input"
+             placeholder="Nhập từ khóa tìm kiếm..." autocomplete="off" />
+      <button type="submit" class="search-form__submit" aria-label="Tìm kiếm">
+        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+      </button>
+    </form>
+
+    <div class="search-discover">
+      <div class="search-discover__col">
+        <span class="search-discover__title">Danh mục gợi ý</span>
+        <ul class="search-discover__list">
+          <li>
+            <a href="/product?q=Túi" class="search-discover__link">
+              <span class="search-discover__num">01</span>
+              <span class="search-discover__name">Túi Xách &amp; Đồ Da</span>
+            </a>
+          </li>
+          <li>
+            <a href="/product?q=Đồng+hồ" class="search-discover__link">
+              <span class="search-discover__num">02</span>
+              <span class="search-discover__name">Đồng Hồ Cao Cấp</span>
+            </a>
+          </li>
+          <li>
+            <a href="/product?q=Khăn" class="search-discover__link">
+              <span class="search-discover__num">03</span>
+              <span class="search-discover__name">Khăn Lụa &amp; Cashmere</span>
+            </a>
+          </li>
+          <li>
+            <a href="/product?q=Nước+hoa" class="search-discover__link">
+              <span class="search-discover__num">04</span>
+              <span class="search-discover__name">Nước Hoa Đặc Trưng</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="search-discover__col">
+        <span class="search-discover__title">Sản phẩm nổi bật</span>
+        <ul class="search-discover__list">
+          <li>
+            <a href="/product?q=Denim" class="search-discover__link">
+              <span class="search-discover__num">05</span>
+              <span class="search-discover__name">"Whenever" Denim Jacket</span>
+            </a>
+          </li>
+          <li>
+            <a href="/product?q=Montre" class="search-discover__link">
+              <span class="search-discover__num">06</span>
+              <span class="search-discover__name">Montre Squelette Watch</span>
+            </a>
+          </li>
+          <li>
+            <a href="/product?q=Chále" class="search-discover__link">
+              <span class="search-discover__num">07</span>
+              <span class="search-discover__name">Chále Cachemire Scarf</span>
+            </a>
+          </li>
+          <li>
+            <a href="/product?q=Atelier" class="search-discover__link">
+              <span class="search-discover__num">08</span>
+              <span class="search-discover__name">Atelier Special Collection</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* ── Dropdown ── */
+  .nav__user-dropdown { position: relative; }
+  .dropdown-menu {
+    position: absolute; top: calc(100% + 12px); right: 0;
+    background: var(--c-surface); border: 1px solid var(--c-border);
+    border-radius: var(--r-md); box-shadow: var(--sh-md);
+    min-width: 200px; z-index: var(--z-dropdown); overflow: hidden;
+    opacity: 0; transform: translateY(-8px); pointer-events: none;
+    transition: opacity var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out);
+  }
+  .dropdown-menu.is-open { opacity: 1; transform: none; pointer-events: auto; }
+  .dropdown-item {
+    display: flex; align-items: center; gap: var(--sp-3);
+    padding: 12px 16px; font-size: var(--fs-sm); font-weight: 300;
+    color: var(--c-ink-mid); text-decoration: none;
+    transition: all var(--dur-fast) var(--ease-out);
+  }
+  .dropdown-item:hover { background: var(--c-bg-alt); color: var(--c-ink); }
+  .dropdown-item i { width: 14px; font-size: 12px; }
+  .dropdown-item--danger:hover { color: var(--c-danger); }
+  .dropdown-divider { height: 1px; background: var(--c-border); margin: 4px 0; }
+
+  /* ── Mega trigger button ── (kept for CSS compatibility) */
+  .nav__link--mega-trigger {
+    background: none;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: var(--ff-body);
+    font-size: var(--fs-2xs);
+    font-weight: 400;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--c-ink-mid);
+    position: relative;
+    padding-bottom: 3px;
+    transition: color var(--dur-base) var(--ease-out);
+    cursor: pointer;
+  }
+</style>

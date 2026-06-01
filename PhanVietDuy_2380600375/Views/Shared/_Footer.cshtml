@@ -1,0 +1,88 @@
+<footer class="footer" role="contentinfo">
+  <div class="footer__grid">
+    @* Col 1 — Brand *@
+    <div class="footer__col">
+      <a href="/" class="footer__brand" aria-label="Vietduy Atelier">Vietduy</a>
+      <p class="footer__tagline">Vietduy Atelier depuis 1987.</p>
+      <address class="footer__address" style="font-style: normal;">
+        12 Rue du Faubourg Saint-Honoré<br />
+        Paris, 75008, France
+      </address>
+      <nav class="footer__social" aria-label="Mạng xã hội">
+        <a href="#" class="footer__social-link" aria-label="Facebook">
+          <i class="fa-brands fa-facebook-f" aria-hidden="true"></i>
+        </a>
+        <a href="#" class="footer__social-link" aria-label="Instagram">
+          <i class="fa-brands fa-instagram" aria-hidden="true"></i>
+        </a>
+        <a href="#" class="footer__social-link" aria-label="X (Twitter)">
+          <i class="fa-brands fa-x-twitter" aria-hidden="true"></i>
+        </a>
+        <a href="#" class="footer__social-link" aria-label="Pinterest">
+          <i class="fa-brands fa-pinterest-p" aria-hidden="true"></i>
+        </a>
+      </nav>
+    </div>
+
+    @* Col 2 — Navigation *@
+    <div class="footer__col">
+      <h3 class="footer__heading">Khám phá</h3>
+      <ul class="footer__list">
+        <li><a href="/product?category=tui-xach" class="footer__link">Túi xách</a></li>
+        <li><a href="/product?category=dong-ho" class="footer__link">Đồng hồ</a></li>
+        <li><a href="/product?category=trang-suc" class="footer__link">Trang sức</a></li>
+        <li><a href="/product?category=nuoc-hoa" class="footer__link">Nước hoa</a></li>
+        <li><a href="/product?category=lua-cashmere" class="footer__link">Lụa &amp; Cashmere</a></li>
+        <li><a href="/product" class="footer__link">Xem tất cả</a></li>
+      </ul>
+    </div>
+
+    @* Col 3 — Contact *@
+    <div class="footer__col">
+      <h3 class="footer__heading">Liên hệ</h3>
+      <ul class="footer__list footer__list--contact">
+        <li>
+          <i class="fa-solid fa-phone" aria-hidden="true"></i>
+          <a href="tel:+33142650000" class="footer__link">+33 1 42 65 00 00</a>
+        </li>
+        <li>
+          <i class="fa-solid fa-envelope" aria-hidden="true"></i>
+          <a href="mailto:contact@vietduy.com" class="footer__link">contact@vietduy.com</a>
+        </li>
+        <li>
+          <i class="fa-solid fa-clock" aria-hidden="true"></i>
+          <span>Thứ 2 – Thứ 7, 9:00 – 18:00</span>
+        </li>
+        <li>
+          <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+          <a href="/contact" class="footer__link">Xem bản đồ</a>
+        </li>
+      </ul>
+
+      <h3 class="footer__heading" style="margin-top: 28px;">Nhận tin tức</h3>
+      <form action="/newsletter/subscribe" method="post" id="footerNewsletterForm">
+        @Html.AntiForgeryToken()
+        <label for="footerEmail" class="sr-only">Email đăng ký nhận tin</label>
+        <input type="email" name="email" id="footerEmail"
+               class="footer__newsletter-input"
+               placeholder="email@example.com" required
+               aria-label="Email đăng ký" />
+        <button type="submit" class="footer__newsletter-btn">Đăng ký</button>
+      </form>
+    </div>
+  </div>
+
+  @* Bottom bar *@
+  <div class="footer__bottom">
+    <p class="footer__copy">
+      &copy; @DateTime.Now.Year Vietduy Atelier. Mọi quyền được bảo lưu.
+    </p>
+    <nav class="footer__legal" aria-label="Pháp lý">
+      <a href="/chinh-sach-bao-mat">Chính sách bảo mật</a>
+      <span aria-hidden="true">·</span>
+      <a href="/dieu-khoan-su-dung">Điều khoản sử dụng</a>
+      <span aria-hidden="true">·</span>
+      <a href="/cookie">Cookie</a>
+    </nav>
+  </div>
+</footer>

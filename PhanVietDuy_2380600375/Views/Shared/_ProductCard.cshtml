@@ -1,0 +1,78 @@
+@* _ProductCard.cshtml — Reusable product card partial
+   Model: ProductListItem (or any object with required properties)
+*@
+@using PhanVietDuy_2380600375.Models.ViewModels
+@using PhanVietDuy_2380600375.Models.DTOs
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+@model ProductListItem
+
+@{
+  var badge = Model.Badge;
+  var badgeClass = badge switch {
+    "Mới" => "product-card__badge",
+    "Limited" => "product-card__badge product-card__badge--gold",
+    "Exclusive" => "product-card__badge product-card__badge--gold",
+    "Sale" => "product-card__badge product-card__badge--danger",
+    _ => "product-card__badge"
+  };
+  var price = Model.Price.ToString("C0", new System.Globalization.CultureInfo("vi-VN"));
+
+  var wishlistCookie = HttpContextAccessor.HttpContext?.Request.Cookies["Wishlist"] ?? "";
+  var isWishlisted = wishlistCookie.Split(',').Select(s => int.TryParse(s, out int id) ? id : 0).Contains(Model.Id);
+}
+
+<a href="/product/@Model.Slug" class="product-card reveal" aria-label="@Model.Name">
+  <div class="product-card__inner">
+    <!-- Cột Hình ảnh -->
+    <div class="product-card__col-media">
+      <div class="product-card__media">
+        <img
+          src="@(Model.ThumbnailUrl ?? "/images/placeholder-product.webp")"
+          alt="@Model.Name"
+          class="product-card__img"
+          width="600" height="450"
+          loading="lazy" />
+
+        @if (!Model.IsActive)
+        {
+          <span class="product-card__badge product-card__badge--danger" style="background:#dc3545;color:#fff" aria-label="Tạm hết hàng">Hết hàng</span>
+        }
+        else if (!string.IsNullOrEmpty(badge))
+        {
+          <span class="@badgeClass" aria-label="@badge">@badge</span>
+        }
+
+        <div class="product-card__overlay" aria-hidden="true">
+          <button class="product-card__quick"
+                  data-product-id="@Model.Id"
+                  tabindex="-1"
+                  type="button">
+            Xem nhanh
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cột Nội dung -->
+    <div class="product-card__col-body">
+      <div class="product-card__body">
+        <p class="product-card__cat">@Model.CategoryName</p>
+        <h3 class="product-card__name">@Model.Name</h3>
+        @if (!string.IsNullOrEmpty(Model.ShortDesc))
+        {
+          <p class="product-card__desc">@Model.ShortDesc</p>
+        }
+        <div class="product-card__footer">
+          <span class="product-card__price">@price</span>
+          <button class="product-card__wish btn-icon @(isWishlisted ? "is-active" : "")"
+                  data-product-id="@Model.Id"
+                  aria-label="Thêm @Model.Name vào yêu thích"
+                  type="button">
+            <i class="@(isWishlisted ? "fa-solid fa-heart" : "fa-regular fa-heart")" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</a>

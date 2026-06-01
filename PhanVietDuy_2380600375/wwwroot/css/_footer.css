@@ -1,0 +1,224 @@
+/* ============================================================
+   VIETDUY LUXURY ATELIER — Footer
+   ============================================================ */
+
+.footer {
+  background: var(--c-bg-dark);
+  color: var(--c-bg);
+  margin-top: 120px;
+}
+
+/* ── Main grid ── */
+.footer__grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr;
+  gap: var(--sp-8);
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: 80px 60px 64px;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+/* ── Brand column ── */
+.footer__brand {
+  display: block;
+  font-family: var(--ff-display);
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  color: var(--c-bg);
+  margin-bottom: var(--sp-3);
+}
+
+.footer__tagline {
+  font-family: var(--ff-display);
+  font-style: italic;
+  font-size: var(--fs-base);
+  color: var(--c-gold-lt);
+  margin-bottom: var(--sp-4);
+}
+
+.footer__address {
+  font-size: var(--fs-sm);
+  font-weight: 300;
+  color: rgba(247,245,242,.4);
+  line-height: 1.9;
+}
+
+/* ── Social icons ── */
+.footer__social {
+  display: flex;
+  gap: var(--sp-2);
+  margin-top: var(--sp-5);
+}
+
+.footer__social-link {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255,255,255,.15);
+  border-radius: 50%;
+  color: rgba(247,245,242,.5);
+  font-size: 13px;
+  transition: all var(--dur-base) var(--ease-out);
+}
+
+.footer__social-link:hover {
+  background: rgba(255,255,255,.1);
+  color: var(--c-bg);
+  border-color: rgba(255,255,255,.3);
+}
+
+/* ── Nav columns ── */
+.footer__heading {
+  font-size: var(--fs-2xs);
+  font-weight: 400;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  color: var(--c-gold);
+  margin-bottom: var(--sp-5);
+}
+
+.footer__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.footer__link {
+  font-size: var(--fs-sm);
+  font-weight: 300;
+  color: rgba(247,245,242,.5);
+  transition: color var(--dur-base) var(--ease-out);
+}
+
+.footer__link:hover {
+  color: var(--c-bg);
+}
+
+/* ── Contact list ── */
+.footer__list--contact li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+  font-size: var(--fs-sm);
+  font-weight: 300;
+  color: rgba(247,245,242,.5);
+}
+
+.footer__list--contact i {
+  color: var(--c-gold);
+  font-size: 11px;
+  width: 14px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* ── Newsletter inside footer ── */
+.footer__newsletter-input {
+  width: 100%;
+  font-family: var(--ff-body);
+  font-size: var(--fs-sm);
+  font-weight: 300;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.15);
+  border-radius: var(--r-sm);
+  padding: 10px 14px;
+  color: var(--c-bg);
+  outline: none;
+  margin-bottom: var(--sp-2);
+  transition: border-color var(--dur-fast) var(--ease-out);
+}
+
+.footer__newsletter-input::placeholder {
+  color: rgba(247,245,242,.3);
+}
+
+.footer__newsletter-input:focus {
+  border-color: var(--c-gold);
+}
+
+.footer__newsletter-btn {
+  width: 100%;
+  font-family: var(--ff-body);
+  font-size: var(--fs-2xs);
+  font-weight: 400;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  background: var(--c-gold);
+  color: #fff;
+  border: none;
+  border-radius: var(--r-sm);
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out);
+}
+
+.footer__newsletter-btn:hover {
+  background: var(--c-gold-dk);
+}
+
+/* ── Bottom bar ── */
+.footer__bottom {
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: 20px 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+}
+
+.footer__copy {
+  font-size: var(--fs-2xs);
+  font-weight: 300;
+  color: rgba(247,245,242,.28);
+}
+
+.footer__legal {
+  display: flex;
+  gap: var(--sp-5);
+  align-items: center;
+}
+
+.footer__legal a {
+  font-size: var(--fs-2xs);
+  font-weight: 300;
+  color: rgba(247,245,242,.28);
+  transition: color var(--dur-base) var(--ease-out);
+}
+
+.footer__legal a:hover {
+  color: rgba(247,245,242,.7);
+}
+
+.footer__legal span {
+  color: rgba(247,245,242,.15);
+}
+
+/* ── Responsive ── */
+@media (max-width: 1024px) {
+  .footer__grid {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--sp-7);
+    padding: 60px 40px 48px;
+  }
+}
+
+@media (max-width: 768px) {
+  .footer {
+    margin-top: 60px;
+  }
+  .footer__grid {
+    grid-template-columns: 1fr;
+    gap: var(--sp-7);
+    padding: 60px 24px 48px;
+  }
+  .footer__bottom {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px 24px;
+  }
+}

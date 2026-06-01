@@ -1,0 +1,17 @@
+@{
+    ViewData["Title"] = "Lỗi";
+}
+<div class="container" style="text-align:center;padding:var(--sp-11) 24px">
+  <div class="section-tag">Lỗi</div>
+  <h1 class="section-title" style="font-size:8rem;margin-bottom:var(--sp-2)">@(ViewData.ContainsKey("Code") ? ViewData["Code"] : "!")</h1>
+  <h2 style="font-family:var(--ff-display);font-size:var(--fs-display-md);font-weight:300;margin-bottom:var(--sp-4)">
+    @(ViewData.ContainsKey("Title") ? ViewData["Title"] : "Có lỗi xảy ra")
+  </h2>
+  <p style="font-size:var(--fs-base);font-weight:300;color:var(--c-ink-mid);margin-bottom:var(--sp-7);max-width:52ch;margin-left:auto;margin-right:auto">
+    @(ViewData.ContainsKey("Message") ? ViewData["Message"] : "Vui lòng thử lại hoặc quay lại trang chủ.")
+  </p>
+  <div style="display:flex;gap:var(--sp-4);justify-content:center">
+    <a href="/" class="btn btn--solid">Về trang chủ</a>
+    <a href="/product" class="btn btn--outline">Xem sản phẩm</a>
+  </div>
+</div>

@@ -1,0 +1,69 @@
+@using PhanVietDuy_2380600375.Models.ViewModels
+@model AdminEditUserViewModel
+@{
+  ViewData["Title"] = "Chỉnh sửa người dùng";
+  Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+  var allRoles = ViewBag.AllRoles as List<string> ?? new List<string>();
+}
+
+<div class="admin-card reveal" style="max-width:600px;margin:0 auto">
+  <div class="admin-card__header">
+    <h2 class="admin-card__title">Chỉnh sửa tài khoản</h2>
+  </div>
+  <div class="admin-card__body">
+    <form method="post" class="form-stack">
+      <input type="hidden" asp-for="Id" />
+      <div asp-validation-summary="ModelOnly" class="validation-summary" role="alert"></div>
+
+      <div class="form__group">
+        <label asp-for="FullName" class="form__label">Họ và tên <span style="color:var(--c-gold)">*</span></label>
+        <input asp-for="FullName" class="form__input" />
+        <span asp-validation-for="FullName" class="form__error"></span>
+      </div>
+
+      <div class="form__group">
+        <label asp-for="Age" class="form__label">Tuổi</label>
+        <input asp-for="Age" type="number" class="form__input" />
+        <span asp-validation-for="Age" class="form__error"></span>
+      </div>
+
+      <div class="form__group">
+        <label asp-for="Address" class="form__label">Địa chỉ</label>
+        <input asp-for="Address" class="form__input" />
+        <span asp-validation-for="Address" class="form__error"></span>
+      </div>
+
+      <div class="form__group">
+        <label asp-for="City" class="form__label">Tỉnh / Thành phố</label>
+        <input asp-for="City" class="form__input" />
+        <span asp-validation-for="City" class="form__error"></span>
+      </div>
+
+      <div class="form__group">
+        <label class="form__label">Phân quyền vai trò</label>
+        <div style="display:flex;flex-direction:column;gap:12px;background:var(--c-bg-alt);padding:16px;border:1px solid var(--c-border);border-radius:var(--r-sm)">
+          @foreach (var role in allRoles)
+          {
+            <label class="form__checkbox" style="margin:0">
+              <input type="checkbox" name="SelectedRoles" value="@role"
+                     @(Model.SelectedRoles.Contains(role) ? "checked" : "") />
+              <span class="form__checkbox-label">@role</span>
+            </label>
+          }
+        </div>
+      </div>
+
+      <div class="form__group" style="margin-top:20px;margin-bottom:24px">
+        <label class="form__checkbox">
+          <input asp-for="IsActive" type="checkbox" />
+          <span class="form__checkbox-label">Kích hoạt tài khoản người dùng</span>
+        </label>
+      </div>
+
+      <div style="display:flex;gap:12px;margin-top:var(--sp-6)">
+        <button type="submit" class="btn btn--gold">Lưu lại</button>
+        <a href="/admin/nguoi-dung/detail/@Model.Id" class="btn btn--ghost">Quay lại chi tiết</a>
+      </div>
+    </form>
+  </div>
+</div>

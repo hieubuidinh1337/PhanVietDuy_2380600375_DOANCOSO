@@ -1,0 +1,278 @@
+/* ============================================================
+   VIETDUY LUXURY ATELIER — Sidebar Widgets
+   ============================================================ */
+
+.sidebar {
+  position: sticky;
+  top: calc(var(--nav-h) + var(--filter-h) + var(--sp-6));
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-6);
+}
+
+/* ── Widget base ── */
+.widget {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-md);
+  padding: var(--sp-6);
+}
+
+.widget__title {
+  font-size: var(--fs-2xs);
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--c-ink-mid);
+  margin-bottom: var(--sp-4);
+  padding-bottom: var(--sp-3);
+  border-bottom: 1px solid var(--c-border);
+}
+
+/* ── About widget ── */
+.widget-about__text {
+  font-size: var(--fs-sm);
+  font-weight: 300;
+  color: var(--c-ink-mid);
+  line-height: 1.75;
+  margin-bottom: var(--sp-4);
+}
+
+/* ── Services list ── */
+.widget-services {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.service-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+}
+
+.service-item__icon {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  color: var(--c-gold);
+  font-size: 14px;
+  flex-shrink: 0;
+  background: rgba(184,150,62,0.08);
+  border-radius: var(--r-sm);
+}
+
+.service-item__name {
+  font-size: var(--fs-sm);
+  font-weight: 400;
+  color: var(--c-ink);
+  margin-bottom: 2px;
+}
+
+.service-item__desc {
+  font-size: var(--fs-xs);
+  font-weight: 300;
+  color: var(--c-ink-lt);
+  line-height: 1.5;
+}
+
+/* ── Newsletter widget ── */
+.widget-newsletter .form__inline {
+  gap: 0;
+}
+
+.widget-newsletter .form__input {
+  border-radius: var(--r-sm) 0 0 var(--r-sm);
+  border-right: none;
+  font-size: var(--fs-sm);
+  padding: 10px 12px;
+}
+
+.widget-newsletter .btn {
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+  padding: 10px 16px;
+  font-size: 11px;
+}
+
+/* ── Social links ── */
+.widget-social {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.social-link {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--r-sm);
+  color: var(--c-ink-mid);
+  font-size: var(--fs-sm);
+  font-weight: 300;
+  transition: all var(--dur-fast) var(--ease-out);
+  text-decoration: none;
+}
+
+.social-link:hover {
+  background: var(--c-bg-alt);
+  color: var(--c-ink);
+}
+
+.social-link__icon {
+  width: 20px;
+  font-size: 13px;
+  color: var(--c-ink-lt);
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.social-link:hover .social-link__icon {
+  color: var(--c-ink);
+}
+
+.social-link__arrow {
+  margin-left: auto;
+  font-size: 10px;
+  opacity: 0;
+  transform: translateX(-4px);
+  color: var(--c-ink-lt);
+  transition:
+    opacity   var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+
+.social-link:hover .social-link__arrow {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* ── Price range filter ── */
+.price-range-widget {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.price-range__labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--fs-sm);
+  font-weight: 300;
+  color: var(--c-ink-mid);
+}
+
+.price-range__track {
+  position: relative;
+  height: 2px;
+  background: var(--c-border);
+  border-radius: var(--r-full);
+}
+
+.price-range__fill {
+  position: absolute;
+  height: 100%;
+  background: var(--c-gold);
+  border-radius: var(--r-full);
+}
+
+input[type=range].price-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 2px;
+  background: transparent;
+  position: absolute;
+  top: -1px;
+  outline: none;
+  margin: 0;
+}
+
+input[type=range].price-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--c-surface);
+  border: 2px solid var(--c-gold);
+  cursor: pointer;
+  transition: transform var(--dur-fast) var(--ease-spring);
+}
+
+input[type=range].price-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+@media (max-width: 1024px) {
+  .sidebar {
+    position: static;
+    display: none; /* Hide on tablet/mobile - show inline toggle */
+  }
+}
+
+/* ── UPGRADE 3: Luxury Sidebar Services Widget ── */
+.sidebar-widget {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 4px;
+  padding: var(--sp-6);
+}
+
+.sidebar-widget__label {
+  display: block;
+  font-size: 10px; font-weight: 400;
+  letter-spacing: .2em; text-transform: uppercase;
+  color: var(--c-ink-lt);
+  margin-bottom: 6px;
+}
+
+.sidebar-widget__title {
+  font-family: var(--ff-display, 'Cormorant Garamond', serif);
+  font-size: 1.4rem; font-weight: 400;
+  color: var(--c-ink);
+  margin-bottom: 4px;
+}
+
+.sidebar-services {
+  display: flex;
+  flex-direction: column;
+  margin-top: 12px;
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar-service {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--c-border);
+  transition: background 180ms ease, padding-left 180ms ease;
+}
+.sidebar-service:last-child { border-bottom: none; }
+.sidebar-service:hover { padding-left: 4px; }
+
+.sidebar-service__icon {
+  width: 28px;
+  flex-shrink: 0;
+  color: var(--c-gold);
+  font-size: 13px;
+  margin-top: 2px;
+  text-align: center;
+  transition: transform 200ms ease;
+}
+.sidebar-service:hover .sidebar-service__icon { transform: scale(1.15); }
+
+.sidebar-service__body { flex: 1; }
+
+.sidebar-service__title {
+  font-size: 13px; font-weight: 500;
+  color: var(--c-ink);
+  margin-bottom: 3px;
+}
+.sidebar-service__sub {
+  font-size: 11px; font-weight: 300;
+  color: var(--c-ink-lt);
+  line-height: 1.5;
+}

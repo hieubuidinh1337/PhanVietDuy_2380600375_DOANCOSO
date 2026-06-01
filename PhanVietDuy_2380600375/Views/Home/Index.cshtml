@@ -1,0 +1,1723 @@
+@using PhanVietDuy_2380600375.Models.ViewModels
+@model HomeViewModel
+@{
+  ViewData["Title"] = "Trang chủ";
+  ViewData["Page"]  = "home";
+  ViewData["Description"] = "Vietduy Atelier — Nghề thủ công tinh xảo từ Paris, 1987.";
+}
+
+@* ══════════════════════════════════════════════════════════════════════
+   LUXURY OVERRIDES & NEW DESIGN SYSTEM — embedded per-page
+   ══════════════════════════════════════════════════════════════════════ *@
+<style>
+  /* ── Google Fonts ─────────────────────────────────────────────────── */
+  @@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Jost:wght@200;300;400;500&display=swap');
+
+  /* ── Root tokens ──────────────────────────────────────────────────── */
+  :root {
+    --ink:       #100e0c;
+    --ink-soft:  #3a3530;
+    --ink-faint: #7a7068;
+    --cream:     #f7f3ec;
+    --ivory:     #fdfaf5;
+    --gold:      #b8975a;
+    --gold-lt:   #d4b87a;
+    --gold-dk:   #8a6e3c;
+    --onyx:      #1c1916;
+    --charcoal:  #2e2a26;
+
+    --ff-display: 'Playfair Display', Georgia, serif;
+    --ff-body:    'Cormorant Garamond', Georgia, serif;
+    --ff-sans:    'Jost', sans-serif;
+
+    --ease-silk:  cubic-bezier(.16,1,.3,1);
+    --ease-out:   cubic-bezier(.22,1,.36,1);
+    --ease-expo:  cubic-bezier(.87,0,.13,1);
+
+    --sp-1: .25rem; --sp-2: .5rem;  --sp-3: .75rem; --sp-4: 1rem;
+    --sp-5: 1.25rem;--sp-6: 1.5rem; --sp-8: 2rem;   --sp-10:2.5rem;
+    --sp-12:3rem;   --sp-16:4rem;   --sp-20:5rem;   --sp-24:6rem;
+    --sp-32:8rem;
+
+    --radius-sm: 2px;
+    --radius:    4px;
+  }
+
+  /* ── Base resets ──────────────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+
+  body {
+    font-family: var(--ff-body);
+    background: var(--ivory);
+    color: var(--ink);
+    overflow-x: hidden;
+  }
+
+  img { display: block; max-width: 100%; }
+  a   { text-decoration: none; color: inherit; }
+
+  /* ── Utility ──────────────────────────────────────────────────────── */
+  .container { max-width: 1360px; margin: 0 auto; padding: 0 var(--sp-8); }
+  .sr-only   { position:absolute;width:1px;height:1px;clip:rect(0,0,0,0);overflow:hidden; }
+
+  /* ── Custom cursor dot ────────────────────────────────────────────── */
+  #cursor-dot {
+    position: fixed;
+    top: 0; left: 0;
+    width: 8px; height: 8px;
+    background: var(--gold);
+    border-radius: 50%;
+    pointer-events: none;
+    transform: translate(-50%,-50%);
+    transition: transform .12s var(--ease-silk), opacity .3s;
+    z-index: 9999;
+    mix-blend-mode: multiply;
+  }
+  #cursor-ring {
+    position: fixed;
+    top: 0; left: 0;
+    width: 36px; height: 36px;
+    border: 1px solid rgba(184,151,90,.5);
+    border-radius: 50%;
+    pointer-events: none;
+    transform: translate(-50%,-50%);
+    transition: transform .45s var(--ease-silk), width .3s var(--ease-silk),
+                height .3s var(--ease-silk), opacity .3s;
+    z-index: 9999;
+  }
+  body:has(a:hover) #cursor-ring,
+  body:has(button:hover) #cursor-ring {
+    width: 64px; height: 64px;
+    border-color: var(--gold);
+  }
+
+  /* ── Scroll reveal system ────────────────────────────────────────── */
+  .reveal,
+  .reveal-fade,
+  .reveal-clip,
+  .reveal-up,
+  .reveal-line {
+    opacity: 0;
+    transition: opacity .9s var(--ease-silk), transform .9s var(--ease-silk);
+  }
+  .reveal-fade { transform: translateY(30px); }
+  .reveal-up   { transform: translateY(50px); }
+  .reveal-clip { transform: translateY(40px) scale(.98); }
+  .reveal-line { transform: scaleX(0); transform-origin: left; opacity: 1; }
+
+  .is-visible.reveal-fade,
+  .is-visible.reveal-clip,
+  .is-visible.reveal-up  { opacity: 1; transform: none; }
+  .is-visible.reveal-line{ transform: scaleX(1); }
+
+  [style*="--reveal-delay"] { transition-delay: var(--reveal-delay, 0ms); }
+  [style*="--card-delay"]   { transition-delay: var(--card-delay, 0ms); }
+
+  /* ── Global section rhythm ───────────────────────────────────────── */
+  .section-eyebrow {
+    display: block;
+    font-family: var(--ff-sans);
+    font-size: .6875rem;
+    font-weight: 400;
+    letter-spacing: .22em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: var(--sp-4);
+  }
+  .section-title {
+    font-family: var(--ff-display);
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    font-weight: 400;
+    line-height: 1.1;
+    color: var(--ink);
+    margin-bottom: var(--sp-6);
+  }
+  .section-title em { font-style: italic; color: var(--gold); }
+  .section-header   { text-align: center; max-width: 640px; margin: 0 auto var(--sp-16); }
+
+  .reveal-rule {
+    width: 40px; height: 1px;
+    background: var(--gold);
+    margin: var(--sp-6) auto 0;
+    transform: scaleX(0);
+    transform-origin: center;
+    transition: transform 1.2s var(--ease-silk) .3s;
+  }
+  .is-visible .reveal-rule { transform: scaleX(1); }
+
+  /* ── Buttons ─────────────────────────────────────────────────────── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-3);
+    font-family: var(--ff-sans);
+    font-size: .6875rem;
+    font-weight: 400;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    padding: .9em 2.4em;
+    border-radius: 0;
+    transition: all .4s var(--ease-silk);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--gold);
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform .45s var(--ease-expo);
+    z-index: 0;
+  }
+  .btn:hover::before { transform: scaleX(1); transform-origin: left; }
+  .btn span, .btn > * { position: relative; z-index: 1; }
+
+  .btn--solid {
+    background: var(--ink);
+    color: var(--cream);
+    border: 1px solid var(--ink);
+  }
+  .btn--solid:hover { color: var(--ink); border-color: var(--gold); }
+
+  .btn--ghost {
+    background: transparent;
+    color: var(--ink);
+    border: 1px solid currentColor;
+  }
+  .btn--ghost:hover { color: var(--ink); border-color: var(--gold); }
+
+  .btn--ghost-light {
+    background: transparent;
+    color: var(--cream);
+    border: 1px solid rgba(247,243,236,.4);
+  }
+  .btn--ghost-light:hover { color: var(--ink); border-color: var(--gold); }
+
+  /* ══════════════════════════════════════════════════════════════════
+     HERO
+     ══════════════════════════════════════════════════════════════════ */
+  .hero-home {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 100svh;
+    background: var(--onyx);
+    overflow: hidden;
+  }
+
+  /* left panel */
+  .hero-home__left {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: var(--sp-20) var(--sp-16) var(--sp-20) clamp(var(--sp-8), 7vw, var(--sp-24));
+    position: relative;
+    z-index: 2;
+  }
+
+  .hero-home__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-3);
+    font-family: var(--ff-sans);
+    font-size: .625rem;
+    font-weight: 300;
+    letter-spacing: .28em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: var(--sp-8);
+  }
+  .hero-home__eyebrow::before {
+    content: '';
+    display: inline-block;
+    width: 28px; height: 1px;
+    background: var(--gold);
+  }
+
+  .hero-home__title {
+    font-family: var(--ff-display);
+    font-size: clamp(3rem, 6.5vw, 7rem);
+    font-weight: 400;
+    line-height: .98;
+    color: var(--cream);
+    letter-spacing: -.02em;
+    margin-bottom: var(--sp-8);
+  }
+  .hero-home__title em {
+    font-style: italic;
+    color: var(--gold-lt);
+    display: block;
+  }
+
+  .hero-home__sub {
+    font-family: var(--ff-body);
+    font-size: clamp(1rem, 1.4vw, 1.25rem);
+    font-weight: 300;
+    line-height: 1.7;
+    color: rgba(247,243,236,.6);
+    margin-bottom: var(--sp-10);
+    max-width: 340px;
+  }
+
+  .hero-home__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-4);
+    margin-bottom: var(--sp-16);
+  }
+
+  /* stats */
+  .hero-home__stats {
+    display: flex;
+    gap: var(--sp-10);
+    padding-top: var(--sp-8);
+    border-top: 1px solid rgba(247,243,236,.1);
+  }
+  .hero-stat__num {
+    display: block;
+    font-family: var(--ff-display);
+    font-size: clamp(1.5rem, 2.5vw, 2.25rem);
+    font-weight: 400;
+    color: var(--gold-lt);
+    line-height: 1;
+    margin-bottom: .3em;
+  }
+  .hero-stat__label {
+    display: block;
+    font-family: var(--ff-sans);
+    font-size: .625rem;
+    font-weight: 300;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: rgba(247,243,236,.45);
+  }
+
+  /* right image panel */
+  .hero-home__right {
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-home__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 20%;
+    transform: scale(1.06);
+    transition: transform 12s var(--ease-silk);
+  }
+  .hero-home__right:hover .hero-home__img { transform: scale(1); }
+
+  .hero-home__overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to right,
+      rgba(28,25,22,.35) 0%,
+      transparent 60%
+    );
+  }
+
+  .hero-home__badge {
+    position: absolute;
+    bottom: var(--sp-10);
+    right: var(--sp-10);
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    font-family: var(--ff-sans);
+    font-size: .6rem;
+    font-weight: 300;
+    letter-spacing: .22em;
+    text-transform: uppercase;
+    color: rgba(247,243,236,.6);
+    padding: var(--sp-3) var(--sp-5);
+    border: 1px solid rgba(247,243,236,.2);
+    backdrop-filter: blur(12px);
+    background: rgba(28,25,22,.4);
+  }
+  .hero-home__badge-dot { color: var(--gold); }
+
+  /* scroll indicator */
+  .hero-scroll {
+    position: absolute;
+    bottom: var(--sp-8);
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--sp-2);
+    z-index: 5;
+  }
+  .hero-scroll__line {
+    width: 1px;
+    height: 56px;
+    background: linear-gradient(to bottom, var(--gold), transparent);
+    animation: scrollPulse 2.4s var(--ease-silk) infinite;
+  }
+  @@keyframes scrollPulse {
+    0%   { transform: scaleY(0); transform-origin: top; opacity: 0; }
+    50%  { opacity: 1; }
+    100% { transform: scaleY(1); transform-origin: top; opacity: 0; }
+  }
+
+  /* ── Hero load animations ─────────────────────────────────────────── */
+  .hero-home__left > * {
+    opacity: 0;
+    transform: translateY(24px);
+    animation: heroIn .9s var(--ease-silk) forwards;
+  }
+  .hero-home__eyebrow { animation-delay: .2s; }
+  .hero-home__title   { animation-delay: .38s; }
+  .hero-home__sub     { animation-delay: .52s; }
+  .hero-home__actions { animation-delay: .64s; }
+  .hero-home__stats   { animation-delay: .78s; }
+
+  .hero-home__right {
+    opacity: 0;
+    animation: heroFadeIn 1.2s var(--ease-silk) .1s forwards;
+  }
+  @@keyframes heroIn     { to { opacity: 1; transform: none; } }
+  @@keyframes heroFadeIn { to { opacity: 1; } }
+
+  /* ══════════════════════════════════════════════════════════════════
+     MARQUEE
+     ══════════════════════════════════════════════════════════════════ */
+  .marquee {
+    background: var(--gold);
+    overflow: hidden;
+    padding: var(--sp-4) 0;
+  }
+  .marquee__track {
+    display: flex;
+    width: max-content;
+    animation: marqueeRoll 32s linear infinite;
+  }
+  .marquee:hover .marquee__track { animation-play-state: paused; }
+  @@keyframes marqueeRoll { to { transform: translateX(-50%); } }
+
+  .marquee__item {
+    font-family: var(--ff-sans);
+    font-size: .625rem;
+    font-weight: 400;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: var(--onyx);
+    white-space: nowrap;
+    padding: 0 var(--sp-5);
+  }
+  .marquee__sep {
+    color: var(--onyx);
+    opacity: .5;
+    align-self: center;
+    font-size: .5rem;
+  }
+
+  /* ══════════════════════════════════════════════════════════════════
+     COLLECTIONS
+     ══════════════════════════════════════════════════════════════════ */
+  .collections {
+    padding: var(--sp-32) 0;
+    background: var(--ivory);
+  }
+
+  .collections-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr;
+    grid-template-rows: auto;
+    gap: var(--sp-4);
+  }
+
+  .coll-card {
+    position: relative;
+    overflow: hidden;
+    display: block;
+    background: var(--charcoal);
+  }
+  .coll-card--portrait { grid-row: span 2; aspect-ratio: 3/4; }
+  .coll-card--square   { aspect-ratio: 1; }
+  .coll-card--medium   { aspect-ratio: 4/3; }
+
+  .coll-card__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform .9s var(--ease-silk), filter .9s;
+    filter: brightness(.88);
+  }
+  .coll-card:hover .coll-card__img { transform: scale(1.07); filter: brightness(.75); }
+
+  .coll-card__overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to top,
+      rgba(16,14,12,.85) 0%,
+      rgba(16,14,12,.1) 55%,
+      transparent 100%
+    );
+    transition: opacity .5s;
+  }
+
+  .coll-card__body {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    padding: var(--sp-8) var(--sp-6);
+    transform: translateY(8px);
+    transition: transform .5s var(--ease-silk);
+  }
+  .coll-card:hover .coll-card__body { transform: none; }
+
+  .coll-card__tag {
+    display: block;
+    font-family: var(--ff-sans);
+    font-size: .5625rem;
+    font-weight: 300;
+    letter-spacing: .22em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: var(--sp-2);
+  }
+  .coll-card__name {
+    font-family: var(--ff-display);
+    font-size: clamp(1.25rem, 2.5vw, 2rem);
+    font-weight: 400;
+    color: var(--cream);
+    line-height: 1.1;
+    margin-bottom: var(--sp-4);
+  }
+  .coll-card__link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-2);
+    font-family: var(--ff-sans);
+    font-size: .625rem;
+    font-weight: 400;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--gold-lt);
+    opacity: 0;
+    transform: translateX(-8px);
+    transition: opacity .4s .1s, transform .4s .1s var(--ease-silk);
+  }
+  .coll-card:hover .coll-card__link { opacity: 1; transform: none; }
+
+  /* ══════════════════════════════════════════════════════════════════
+     STORY / BRAND NARRATIVE
+     ══════════════════════════════════════════════════════════════════ */
+  .story {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 80vh;
+    background: var(--cream);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .story__img-wrap {
+    position: relative;
+    overflow: hidden;
+  }
+  .story__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  .editorial-caption {
+    position: absolute;
+    bottom: var(--sp-6);
+    left: var(--sp-6);
+    font-family: var(--ff-sans);
+    font-size: .5625rem;
+    font-weight: 300;
+    letter-spacing: .22em;
+    text-transform: uppercase;
+    color: rgba(247,243,236,.6);
+    padding: var(--sp-2) var(--sp-4);
+    border: 1px solid rgba(247,243,236,.2);
+    backdrop-filter: blur(8px);
+    background: rgba(16,14,12,.5);
+  }
+
+  .story__content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: var(--sp-20) clamp(var(--sp-8), 7vw, var(--sp-24)) var(--sp-20) var(--sp-16);
+    position: relative;
+  }
+
+  .story__eyebrow {
+    font-family: var(--ff-sans);
+    font-size: .5625rem;
+    font-weight: 300;
+    letter-spacing: .32em;
+    text-transform: uppercase;
+    color: var(--gold);
+    display: block;
+    margin-bottom: var(--sp-8);
+  }
+
+  .story__quote {
+    font-family: var(--ff-display);
+    font-size: clamp(1.5rem, 3vw, 2.5rem);
+    font-weight: 400;
+    font-style: italic;
+    line-height: 1.35;
+    color: var(--ink);
+    margin-bottom: var(--sp-8);
+    padding-left: var(--sp-6);
+    border-left: 2px solid var(--gold);
+  }
+  .story__quote em { color: var(--gold-dk); }
+
+  .story__text {
+    font-family: var(--ff-body);
+    font-size: clamp(1rem, 1.3vw, 1.125rem);
+    font-weight: 300;
+    line-height: 1.85;
+    color: var(--ink-soft);
+    margin-bottom: var(--sp-10);
+    max-width: 440px;
+  }
+
+  .story__since {
+    position: absolute;
+    bottom: var(--sp-12);
+    right: var(--sp-8);
+    font-family: var(--ff-display);
+    font-size: clamp(4rem, 9vw, 10rem);
+    font-weight: 900;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(184,151,90,.15);
+    line-height: 1;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  /* ══════════════════════════════════════════════════════════════════
+     CRAFT PROCESS (NEW SECTION)
+     ══════════════════════════════════════════════════════════════════ */
+  .craft {
+    padding: var(--sp-32) 0;
+    background: var(--onyx);
+    position: relative;
+    overflow: hidden;
+  }
+  .craft::before {
+    content: 'ATELIER';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    font-family: var(--ff-display);
+    font-size: clamp(6rem, 16vw, 18rem);
+    font-weight: 900;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(184,151,90,.06);
+    pointer-events: none;
+    white-space: nowrap;
+  }
+
+  .craft .container { position: relative; }
+
+  .craft .section-title { color: var(--cream); }
+  .craft .section-eyebrow { color: var(--gold); }
+
+  .craft-steps {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--sp-px, 1px);
+    margin-top: var(--sp-16);
+    border: 1px solid rgba(184,151,90,.15);
+  }
+
+  .craft-step {
+    padding: var(--sp-10) var(--sp-8);
+    border-right: 1px solid rgba(184,151,90,.1);
+    position: relative;
+    overflow: hidden;
+    transition: background .4s var(--ease-silk);
+  }
+  .craft-step:last-child { border-right: none; }
+  .craft-step::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 100%; height: 2px;
+    background: var(--gold);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform .5s var(--ease-expo);
+  }
+  .craft-step:hover { background: rgba(184,151,90,.05); }
+  .craft-step:hover::after { transform: scaleX(1); }
+
+  .craft-step__num {
+    display: block;
+    font-family: var(--ff-display);
+    font-size: 3.5rem;
+    font-weight: 400;
+    line-height: 1;
+    color: rgba(184,151,90,.2);
+    margin-bottom: var(--sp-6);
+    transition: color .4s;
+  }
+  .craft-step:hover .craft-step__num { color: rgba(184,151,90,.5); }
+
+  .craft-step__title {
+    font-family: var(--ff-display);
+    font-size: 1.375rem;
+    font-weight: 400;
+    color: var(--cream);
+    margin-bottom: var(--sp-4);
+  }
+  .craft-step__desc {
+    font-family: var(--ff-body);
+    font-size: .9375rem;
+    font-weight: 300;
+    line-height: 1.8;
+    color: rgba(247,243,236,.45);
+  }
+
+  /* ══════════════════════════════════════════════════════════════════
+     FEATURED PRODUCTS
+     ══════════════════════════════════════════════════════════════════ */
+  .featured {
+    padding: var(--sp-32) 0;
+    background: var(--ivory);
+  }
+
+  .featured__header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: var(--sp-16);
+    flex-wrap: wrap;
+    gap: var(--sp-6);
+  }
+
+  .products-grid--4col {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--sp-4);
+  }
+
+  /* product card global polish */
+  .featured .products-grid--4col > div {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity .7s var(--ease-silk), transform .7s var(--ease-silk);
+    transition-delay: var(--card-delay, 0ms);
+  }
+  .featured.products-revealed .products-grid--4col > div {
+    opacity: 1;
+    transform: none;
+  }
+
+  .featured__byline {
+    text-align: center;
+    margin-top: var(--sp-16);
+    font-family: var(--ff-display);
+    font-size: 1rem;
+    font-style: italic;
+    font-weight: 300;
+    color: var(--ink-faint);
+    letter-spacing: .04em;
+  }
+
+  /* ══════════════════════════════════════════════════════════════════
+     NUMBERS SECTION (NEW)
+     ══════════════════════════════════════════════════════════════════ */
+  .numbers {
+    background: var(--cream);
+    padding: var(--sp-20) 0;
+    border-top: 1px solid rgba(184,151,90,.2);
+    border-bottom: 1px solid rgba(184,151,90,.2);
+  }
+  .numbers__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    divide-x: 1px solid rgba(184,151,90,.15);
+  }
+  .numbers__item {
+    padding: var(--sp-10) var(--sp-8);
+    text-align: center;
+    border-right: 1px solid rgba(184,151,90,.15);
+  }
+  .numbers__item:last-child { border-right: none; }
+  .numbers__val {
+    display: block;
+    font-family: var(--ff-display);
+    font-size: clamp(2.5rem, 5vw, 5rem);
+    font-weight: 400;
+    color: var(--ink);
+    line-height: 1;
+    margin-bottom: var(--sp-3);
+  }
+  .numbers__val em { font-style: italic; color: var(--gold); }
+  .numbers__label {
+    font-family: var(--ff-sans);
+    font-size: .5625rem;
+    font-weight: 300;
+    letter-spacing: .22em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+
+  /* ══════════════════════════════════════════════════════════════════
+     LOOKBOOK STRIP (NEW)
+     ══════════════════════════════════════════════════════════════════ */
+  .lookbook {
+    padding: var(--sp-32) 0;
+    background: var(--ivory);
+    overflow: hidden;
+  }
+
+  .lookbook .section-header { margin-bottom: var(--sp-12); }
+
+  .lookbook__reel {
+    display: flex;
+    gap: var(--sp-4);
+    overflow-x: auto;
+    padding-bottom: var(--sp-4);
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: var(--gold) transparent;
+    cursor: grab;
+  }
+  .lookbook__reel:active { cursor: grabbing; }
+  .lookbook__reel::-webkit-scrollbar { height: 1px; }
+  .lookbook__reel::-webkit-scrollbar-thumb { background: var(--gold); }
+
+  .lookbook__frame {
+    flex: 0 0 clamp(200px, 22vw, 340px);
+    scroll-snap-align: start;
+    overflow: hidden;
+    position: relative;
+    aspect-ratio: 2/3;
+    background: var(--charcoal);
+  }
+  .lookbook__frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform .7s var(--ease-silk);
+    filter: grayscale(20%);
+  }
+  .lookbook__frame:hover img { transform: scale(1.05); filter: grayscale(0); }
+  .lookbook__frame::after {
+    content: attr(data-label);
+    position: absolute;
+    bottom: var(--sp-5);
+    left: var(--sp-5);
+    font-family: var(--ff-sans);
+    font-size: .5rem;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: rgba(247,243,236,.5);
+    background: rgba(16,14,12,.6);
+    padding: var(--sp-1) var(--sp-3);
+    backdrop-filter: blur(4px);
+  }
+
+  /* ══════════════════════════════════════════════════════════════════
+     PRESS / AS SEEN IN (NEW)
+     ══════════════════════════════════════════════════════════════════ */
+  .press {
+    padding: var(--sp-16) 0;
+    background: var(--onyx);
+  }
+  .press__label {
+    text-align: center;
+    font-family: var(--ff-sans);
+    font-size: .5625rem;
+    font-weight: 300;
+    letter-spacing: .3em;
+    text-transform: uppercase;
+    color: rgba(247,243,236,.3);
+    margin-bottom: var(--sp-10);
+  }
+  .press__logos {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(var(--sp-8), 5vw, var(--sp-16));
+    flex-wrap: wrap;
+  }
+  .press__name {
+    font-family: var(--ff-display);
+    font-size: clamp(1rem, 2.2vw, 1.625rem);
+    font-weight: 400;
+    font-style: italic;
+    color: rgba(247,243,236,.18);
+    letter-spacing: .04em;
+    transition: color .3s;
+    cursor: default;
+    user-select: none;
+  }
+  .press__name:hover { color: rgba(247,243,236,.45); }
+
+  /* ══════════════════════════════════════════════════════════════════
+     TESTIMONIAL
+     ══════════════════════════════════════════════════════════════════ */
+  .testimonial {
+    padding: var(--sp-32) 0;
+    background: var(--cream);
+    position: relative;
+    overflow: hidden;
+  }
+  .testimonial::before {
+    content: '"';
+    position: absolute;
+    top: -.1em; left: .05em;
+    font-family: var(--ff-display);
+    font-size: clamp(10rem, 22vw, 24rem);
+    font-weight: 900;
+    color: rgba(184,151,90,.07);
+    line-height: 1;
+    pointer-events: none;
+  }
+
+  .testimonial__inner {
+    max-width: 780px;
+    margin: 0 auto;
+    text-align: center;
+    padding: 0 var(--sp-8);
+    position: relative;
+  }
+
+  .testimonial__quote {
+    font-family: var(--ff-display);
+    font-size: clamp(1.375rem, 2.8vw, 2.25rem);
+    font-weight: 400;
+    font-style: italic;
+    line-height: 1.5;
+    color: var(--ink);
+    margin-bottom: var(--sp-8);
+  }
+
+  .testimonial__stars {
+    display: flex;
+    justify-content: center;
+    gap: var(--sp-1);
+    color: var(--gold);
+    font-size: .75rem;
+    margin-bottom: var(--sp-5);
+  }
+
+  .testimonial__author {
+    font-family: var(--ff-sans);
+    font-size: .625rem;
+    font-weight: 300;
+    letter-spacing: .22em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    font-style: normal;
+  }
+  .testimonial__author span { color: var(--gold); }
+
+  /* ══════════════════════════════════════════════════════════════════
+     PROMISE SECTION (NEW — Material & Craftsmanship pillars)
+     ══════════════════════════════════════════════════════════════════ */
+  .promise {
+    padding: var(--sp-32) 0;
+    background: var(--ivory);
+  }
+  .promise__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: rgba(184,151,90,.15);
+    border: 1px solid rgba(184,151,90,.15);
+    margin-top: var(--sp-16);
+  }
+  .promise__item {
+    background: var(--ivory);
+    padding: var(--sp-12) var(--sp-10);
+    position: relative;
+    overflow: hidden;
+    transition: background .4s;
+  }
+  .promise__item:hover { background: var(--cream); }
+  .promise__icon {
+    width: 36px; height: 36px;
+    margin-bottom: var(--sp-6);
+    color: var(--gold);
+    opacity: .85;
+  }
+  .promise__title {
+    font-family: var(--ff-display);
+    font-size: 1.375rem;
+    font-weight: 400;
+    color: var(--ink);
+    margin-bottom: var(--sp-4);
+    line-height: 1.2;
+  }
+  .promise__desc {
+    font-family: var(--ff-body);
+    font-size: .9375rem;
+    font-weight: 300;
+    line-height: 1.8;
+    color: var(--ink-soft);
+  }
+  .promise__item::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 100%; height: 1px;
+    background: var(--gold);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform .6s var(--ease-expo);
+  }
+  .promise__item:hover::after { transform: scaleX(1); }
+
+  /* ══════════════════════════════════════════════════════════════════
+     NEWSLETTER
+     ══════════════════════════════════════════════════════════════════ */
+  .newsletter-cta {
+    background: var(--onyx);
+    padding: var(--sp-32) 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .newsletter-cta::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 70% 60% at 50% 100%, rgba(184,151,90,.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .newsletter-cta::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--gold), transparent);
+  }
+
+  .newsletter-cta__inner {
+    max-width: 620px;
+    margin: 0 auto;
+    text-align: center;
+    padding: 0 var(--sp-8);
+    position: relative;
+  }
+
+  .newsletter-cta__eyebrow {
+    display: block;
+    font-family: var(--ff-sans);
+    font-size: .5625rem;
+    font-weight: 300;
+    letter-spacing: .3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: var(--sp-6);
+  }
+
+  .newsletter-cta__title {
+    font-family: var(--ff-display);
+    font-size: clamp(1.75rem, 3.5vw, 3rem);
+    font-weight: 400;
+    color: var(--cream);
+    line-height: 1.2;
+    margin-bottom: var(--sp-4);
+  }
+  .newsletter-cta__title em { font-style: italic; color: var(--gold-lt); }
+
+  .newsletter-cta__sub {
+    font-family: var(--ff-body);
+    font-size: clamp(.9375rem, 1.2vw, 1.0625rem);
+    font-weight: 300;
+    color: rgba(247,243,236,.5);
+    line-height: 1.7;
+    margin-bottom: var(--sp-10);
+  }
+
+  .newsletter-cta__form {
+    display: flex;
+    gap: 0;
+    max-width: 480px;
+    margin: 0 auto;
+    border: 1px solid rgba(184,151,90,.35);
+    transition: border-color .3s;
+  }
+  .newsletter-cta__form:focus-within { border-color: var(--gold); }
+
+  .newsletter-cta__input {
+    flex: 1;
+    background: rgba(255,255,255,.05);
+    border: none;
+    outline: none;
+    padding: var(--sp-4) var(--sp-6);
+    font-family: var(--ff-body);
+    font-size: .9375rem;
+    color: var(--cream);
+    min-width: 0;
+  }
+  .newsletter-cta__input::placeholder { color: rgba(247,243,236,.3); }
+
+  .newsletter-cta__btn {
+    background: var(--gold);
+    color: var(--onyx);
+    border: none;
+    padding: var(--sp-4) var(--sp-8);
+    font-family: var(--ff-sans);
+    font-size: .625rem;
+    font-weight: 400;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background .3s, color .3s;
+    white-space: nowrap;
+  }
+  .newsletter-cta__btn:hover { background: var(--gold-dk); color: var(--cream); }
+
+  .newsletter-cta__disclaimer {
+    margin-top: var(--sp-5);
+    font-family: var(--ff-sans);
+    font-size: .5rem;
+    font-weight: 300;
+    letter-spacing: .1em;
+    color: rgba(247,243,236,.2);
+    text-transform: uppercase;
+  }
+
+  /* ══════════════════════════════════════════════════════════════════
+     RESPONSIVE
+     ══════════════════════════════════════════════════════════════════ */
+  @@media (max-width: 1100px) {
+    .collections-grid { grid-template-columns: 1fr 1fr; }
+    .coll-card--portrait { grid-row: span 1; aspect-ratio: 4/3; }
+    .craft-steps { grid-template-columns: repeat(2, 1fr); }
+    .products-grid--4col { grid-template-columns: repeat(2, 1fr); }
+    .numbers__grid { grid-template-columns: repeat(2, 1fr); }
+    .promise__grid { grid-template-columns: 1fr; }
+  }
+
+  @@media (max-width: 768px) {
+    #cursor-dot, #cursor-ring { display: none; }
+    .hero-home { grid-template-columns: 1fr; min-height: auto; }
+    .hero-home__left {
+      padding: var(--sp-20) var(--sp-6) var(--sp-10);
+      min-height: 70svh;
+    }
+    .hero-home__right { height: 60vw; }
+    .story { grid-template-columns: 1fr; }
+    .story__img-wrap { height: 60vw; }
+    .collections-grid { grid-template-columns: 1fr; }
+    .craft-steps { grid-template-columns: 1fr; }
+    .products-grid--4col { grid-template-columns: 1fr 1fr; }
+    .numbers__grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @@media (max-width: 480px) {
+    .products-grid--4col { grid-template-columns: 1fr; }
+    .hero-home__stats { gap: var(--sp-6); }
+    .numbers__grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* ── Divider line ornament ────────────────────────────────────────── */
+  .ornament-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--sp-5);
+    padding: var(--sp-12) 0;
+    opacity: .4;
+  }
+  .ornament-divider span {
+    font-family: var(--ff-display);
+    font-size: .75rem;
+    color: var(--gold);
+  }
+  .ornament-divider::before,
+  .ornament-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--gold);
+    max-width: 120px;
+  }
+</style>
+
+@* ── Custom cursor managed by app.js / _Layout.cshtml — no duplicate needed here ── *@
+
+@* ══════════════════════════════════════════════════════════════════════
+   ACT 1 — HERO
+   ══════════════════════════════════════════════════════════════════════ *@
+<section class="hero-home" aria-label="Giới thiệu Vietduy Atelier">
+
+  <div class="hero-home__left">
+    <span class="hero-home__eyebrow">Collection SS 2025</span>
+
+    <h1 class="hero-home__title">
+      Viet Duy's<br /><em>Collection</em>
+    </h1>
+
+    <p class="hero-home__sub">
+      Nghề thủ công tinh xảo.<br />Kể từ&nbsp;1987.
+    </p>
+
+    <div class="hero-home__actions">
+      <a href="/product" class="btn btn--solid"><span>Khám phá bộ sưu tập</span></a>
+      <a href="#story"    class="btn btn--ghost-light"><span>Câu chuyện của chúng tôi</span></a>
+    </div>
+
+    <div class="hero-home__stats" aria-label="Số liệu thương hiệu">
+      <div class="hero-stat">
+        <span class="hero-stat__num">1987</span>
+        <span class="hero-stat__label">Thành lập</span>
+      </div>
+      <div class="hero-stat">
+        <span class="hero-stat__num">38</span>
+        <span class="hero-stat__label">Năm kinh nghiệm</span>
+      </div>
+      <div class="hero-stat">
+        <span class="hero-stat__num">12K+</span>
+        <span class="hero-stat__label">Khách hàng</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-home__right">
+    <picture>
+      <source
+        srcset="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1400&q=85&fm=webp"
+        type="image/webp" />
+      <img
+        src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1400&q=85"
+        alt="Vietduy Luxury Atelier — Bộ sưu tập mùa xuân hè 2025"
+        class="hero-home__img"
+        width="1400" height="1867"
+        fetchpriority="high"
+        decoding="async" />
+    </picture>
+    <div class="hero-home__overlay" aria-hidden="true"></div>
+    <div class="hero-home__badge" aria-label="Thành lập tại Paris 1987">
+      <span>1987</span>
+      <span class="hero-home__badge-dot" aria-hidden="true">·</span>
+      <span>Paris</span>
+    </div>
+  </div>
+
+  <div class="hero-scroll" aria-hidden="true">
+    <div class="hero-scroll__line"></div>
+  </div>
+</section>
+
+@* ══════════════════════════════════════════════════════════════════════
+   ACT 1.5 — MARQUEE
+   ══════════════════════════════════════════════════════════════════════ *@
+<div class="marquee" aria-hidden="true">
+  <div class="marquee__track">
+    @{
+      var marqueeItems = new[] {
+        "Thủ công tại Paris", "Chứng nhận GIA", "38 năm kinh nghiệm",
+        "Giao hàng toàn cầu", "Chất liệu thượng hạng", "Phục vụ 12.000+ khách hàng",
+        "Thủ công tại Paris", "Chứng nhận GIA", "38 năm kinh nghiệm",
+        "Giao hàng toàn cầu", "Chất liệu thượng hạng", "Phục vụ 12.000+ khách hàng"
+      };
+    }
+    @foreach (var item in marqueeItems)
+    {
+      <span class="marquee__item">@item</span>
+      <span class="marquee__sep" aria-hidden="true">·</span>
+    }
+  </div>
+</div>
+
+@* ══════════════════════════════════════════════════════════════════════
+   ACT 2 — COLLECTIONS
+   ══════════════════════════════════════════════════════════════════════ *@
+<section class="collections" aria-labelledby="collections-title">
+  <div class="container">
+    <div class="section-header reveal-fade">
+      <span class="section-eyebrow">Khám phá</span>
+      <h2 class="section-title" id="collections-title">Danh mục nổi bật</h2>
+      <div class="reveal-rule"></div>
+    </div>
+
+    <div class="collections-grid">
+      @if (Model?.Categories?.Any() == true)
+      {
+        int ci = 0;
+        var colClasses   = new[] { "coll-card--portrait", "coll-card--square", "coll-card--medium" };
+        var fallbackImgs = new[] {
+          "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80",
+          "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&q=80",
+          "https://images.unsplash.com/photo-1544923246-14c90c9f8935?w=800&q=80"
+        };
+        foreach (var cat in Model.Categories.Take(3))
+        {
+          var cls   = colClasses[ci % colClasses.Length];
+          var delay = ci * 120;
+          var img   = cat.ImageUrl ?? fallbackImgs[ci];
+          ci++;
+          <a href="/product?category=@cat.Slug"
+             class="coll-card @cls reveal-fade"
+             style="--reveal-delay: @(delay)ms"
+             aria-label="Xem danh mục @cat.Label">
+            <img
+              src="@img"
+              alt="@cat.Label"
+              class="coll-card__img"
+              width="800" height="@(cls == "coll-card--portrait" ? 1067 : 800)"
+              loading="@(ci == 1 ? "eager" : "lazy")" />
+            <div class="coll-card__overlay" aria-hidden="true"></div>
+            <div class="coll-card__body">
+              <span class="coll-card__tag">0@ci — Collection</span>
+              <h3 class="coll-card__name">@cat.Label</h3>
+              <span class="coll-card__link">
+                Xem bộ sưu tập
+                <i class="fa-solid fa-arrow-right fa-xs" aria-hidden="true"></i>
+              </span>
+            </div>
+          </a>
+        }
+      }
+      else
+      {
+        var fallbackCollections = new[]
+        {
+          new { Tag = "01 — Fine Jewelry",  Name = "Trang sức Cao cấp",   Slug = "trang-suc",   Cls = "coll-card--portrait", Delay = 0,   Img = "https://images.unsplash.com/photo-1601121141499-bf26b69829a9?w=800&q=85" },
+          new { Tag = "02 — Bespoke Leather",Name = "Đồ da Thủ công",     Slug = "tui-xach",   Cls = "coll-card--square",   Delay = 120, Img = "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=800&q=85" },
+          new { Tag = "03 — Luxury Watches", Name = "Đồng hồ Thời thượng",Slug = "dong-ho",   Cls = "coll-card--medium",   Delay = 240, Img = "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&q=85" }
+        };
+        foreach (var fc in fallbackCollections)
+        {
+          <a href="/product?category=@fc.Slug"
+             class="coll-card @fc.Cls reveal-fade"
+             style="--reveal-delay: @(fc.Delay)ms"
+             aria-label="Xem @fc.Name">
+            <img
+              src="@fc.Img"
+              alt="@fc.Name"
+              class="coll-card__img"
+              width="800" height="@(fc.Cls == "coll-card--portrait" ? 1067 : 800)"
+              loading="@(fc.Delay == 0 ? "eager" : "lazy")" />
+            <div class="coll-card__overlay" aria-hidden="true"></div>
+            <div class="coll-card__body">
+              <span class="coll-card__tag">@fc.Tag</span>
+              <h3 class="coll-card__name">@fc.Name</h3>
+              <span class="coll-card__link">
+                Xem bộ sưu tập
+                <i class="fa-solid fa-arrow-right fa-xs" aria-hidden="true"></i>
+              </span>
+            </div>
+          </a>
+        }
+      }
+    </div>
+  </div>
+</section>
+
+@* ══════════════════════════════════════════════════════════════════════
+   ACT 3 — BRAND STORY
+   ══════════════════════════════════════════════════════════════════════ *@
+<section class="story" id="story" aria-labelledby="story-title">
+  <div class="story__img-wrap reveal-fade">
+    <figure class="story__figure" style="position:relative;width:100%;height:100%">
+      <img
+        src="https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=900&q=85"
+        alt="Xưởng thủ công Vietduy Atelier tại Florence"
+        class="story__img"
+        width="900" height="1125"
+        loading="lazy" />
+      <figcaption class="editorial-caption">Florence, Ý — 1987</figcaption>
+    </figure>
+  </div>
+
+  <div class="story__content reveal-fade">
+    <span class="story__eyebrow" aria-hidden="true">Notre Histoire</span>
+
+    <blockquote class="story__quote">
+      "Sự xa xỉ thực sự không phải là giá tiền,<br />
+      mà là <em>sự tinh tế</em> không thể bắt chước."
+    </blockquote>
+
+    <p class="story__text">
+      Được thành lập năm 1987 tại Paris, Maison Vietduy là biểu tượng
+      của nghệ thuật thủ công Pháp. Mỗi sản phẩm là sự giao thoa giữa
+      truyền thống lâu đời và thẩm mỹ đương đại — nơi bàn tay người thợ
+      chạm vào linh hồn của vật&nbsp;liệu.
+    </p>
+
+    <a href="/contact" class="btn btn--ghost"><span>Tìm hiểu thêm</span></a>
+  </div>
+
+  <span class="story__since" aria-hidden="true">1987</span>
+</section>
+
+@* ══════════════════════════════════════════════════════════════════════
+   ACT 3.5 — NUMBERS
+   ══════════════════════════════════════════════════════════════════════ *@
+<section class="numbers" aria-label="Thành tựu thương hiệu">
+  <div class="container">
+    <div class="numbers__grid">
+      <div class="numbers__item reveal-up" style="--reveal-delay:0ms">
+        <span class="numbers__val">38<em>+</em></span>
+        <span class="numbers__label">Năm thủ công</span>
+      </div>
+      <div class="numbers__item reveal-up" style="--reveal-delay:100ms">
+        <span class="numbers__val">12<em>K</em></span>
+        <span class="numbers__label">Khách hàng trên toàn cầu</span>
+      </div>
+      <div class="numbers__item reveal-up" style="--reveal-delay:200ms">
+        <span class="numbers__val">4<em>+</em></span>
+        <span class="numbers__label">Châu lục phủ sóng</span>
+      </div>
+      <div class="numbers__item reveal-up" style="--reveal-delay:300ms">
+        <span class="numbers__val">100<em>%</em></span>
+        <span class="numbers__label">Nguyên liệu đặc tuyển</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+@* ══════════════════════════════════════════════════════════════════════
+   ACT 4 — CRAFT PROCESS
+   ══════════════════════════════════════════════════════════════════════ *@
+<section class="craft" aria-labelledby="craft-title">
+  <div class="container">
+    <div class="section-header reveal-fade">
+      <span class="section-eyebrow">Quy trình</span>
+      <h2 class="section-title" id="craft-title">Nghệ thuật <em>thủ công</em></h2>
+      <div class="reveal-rule"></div>
+    </div>
+
+    <div class="craft-steps">
+      <div class="craft-step reveal-fade" style="--reveal-delay:0ms">
+        <span class="craft-step__num">01</span>
+        <h3 class="craft-step__title">Chọn lọc nguyên liệu</h3>
+        <p class="craft-step__desc">
+          Mỗi vật liệu được tuyển chọn kỹ lưỡng từ những nhà cung cấp lâu đời nhất châu Âu, đảm bảo độ tinh khiết và tính bền vững tuyệt đối.
+        </p>
+      </div>
+      <div class="craft-step reveal-fade" style="--reveal-delay:100ms">
+        <span class="craft-step__num">02</span>
+        <h3 class="craft-step__title">Thiết kế thủ công</h3>
+        <p class="craft-step__desc">
+          Từng đường may, từng chi tiết được phác thảo và điều chỉnh qua nhiều lần thử nghiệm dưới bàn tay của các nghệ nhân tài hoa.
+        </p>
+      </div>
+      <div class="craft-step reveal-fade" style="--reveal-delay:200ms">
+        <span class="craft-step__num">03</span>
+        <h3 class="craft-step__title">Chế tác tại xưởng</h3>
+        <p class="craft-step__desc">
+          Xưởng Atelier tại Paris kết hợp kỹ thuật truyền thống với máy móc hiện đại nhằm đạt đến sự hoàn hảo trong từng sản phẩm.
+        </p>
+      </div>
+      <div class="craft-step reveal-fade" style="--reveal-delay:300ms">
+        <span class="craft-step__num">04</span>
+        <h3 class="craft-step__title">Kiểm tra chất lượng</h3>
+        <p class="craft-step__desc">
+          Mọi sản phẩm đều vượt qua 23 bước kiểm định nghiêm ngặt trước khi mang đến tay khách hàng, đạt chuẩn chứng nhận GIA.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+@* ══════════════════════════════════════════════════════════════════════
+   ACT 5 — FEATURED PRODUCTS
+   ══════════════════════════════════════════════════════════════════════ *@
+<section class="featured" id="featuredSection" aria-labelledby="featured-title">
+  <div class="container">
+    <header class="featured__header">
+      <div class="reveal-fade">
+        <span class="section-eyebrow">Tuyển chọn</span>
+        <h2 class="section-title" id="featured-title" style="margin-bottom:0">
+          Sản phẩm <em>nổi bật</em>
+        </h2>
+      </div>
+      <a href="/product" class="btn btn--ghost reveal-fade" style="--reveal-delay:100ms">
+        <span>Xem tất cả →</span>
+      </a>
+    </header>
+
+    @if (Model?.FeaturedProducts?.Any() == true)
+    {
+      <div class="products-grid products-grid--4col" id="featuredGrid">
+        @{int fi = 0;}
+        @foreach (var product in Model.FeaturedProducts)
+        {
+          <div style="--card-delay:@(fi * 60)ms">
+            @await Html.PartialAsync("_ProductCard", product)
+          </div>
+          fi++;
+        }
+      </div>
+    }
+    else
+    {
+      <p class="text-muted" style="text-align:center;padding:var(--sp-8) 0">
+        Sản phẩm nổi bật sẽ được cập nhật sớm.
+      </p>
+    }
+
+    <p class="featured__byline" aria-hidden="true">
+      — Được chế tác bởi bàn tay người thợ thủ công Ý —
+    </p>
+  </div>
+</section>
+
+@* ══════════════════════════════════════════════════════════════════════
+   ACT 5.5 — LOOKBOOK STRIP
+   ══════════════════════════════════════════════════════════════════════ *@
+<section class="lookbook" aria-labelledby="lookbook-title">
+  <div class="container">
+    <div class="section-header reveal-fade">
+      <span class="section-eyebrow">Lookbook</span>
+      <h2 class="section-title" id="lookbook-title">SS 2025 <em>Visual Story</em></h2>
+      <div class="reveal-rule"></div>
+    </div>
+  </div>
+
+  <div class="lookbook__reel" id="lookbookReel" role="list">
+    @{
+      var lookbookImgs = new (string Src, string Label)[] {
+        ("https://images.unsplash.com/photo-1509631179647-0177331693ae?w=600&q=80", "Look 01"),
+        ("https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&q=80", "Look 02"),
+        ("https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=600&q=80", "Look 03"),
+        ("https://images.unsplash.com/photo-1483985988355-763728e1935b?w=600&q=80", "Look 04"),
+        ("https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=600&q=80", "Look 05"),
+        ("https://images.unsplash.com/photo-1485968579580-b6d095142e6e?w=600&q=80", "Look 06"),
+      };
+    }
+    @foreach (var (src, label) in lookbookImgs)
+    {
+      <div class="lookbook__frame" data-label="@label" role="listitem">
+        <img src="@src" alt="@label — Vietduy Atelier SS 2025" loading="lazy" />
+      </div>
+    }
+  </div>
+</section>
+
+@* ══════════════════════════════════════════════════════════════════════
+   ACT 6 — PRESS MENTIONS
+   ══════════════════════════════════════════════════════════════════════ *@
+<section class="press" aria-label="Xuất hiện trên báo chí">
+  <div class="container">
+    <p class="press__label reveal-fade">Được giới thiệu trên</p>
+    <div class="press__logos reveal-fade" style="--reveal-delay:100ms">
+      <span class="press__name">Vogue</span>
+      <span class="press__name">Harper's Bazaar</span>
+      <span class="press__name">Elle</span>
+      <span class="press__name">L'Officiel</span>
+      <span class="press__name">WWD</span>
+    </div>
+  </div>
+</section>
+
+@* ══════════════════════════════════════════════════════════════════════
+   ACT 7 — TESTIMONIAL
+   ══════════════════════════════════════════════════════════════════════ *@
+@if (Model?.HomepageReviews?.Any() == true)
+{
+  var rev = Model.HomepageReviews.First();
+  <section class="testimonial" aria-label="Nhận xét khách hàng">
+    <div class="testimonial__inner reveal-fade">
+      <blockquote class="testimonial__quote">@rev.Content</blockquote>
+      <div class="testimonial__stars" aria-label="Đánh giá 5 sao">
+        @for (int s = 0; s < 5; s++) {
+          <i class="fa-solid fa-star" aria-hidden="true"></i>
+        }
+      </div>
+      <cite class="testimonial__author">
+        — @rev.AuthorName
+        @if (rev.IsHomepage)
+        {
+          <span> · Khách hàng thân thiết</span>
+        }
+      </cite>
+    </div>
+  </section>
+}
+
+@* ══════════════════════════════════════════════════════════════════════
+   ACT 8 — OUR PROMISE
+   ══════════════════════════════════════════════════════════════════════ *@
+<section class="promise" aria-labelledby="promise-title">
+  <div class="container">
+    <div class="section-header reveal-fade">
+      <span class="section-eyebrow">Cam kết</span>
+      <h2 class="section-title" id="promise-title">Tiêu chuẩn <em>vàng</em></h2>
+      <div class="reveal-rule"></div>
+    </div>
+
+    <div class="promise__grid">
+      <div class="promise__item reveal-up" style="--reveal-delay:0ms">
+        <svg class="promise__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25">
+          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+        </svg>
+        <h3 class="promise__title">Chứng nhận GIA</h3>
+        <p class="promise__desc">Mọi sản phẩm đều được kiểm định bởi Gemological Institute of America, đảm bảo tính xác thực và chất lượng cao nhất.</p>
+      </div>
+      <div class="promise__item reveal-up" style="--reveal-delay:100ms">
+        <svg class="promise__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25">
+          <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/>
+        </svg>
+        <h3 class="promise__title">Giao hàng toàn cầu</h3>
+        <p class="promise__desc">Đóng gói thủ công, giao đến tận tay bạn dù ở bất kỳ đâu trên thế giới với dịch vụ theo dõi thời gian thực.</p>
+      </div>
+      <div class="promise__item reveal-up" style="--reveal-delay:200ms">
+        <svg class="promise__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25">
+          <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+        </svg>
+        <h3 class="promise__title">Dịch vụ cá nhân hoá</h3>
+        <p class="promise__desc">Từng đơn hàng là một hành trình riêng tư. Đội ngũ tư vấn cá nhân sẵn sàng đồng hành cùng bạn trong mọi lựa chọn.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+@* ══════════════════════════════════════════════════════════════════════
+   ACT 9 — NEWSLETTER
+   ══════════════════════════════════════════════════════════════════════ *@
+<section class="newsletter-cta" aria-labelledby="newsletter-title">
+  <div class="newsletter-cta__inner reveal-fade">
+    <span class="newsletter-cta__eyebrow">Thành viên độc quyền</span>
+    <h2 class="newsletter-cta__title" id="newsletter-title">
+      Trở thành người đầu tiên<br /><em>khám phá</em>
+    </h2>
+    <p class="newsletter-cta__sub">
+      Bộ sưu tập mới. Ra mắt độc quyền. Chỉ dành cho thành&nbsp;viên.
+    </p>
+    <form class="newsletter-cta__form"
+          action="/newsletter/subscribe" method="post"
+          id="homeNewsletterForm" novalidate>
+      @Html.AntiForgeryToken()
+      <label for="homeEmail" class="sr-only">Địa chỉ email</label>
+      <input
+        type="email"
+        name="email"
+        id="homeEmail"
+        class="newsletter-cta__input"
+        placeholder="email@example.com"
+        required
+        autocomplete="email" />
+      <button type="submit" class="newsletter-cta__btn">Tham gia</button>
+    </form>
+    <p class="newsletter-cta__disclaimer">
+      Chúng tôi tôn trọng quyền riêng tư của bạn. Không spam.
+    </p>
+  </div>
+</section>
+
+@* ══════════════════════════════════════════════════════════════════════
+   SCRIPTS — Intersection Observer + Cursor + Lookbook drag
+   ══════════════════════════════════════════════════════════════════════ *@
+<script>
+(function () {
+  'use strict';
+
+  /* ── 1. Scroll reveal ─────────────────────────────────────────────── */
+  const revealEls = document.querySelectorAll(
+    '.reveal-fade, .reveal-clip, .reveal-up, .reveal-line, .section-header'
+  );
+  const io = new IntersectionObserver(
+    (entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('is-visible');
+          io.unobserve(e.target);
+        }
+      });
+    },
+    { threshold: 0.12 }
+  );
+  revealEls.forEach(el => io.observe(el));
+
+  /* ── 2. Featured products reveal on enter ─────────────────────────── */
+  const featuredSec = document.getElementById('featuredSection');
+  if (featuredSec) {
+    const fpIO = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          featuredSec.classList.add('products-revealed');
+          fpIO.disconnect();
+        }
+      },
+      { threshold: 0.1 }
+    );
+    fpIO.observe(featuredSec);
+  }
+
+  /* ── 3. Custom cursor ─────────────────────────────────────────────── */
+  const dot  = document.getElementById('cursor-dot');
+  const ring = document.getElementById('cursor-ring');
+  if (dot && ring && window.matchMedia('(pointer:fine)').matches) {
+    let rx = 0, ry = 0;
+    document.addEventListener('mousemove', e => {
+      const x = e.clientX, y = e.clientY;
+      dot.style.transform  = `translate(${x}px,${y}px) translate(-50%,-50%)`;
+      rx += (x - rx) * .12;
+      ry += (y - ry) * .12;
+      ring.style.transform = `translate(${rx}px,${ry}px) translate(-50%,-50%)`;
+    });
+    requestAnimationFrame(function tick() {
+      ring.style.transform = `translate(${rx}px,${ry}px) translate(-50%,-50%)`;
+      requestAnimationFrame(tick);
+    });
+  }
+
+  /* ── 4. Lookbook drag-to-scroll ──────────────────────────────────── */
+  const reel = document.getElementById('lookbookReel');
+  if (reel) {
+    let isDown = false, startX, scrollLeft;
+    reel.addEventListener('mousedown', e => {
+      isDown = true;
+      reel.style.cursor = 'grabbing';
+      startX    = e.pageX - reel.offsetLeft;
+      scrollLeft = reel.scrollLeft;
+    });
+    reel.addEventListener('mouseleave', () => { isDown = false; reel.style.cursor = 'grab'; });
+    reel.addEventListener('mouseup',    () => { isDown = false; reel.style.cursor = 'grab'; });
+    reel.addEventListener('mousemove',  e => {
+      if (!isDown) return;
+      e.preventDefault();
+      const x    = e.pageX - reel.offsetLeft;
+      const walk = (x - startX) * 1.6;
+      reel.scrollLeft = scrollLeft - walk;
+    });
+  }
+
+  /* ── 5. Smooth counter animation for Numbers section ─────────────── */
+  const counters = document.querySelectorAll('.numbers__val');
+  const cIO = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      const el   = entry.target;
+      const text = el.textContent;
+      const num  = parseFloat(text.replace(/[^0-9.]/g, ''));
+      if (isNaN(num)) return;
+      const suffix = text.replace(/[0-9.]/g, '');
+      let start = null;
+      const duration = 1600;
+      const step = ts => {
+        if (!start) start = ts;
+        const progress = Math.min((ts - start) / duration, 1);
+        const ease     = 1 - Math.pow(1 - progress, 3);
+        el.textContent = (num < 100
+          ? Math.round(ease * num)
+          : Math.round(ease * num)) + suffix;
+        if (progress < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+      cIO.unobserve(el);
+    });
+  }, { threshold: .5 });
+  counters.forEach(c => cIO.observe(c));
+
+})();
+</script>

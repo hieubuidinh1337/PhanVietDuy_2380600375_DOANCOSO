@@ -1,0 +1,70 @@
+@* _CartSidebar.cshtml — Off-canvas cart drawer *@
+<aside class="cart-drawer" id="cartDrawer" role="dialog" aria-modal="true" aria-label="Giỏ hàng" aria-hidden="true">
+
+  @* Header *@
+  <div class="cart-drawer__header">
+    <div class="flex items-center gap-4">
+      <h2 class="cart-drawer__title">Giỏ hàng</h2>
+      <span class="cart-drawer__count" id="cartDrawerCount"></span>
+    </div>
+    <button class="cart-drawer__close" id="cartClose" aria-label="Đóng giỏ hàng">
+      <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+    </button>
+  </div>
+
+  @* Scrollable body *@
+  <div class="cart-drawer__body" id="cartBody">
+    @* Items rendered by JS from /cart/items AJAX endpoint *@
+    @* Initial state: empty placeholder *@
+    <div class="cart-empty" id="cartEmpty">
+      <i class="fa-solid fa-bag-shopping cart-empty__icon" aria-hidden="true"></i>
+      <p class="cart-empty__text">Giỏ hàng của bạn đang trống.</p>
+      <a href="/product" class="btn btn--outline btn--sm" id="cartClose2">
+        Khám phá sản phẩm
+      </a>
+    </div>
+  </div>
+
+  @* Coupon + totals + CTA footer *@
+  <div class="cart-drawer__footer" id="cartFooter" style="display:none">
+
+    @* Coupon row *@
+    <div class="cart-coupon">
+      <div class="cart-coupon__row">
+        <label for="couponInput" class="sr-only">Mã giảm giá</label>
+        <input type="text" id="couponInput" class="cart-coupon__input"
+               placeholder="Mã giảm giá..." autocomplete="off" />
+        <button class="cart-coupon__btn" id="couponApply" type="button">Áp dụng</button>
+      </div>
+      <span class="coupon-msg" id="couponMsg" role="status" aria-live="polite"></span>
+    </div>
+
+    @* Totals *@
+    <div class="cart-totals">
+      <div class="cart-totals__row">
+        <span>Tạm tính</span>
+        <span id="cartSubtotal">$0.00</span>
+      </div>
+      <div class="cart-totals__row" id="discountRow" style="display:none">
+        <span>Giảm giá</span>
+        <span id="cartDiscount" class="text-success"></span>
+      </div>
+      <div class="cart-totals__row">
+        <span>Vận chuyển</span>
+        <span id="cartShipping">Miễn phí</span>
+      </div>
+      <div class="cart-totals__row cart-totals__row--total">
+        <span>Tổng cộng</span>
+        <span id="cartTotal">$0.00</span>
+      </div>
+    </div>
+
+    @* Checkout CTA *@
+    <a href="/checkout" class="btn btn--solid btn--wide" id="checkoutBtn">
+      Thanh toán
+    </a>
+    <button type="button" class="cart-drawer__continue" id="cartClose2b">
+      ← Tiếp tục mua sắm
+    </button>
+  </div>
+</aside>

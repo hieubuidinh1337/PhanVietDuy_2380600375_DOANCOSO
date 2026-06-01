@@ -1,0 +1,150 @@
+@using PhanVietDuy_2380600375.Models.ViewModels
+@model AdminOrderIndexViewModel
+@{
+  ViewData["Title"] = "Quản lý đơn hàng";
+  Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+  <style>
+    .stat-card__value {
+      font-family: var(--ff-body) !important;
+      font-weight: 300 !important;
+    }
+  </style>
+}
+
+@* ── Stats Badges ── *@
+<div class="stat-cards" style="margin-bottom:24px">
+  <div class="stat-card reveal">
+    <div class="stat-card__value" id="stats-pending">@(ViewBag.PendingCount ?? 0)</div>
+    <div class="stat-card__label">Chờ xác nhận</div>
+  </div>
+  <div class="stat-card reveal reveal-delay-1">
+    <div class="stat-card__value" id="stats-confirmed">@(ViewBag.ConfirmedCount ?? 0)</div>
+    <div class="stat-card__label">Đã xác nhận</div>
+  </div>
+  <div class="stat-card reveal reveal-delay-2">
+    <div class="stat-card__value" id="stats-processing">@(ViewBag.ProcessingCount ?? 0)</div>
+    <div class="stat-card__label">Đang xử lý</div>
+  </div>
+</div>
+
+@* ── Filters ── *@
+<div class="admin-card reveal" style="margin-bottom:24px">
+  <div class="admin-card__body">
+    <form method="get" style="display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end">
+      <div class="form__group" style="flex:1;min-width:200px;margin:0">
+        <label for="search" class="form__label">Tìm kiếm đơn hàng</label>
+        <input type="text" id="search" name="search" class="form__input" value="@Model.Search" placeholder="Mã đơn, tên, SĐT..." />
+      </div>
+
+      <div class="form__group" style="width:180px;margin:0">
+        <label for="status" class="form__label">Trạng thái</label>
+        <select id="status" name="status" class="form__select">
+          <option value="">Tất cả trạng thái</option>
+          <!option value="Pending" @(Model.Status == "Pending" ? "selected" : "")>Chờ xác nhận</!option>
+          <!option value="Confirmed" @(Model.Status == "Confirmed" ? "selected" : "")>Đã xác nhận</!option>
+          <!option value="Processing" @(Model.Status == "Processing" ? "selected" : "")>Đang xử lý</!option>
+          <!option value="Shipped" @(Model.Status == "Shipped" ? "selected" : "")>Đang giao</!option>
+          <!option value="Delivered" @(Model.Status == "Delivered" ? "selected" : "")>Đã giao</!option>
+          <!option value="Cancelled" @(Model.Status == "Cancelled" ? "selected" : "")>Đã hủy</!option>
+        </select>
+      </div>
+
+      <div style="display:flex;gap:8px">
+        <button type="submit" class="btn btn--gold btn--sm" style="padding:12px 24px">Lọc</button>
+        <a href="/admin/don-hang" class="btn btn--ghost btn--sm" style="padding:12px 24px">Xóa lọc</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+@* ── Table ── *@
+<div class="data-table-wrap reveal">
+  <div class="data-table-header">
+    <h2 class="data-table-header__title">Danh sách đơn hàng</h2>
+    <div style="display:flex;gap:8px">
+      <a href="/admin/don-hang/ExportCsv?status=@Model.Status" class="btn btn--ghost btn--sm">
+        <i class="fa-regular fa-file-excel" aria-hidden="true" style="margin-right:6px"></i>Xuất CSV
+      </a>
+    </div>
+  </div>
+
+  <div style="overflow-x:auto">
+    <table class="data-table" aria-label="Danh sách đơn hàng">
+      <thead>
+        <tr>
+          <th scope="col">Mã đơn</th>
+          <th scope="col">Khách hàng</th>
+          <th scope="col">Số sản phẩm</th>
+          <th scope="col">Tổng tiền</th>
+          <th scope="col">Thanh toán</th>
+          <th scope="col">Ngày đặt</th>
+          <th scope="col">Trạng thái</th>
+          <th scope="col"><span class="sr-only">Thao tác</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (Model.Orders != null && Model.Orders.Any())
+        {
+          foreach (var order in Model.Orders)
+          {
+            <tr>
+              <td>
+                <a href="/admin/don-hang/detail/@order.Id" style="font-weight:500;color:var(--c-ink);text-decoration:underline">
+                  @order.OrderCode
+                </a>
+              </td>
+              <td>
+                <div style="font-weight:400;color:var(--c-ink)">@order.CustomerName</div>
+                <div style="font-size:var(--fs-xs);color:var(--c-ink-lt)">@order.CustomerPhone</div>
+              </td>
+              <td style="color:var(--c-ink-lt)">@order.ItemCount sản phẩm</td>
+              <td style="font-family:var(--ff-body);font-size:var(--fs-base)">
+                @order.TotalAmount.ToString("C0", new System.Globalization.CultureInfo("vi-VN"))
+              </td>
+              <td>
+                <span class="status-badge @(order.PaymentStatus == "Paid" ? "status-badge--shipped" : "status-badge--pending")" style="font-size:var(--fs-xxs)">
+                  @(order.PaymentStatus == "Paid" ? "Đã thanh toán" : "Chưa thanh toán")
+                </span>
+              </td>
+              <td>@order.OrderedAt.ToString("dd/MM/yyyy HH:mm")</td>
+              <td>
+                <span class="status-badge status-badge--@order.Status.ToLower()">
+                  @(order.Status switch {
+                    "Pending"    => "Chờ xác nhận",
+                    "Confirmed"  => "Đã xác nhận",
+                    "Processing" => "Đang xử lý",
+                    "Shipped"    => "Đang giao",
+                    "Delivered"  => "Đã giao",
+                    "Cancelled"  => "Đã hủy",
+                    _            => order.Status
+                  })
+                </span>
+              </td>
+              <td>
+                <a href="/admin/don-hang/detail/@order.Id" class="quick-action-btn">Chi tiết</a>
+              </td>
+            </tr>
+          }
+        }
+        else
+        {
+          <tr>
+            <td colspan="8" style="text-align:center;padding:var(--sp-8);color:var(--c-ink-lt)">
+              Không tìm thấy đơn hàng nào.
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  @if (Model.Orders != null && Model.Orders.PageCount > 1)
+  {
+    <div style="display:flex;justify-content:center;padding:24px">
+      @await Html.PartialAsync("~/Views/Shared/_Pagination.cshtml", Model.Orders)
+    </div>
+  }
+</div>

@@ -1,0 +1,206 @@
+@using PhanVietDuy_2380600375.Models.ViewModels
+@model ProductAdminIndexViewModel
+@{
+  ViewData["Title"] = "Quản lý sản phẩm";
+  Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+  <style>
+    .data-table td {
+      font-family: var(--ff-body) !important;
+    }
+  </style>
+}
+
+@* ── Filters ── *@
+<div class="admin-card reveal" style="margin-bottom:24px">
+  <div class="admin-card__body">
+    <form method="get" style="display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end">
+      <div class="form__group" style="flex:1;min-width:200px;margin:0">
+        <label for="search" class="form__label">Tìm kiếm sản phẩm</label>
+        <input type="text" id="search" name="search" class="form__input" value="@Model.Search" placeholder="Nhập tên sản phẩm..." />
+      </div>
+
+      <div class="form__group" style="width:200px;margin:0">
+        <label for="category" class="form__label">Danh mục</label>
+        <select id="category" name="category" class="form__select">
+          <option value="">Tất cả danh mục</option>
+          @foreach (var cat in Model.Categories)
+          {
+            <!option value="@cat.Slug" @(Model.Category == cat.Slug ? "selected" : "")>@cat.Name</!option>
+          }
+        </select>
+      </div>
+
+      <div class="form__group" style="width:150px;margin:0">
+        <label for="featured" class="form__label">Nổi bật</label>
+        <select id="featured" name="featured" class="form__select">
+          <option value="">Tất cả</option>
+          <!option value="true" @(Model.Featured == true ? "selected" : "")>Có nổi bật</!option>
+          <!option value="false" @(Model.Featured == false ? "selected" : "")>Không nổi bật</!option>
+        </select>
+      </div>
+
+      <div style="display:flex;gap:8px">
+        <button type="submit" class="btn btn--gold btn--sm" style="padding:12px 24px">Lọc</button>
+        <a href="/admin/san-pham" class="btn btn--ghost btn--sm" style="padding:12px 24px">Xóa lọc</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+@* ── Product list ── *@
+<div class="data-table-wrap reveal">
+  <div class="data-table-header">
+    <h2 class="data-table-header__title">Danh sách sản phẩm</h2>
+    <div style="display:flex;gap:8px">
+      <a href="/admin/san-pham/create" class="btn btn--gold btn--sm">
+        <i class="fa-regular fa-plus" aria-hidden="true" style="margin-right:6px"></i>Thêm sản phẩm
+      </a>
+    </div>
+  </div>
+
+  <div style="overflow-x:auto">
+    <table class="data-table" aria-label="Danh sách sản phẩm">
+      <thead>
+        <tr>
+          <th scope="col">Hình</th>
+          <th scope="col">Tên sản phẩm</th>
+          <th scope="col">Danh mục</th>
+          <th scope="col">Giá bán</th>
+          <th scope="col" style="text-align:center">Nổi bật</th>
+          <th scope="col" style="text-align:center">Trạng thái</th>
+          <th scope="col"><span class="sr-only">Thao tác</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (Model.Products != null && Model.Products.Any())
+        {
+          foreach (var p in Model.Products)
+          {
+            <tr id="row-@p.Id">
+              <td>
+                @if (!string.IsNullOrEmpty(p.ThumbnailUrl))
+                {
+                  <img src="@p.ThumbnailUrl" alt="@p.Name" style="width:48px;height:48px;object-fit:cover;border-radius:var(--r-md);border:1px solid var(--c-border)" />
+                }
+                else
+                {
+                  <div style="width:48px;height:48px;background:var(--c-border);display:flex;align-items:center;justify-content:center;border-radius:var(--r-md);color:var(--c-ink-lt)">
+                    <i class="fa-regular fa-image" aria-hidden="true"></i>
+                  </div>
+                }
+              </td>
+              <td>
+                <div style="font-weight:500;color:var(--c-ink)">@p.Name</div>
+                <div style="font-size:var(--fs-xs);color:var(--c-ink-lt)">@p.Slug</div>
+              </td>
+              <td>@p.CategoryName</td>
+              <td>
+                <div style="font-weight:400;font-size:var(--fs-base)">@p.Price.ToString("C0", new System.Globalization.CultureInfo("vi-VN"))</div>
+                @if (p.OriginalPrice.HasValue)
+                {
+                  <div style="font-size:var(--fs-xs);text-decoration:line-through;color:var(--c-ink-lt)">@p.OriginalPrice.Value.ToString("C0", new System.Globalization.CultureInfo("vi-VN"))</div>
+                }
+              </td>
+              <td style="text-align:center">
+                <button type="button" class="btn-icon" onclick="toggleFeatured(@p.Id)" id="featured-btn-@p.Id">
+                  <i class="@(p.IsFeatured ? "fa-solid fa-star" : "fa-regular fa-star")" style="color:var(--c-gold)"></i>
+                </button>
+              </td>
+              <td style="text-align:center">
+                <button type="button" class="status-badge @(p.IsActive ? "status-badge--shipped" : "status-badge--cancelled")" onclick="toggleActive(@p.Id)" id="active-badge-@p.Id" style="border:none;cursor:pointer">
+                  @(p.IsActive ? "Hoạt động" : "Tạm khóa")
+                </button>
+              </td>
+              <td>
+                <div style="display:flex;gap:8px;justify-content:flex-end">
+                  <button class="quick-action-btn quick-action-btn--danger" onclick="deleteProduct(@p.Id)" type="button">Xóa</button>
+                </div>
+              </td>
+            </tr>
+          }
+        }
+        else
+        {
+          <tr>
+            <td colspan="7" style="text-align:center;padding:var(--sp-8);color:var(--c-ink-lt)">
+              Không tìm thấy sản phẩm nào.
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  @* Pagination *@
+  @if (Model.Products != null && Model.Products.PageCount > 1)
+  {
+    <div style="display:flex;justify-content:center;padding:24px">
+      @await Html.PartialAsync("~/Views/Shared/_Pagination.cshtml", Model.Products)
+    </div>
+  }
+</div>
+
+@section Scripts {
+  <script>
+    function toggleFeatured(id) {
+      fetch(`/admin/san-pham/ToggleFeatured/${id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          const icon = document.querySelector(`#featured-btn-${id} i`);
+          if (data.isFeatured) {
+            icon.className = "fa-solid fa-star";
+          } else {
+            icon.className = "fa-regular fa-star";
+          }
+        }
+      });
+    }
+
+    // Toggle Active
+    function toggleActive(id) {
+      fetch(`/admin/san-pham/ToggleActive/${id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          const badge = document.getElementById(`active-badge-${id}`);
+          if (data.isActive) {
+            badge.className = "status-badge status-badge--shipped";
+            badge.innerText = "Hoạt động";
+          } else {
+            badge.className = "status-badge status-badge--cancelled";
+            badge.innerText = "Tạm khóa";
+          }
+        }
+      });
+    }
+
+    // Delete Product
+    function deleteProduct(id) {
+      if (confirm("Bạn có chắc muốn xóa/vô hiệu hóa sản phẩm này?")) {
+        fetch(`/admin/san-pham/delete/${id}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" }
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            alert(data.message || "Xóa thành công!");
+            document.getElementById(`row-${id}`).remove();
+          } else {
+            alert(data.message || "Xóa thất bại!");
+          }
+        });
+      }
+    }
+  </script>
+}

@@ -1,0 +1,142 @@
+@using PhanVietDuy_2380600375.Models.ViewModels
+@model RegisterViewModel
+@{
+  ViewData["Title"] = "Đăng ký";
+  Layout = "~/Views/Shared/_LayoutBlank.cshtml";
+}
+
+<div style="margin-bottom:var(--sp-7)">
+  <a href="/" style="font-family:var(--ff-display);font-size:1.5rem;font-weight:400;letter-spacing:.2em;color:var(--c-ink)">Vietduy</a>
+</div>
+
+<h1 style="font-family:var(--ff-display);font-size:clamp(1.6rem,3vw,2rem);font-weight:300;margin-bottom:var(--sp-2)">
+  Tạo tài khoản
+</h1>
+<p style="font-size:var(--fs-sm);font-weight:300;color:var(--c-ink-lt);margin-bottom:var(--sp-6)">
+  Tham gia cộng đồng Vietduy Atelier.
+</p>
+
+@if (TempData["Error"] != null)
+{
+  <div class="alert alert--danger" role="alert">@TempData["Error"]</div>
+}
+
+@if (!ViewData.ModelState.IsValid)
+{
+  <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+}
+
+@* ══════════════════════════════════════════════════════
+   NÚT ĐĂNG KÝ NHANH BẰNG MẠNG XÃ HỘI
+   Cùng flow với Social Login — tạo tài khoản mới nếu email chưa tồn tại
+   ════════════════════════════════════════════════════ *@
+<div class="social-login" style="margin-bottom:var(--sp-6)">
+  @* Google *@
+  <form action="/Account/ExternalLogin" method="post" style="display:contents">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="provider" value="Google" />
+    <input type="hidden" name="returnUrl" value="/" />
+    <button type="submit" class="btn btn--social btn--social-google" id="googleRegisterBtn">
+      <svg class="btn__social-icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+      </svg>
+      <span>Đăng ký bằng Google</span>
+    </button>
+  </form>
+
+  @* Facebook *@
+  <form action="/Account/ExternalLogin" method="post" style="display:contents">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="provider" value="Facebook" />
+    <input type="hidden" name="returnUrl" value="/" />
+    <button type="submit" class="btn btn--social btn--social-facebook" id="facebookRegisterBtn">
+      <i class="fa-brands fa-facebook btn__social-icon" aria-hidden="true" style="font-size:20px;color:#1877F2"></i>
+      <span>Đăng ký bằng Facebook</span>
+    </button>
+  </form>
+</div>
+
+@* Divider *@
+<div style="display:flex;align-items:center;gap:var(--sp-3);margin-bottom:var(--sp-6)">
+  <div style="flex:1;height:1px;background:var(--c-border)"></div>
+  <span style="font-size:var(--fs-xs);color:var(--c-ink-lt);white-space:nowrap;font-weight:300">Hoặc đăng ký bằng Email</span>
+  <div style="flex:1;height:1px;background:var(--c-border)"></div>
+</div>
+
+<form method="post" action="/tai-khoan/dang-ky" novalidate>
+  @Html.AntiForgeryToken()
+
+  <div class="form__group">
+    <label class="form__label" asp-for="FullName">Họ và tên <span aria-hidden="true">*</span></label>
+    <input class="form__input" asp-for="FullName" autocomplete="name" autofocus />
+    <span class="form__error" asp-validation-for="FullName"></span>
+  </div>
+
+  <div class="form__group">
+    <label class="form__label" asp-for="Email">Email <span aria-hidden="true">*</span></label>
+    <input class="form__input" asp-for="Email" type="email" autocomplete="email" />
+    <span class="form__error" asp-validation-for="Email"></span>
+  </div>
+
+  <div class="form__group">
+    <label class="form__label" asp-for="Age">Tuổi</label>
+    <input class="form__input" asp-for="Age" type="number" min="0" />
+    <span class="form__error" asp-validation-for="Age"></span>
+  </div>
+
+  <div class="form__group">
+    <label class="form__label" asp-for="Password">Mật khẩu <span aria-hidden="true">*</span></label>
+    <input class="form__input" asp-for="Password" type="password" autocomplete="new-password" id="regPassword" />
+    <span class="form__error" asp-validation-for="Password"></span>
+  </div>
+
+  <div class="form__group">
+    <label class="form__label" asp-for="ConfirmPassword">Xác nhận mật khẩu <span aria-hidden="true">*</span></label>
+    <input class="form__input" asp-for="ConfirmPassword" type="password" autocomplete="new-password" />
+    <span class="form__error" asp-validation-for="ConfirmPassword"></span>
+  </div>
+
+  <button type="submit" class="btn btn--solid btn--wide btn--lg">
+    Tạo tài khoản
+  </button>
+</form>
+
+<div style="text-align:center;margin-top:var(--sp-6)">
+  <p style="font-size:var(--fs-sm);color:var(--c-ink-lt)">
+    Đã có tài khoản?
+    <a href="/tai-khoan/dang-nhap" style="color:var(--c-ink);font-weight:400;text-decoration:underline;text-underline-offset:2px">
+      Đăng nhập
+    </a>
+  </p>
+</div>
+
+@section Scripts {
+  <style>
+    .social-login { display:flex; flex-direction:column; gap:var(--sp-3); }
+    .btn--social {
+      display:flex; align-items:center; justify-content:center;
+      gap:var(--sp-3); width:100%;
+      padding:11px var(--sp-4);
+      border:1.5px solid var(--c-border);
+      border-radius:var(--r-sm);
+      background:var(--c-surface, #fff);
+      color:var(--c-ink);
+      font-family:var(--ff-body); font-size:var(--fs-sm); font-weight:400;
+      cursor:pointer;
+      transition: border-color .2s, background .2s, box-shadow .2s, transform .15s;
+    }
+    .btn--social:hover {
+      border-color:var(--c-ink-lt);
+      background:var(--c-bg-alt, #f9f9f9);
+      box-shadow:0 2px 8px rgba(0,0,0,.07);
+      transform:translateY(-1px);
+    }
+    .btn--social:active { transform:translateY(0); }
+    .btn--social-google:hover { border-color:#4285F4; }
+    .btn--social-facebook:hover { border-color:#1877F2; }
+    .btn__social-icon { flex-shrink:0; }
+  </style>
+}

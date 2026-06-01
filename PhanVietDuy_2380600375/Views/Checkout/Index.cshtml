@@ -1,0 +1,512 @@
+@using PhanVietDuy_2380600375.Models.ViewModels
+@model CheckoutViewModel
+@{
+  ViewData["Title"] = "Thanh toán";
+  ViewData["Page"] = "checkout";
+  Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="checkout-layout">
+  @* ── Form side ── *@
+  <div class="checkout-form">
+
+    @* Progress *@
+    <div class="progress-steps" aria-label="Các bước thanh toán">
+      <div class="progress-step is-complete">
+        <div class="progress-step__circle" aria-label="Bước 1 hoàn thành">
+          <i class="fa-solid fa-check" style="font-size:11px"></i>
+        </div>
+        <span class="progress-step__label">Giỏ hàng</span>
+      </div>
+      <div class="progress-connector" aria-hidden="true"></div>
+      <div class="progress-step is-active">
+        <div class="progress-step__circle">2</div>
+        <span class="progress-step__label">Thông tin</span>
+      </div>
+      <div class="progress-connector" aria-hidden="true"></div>
+      <div class="progress-step">
+        <div class="progress-step__circle">3</div>
+        <span class="progress-step__label">Xác nhận</span>
+      </div>
+    </div>
+
+    <form action="/checkout" method="post" id="checkoutForm" novalidate>
+      @Html.AntiForgeryToken()
+
+      @* Delivery info *@
+      <h2 class="checkout-section-title">Thông tin giao hàng</h2>
+
+      @if (ViewData.ModelState.Any(m => m.Value?.Errors.Count > 0))
+      {
+        <div class="alert alert--danger" role="alert">
+          Vui lòng kiểm tra lại các thông tin bên dưới.
+        </div>
+      }
+
+      <div class="form__group @(ViewData.ModelState["CustomerName"]?.Errors.Count > 0 ? "has-error" : "")">
+        <label class="form__label" asp-for="CustomerName">Họ và tên <span aria-hidden="true">*</span></label>
+        <input class="form__input" asp-for="CustomerName" autocomplete="name" />
+        <span class="form__error" asp-validation-for="CustomerName"></span>
+      </div>
+
+      <div class="form__group @(ViewData.ModelState["CustomerEmail"]?.Errors.Count > 0 ? "has-error" : "")">
+        <label class="form__label" asp-for="CustomerEmail">Email <span aria-hidden="true">*</span></label>
+        <input class="form__input" asp-for="CustomerEmail" type="email" autocomplete="email" />
+        <span class="form__error" asp-validation-for="CustomerEmail"></span>
+      </div>
+
+      <div class="form__group @(ViewData.ModelState["CustomerPhone"]?.Errors.Count > 0 ? "has-error" : "")">
+        <label class="form__label" asp-for="CustomerPhone">Số điện thoại <span aria-hidden="true">*</span></label>
+        <input class="form__input" asp-for="CustomerPhone" type="tel" autocomplete="tel" />
+        <span class="form__error" asp-validation-for="CustomerPhone"></span>
+      </div>
+
+      <div class="form__group @(ViewData.ModelState["ShipAddress"]?.Errors.Count > 0 ? "has-error" : "")">
+        <label class="form__label" asp-for="ShipAddress">Địa chỉ <span aria-hidden="true">*</span></label>
+        <input class="form__input" asp-for="ShipAddress" autocomplete="street-address" />
+        <span class="form__error" asp-validation-for="ShipAddress"></span>
+      </div>
+
+      <div class="form__row">
+        <div class="form__group">
+          <label class="form__label" asp-for="ShipCity">Thành phố <span aria-hidden="true">*</span></label>
+          <input class="form__input" asp-for="ShipCity" autocomplete="address-level2" />
+          <span class="form__error" asp-validation-for="ShipCity"></span>
+        </div>
+        <div class="form__group">
+          <label class="form__label" asp-for="ShipPostalCode">Mã bưu chính</label>
+          <input class="form__input" asp-for="ShipPostalCode" autocomplete="postal-code" />
+        </div>
+      </div>
+
+      <div class="form__group">
+        <label class="form__label" asp-for="Note">Ghi chú đơn hàng</label>
+        <textarea class="form__textarea" asp-for="Note"
+                  placeholder="Ghi chú đặc biệt cho đơn hàng..."
+                  rows="3"></textarea>
+      </div>
+
+      @* Payment *@
+      <h2 class="checkout-section-title">Phương thức thanh toán</h2>
+
+      <div class="payment-options" role="radiogroup" aria-label="Phương thức thanh toán">
+        <label class="payment-option @(Model?.PaymentMethod == "cod" ? "is-selected" : "")" id="cod-option">
+          <input type="radio" name="PaymentMethod" value="cod"
+                 @(Model?.PaymentMethod == "cod" || string.IsNullOrEmpty(Model?.PaymentMethod) ? "checked" : "")
+                 aria-labelledby="cod-label" />
+          <div class="payment-option__radio"></div>
+          <i class="payment-option__icon fa-solid fa-money-bill-wave" aria-hidden="true"></i>
+          <div>
+            <div class="payment-option__label" id="cod-label">Thanh toán khi nhận hàng</div>
+            <div class="payment-option__desc">Tiền mặt / Chuyển khoản khi giao hàng</div>
+          </div>
+        </label>
+
+        <label class="payment-option @(Model?.PaymentMethod == "bank" ? "is-selected" : "")">
+          <input type="radio" name="PaymentMethod" value="bank"
+                 @(Model?.PaymentMethod == "bank" ? "checked" : "") />
+          <div class="payment-option__radio"></div>
+          <i class="payment-option__icon fa-solid fa-building-columns" aria-hidden="true"></i>
+          <div>
+            <div class="payment-option__label">Chuyển khoản ngân hàng</div>
+            <div class="payment-option__desc">VietcomBank / Techcombank / MOMO</div>
+          </div>
+        </label>
+
+        <label class="payment-option @(Model?.PaymentMethod == "card" ? "is-selected" : "")">
+          <input type="radio" name="PaymentMethod" value="card"
+                 @(Model?.PaymentMethod == "card" ? "checked" : "") />
+          <div class="payment-option__radio"></div>
+          <i class="payment-option__icon fa-solid fa-credit-card" aria-hidden="true"></i>
+          <div>
+            <div class="payment-option__label">Thẻ tín dụng / ghi nợ</div>
+            <div class="payment-option__desc">Visa · Mastercard · JCB</div>
+          </div>
+        </label>
+
+        @* ── VNPay Option ── Cổng thanh toán điện tử phổ biến tại Việt Nam *@
+        <label class="payment-option @(Model?.PaymentMethod == "vnpay" ? "is-selected" : "")"
+               id="vnpay-option">
+          <input type="radio" name="PaymentMethod" value="vnpay"
+                 @(Model?.PaymentMethod == "vnpay" ? "checked" : "")
+                 aria-labelledby="vnpay-label" />
+          <div class="payment-option__radio"></div>
+          @* Icon VNPay: dùng fa-landmark-dome gần giống logo bank *@
+          <i class="payment-option__icon fa-solid fa-qrcode" aria-hidden="true"
+             style="color:var(--c-gold)"></i>
+          <div>
+            <div class="payment-option__label" id="vnpay-label">
+              Thanh toán qua VNPay
+            </div>
+            <div class="payment-option__desc">
+              ATM · QR Code · Ví điện tử · Internet Banking
+            </div>
+          </div>
+          @* Badge "Bảo mật" *@
+          <span style="margin-left:auto;font-size:10px;font-weight:500;letter-spacing:.06em;
+                       color:var(--c-gold);border:1px solid var(--c-gold);
+                       padding:2px 6px;border-radius:20px;white-space:nowrap">
+            Bảo mật
+          </span>
+        </label>
+      </div>
+
+      <div class="form__group" style="margin-top: var(--sp-5)">
+        <label class="form__checkbox">
+          <input type="checkbox" name="AgreeTerms" required />
+          <span class="form__checkbox-label">
+            Tôi đồng ý với <a href="/dieu-khoan-su-dung" style="text-decoration:underline">điều khoản sử dụng</a>
+            và <a href="/chinh-sach-bao-mat" style="text-decoration:underline">chính sách bảo mật</a>
+            <span aria-hidden="true">*</span>
+          </span>
+        </label>
+      </div>
+
+      <p class="form__required-note" style="margin-bottom: var(--sp-6)">
+        <span aria-hidden="true">*</span> Thông tin bắt buộc
+      </p>
+
+      <button type="submit" class="btn btn--solid btn--lg btn--wide" id="placeOrderBtn">
+        Đặt hàng
+      </button>
+    </form>
+  </div>
+
+  @* ── Summary side ── *@
+  <aside class="checkout-summary" aria-label="Tóm tắt đơn hàng">
+    <h2 class="checkout-section-title" style="margin-top:0">Đơn hàng của bạn</h2>
+
+    @* Items *@
+    <div class="summary-items">
+      @if (Model?.CartItems?.Any() == true)
+      {
+        foreach (var item in Model.CartItems)
+        {
+          var variant = string.IsNullOrEmpty(item.SelectedColor) 
+            ? item.SelectedSize 
+            : string.IsNullOrEmpty(item.SelectedSize) 
+              ? item.SelectedColor 
+              : $"{item.SelectedColor} / {item.SelectedSize}";
+
+          <div class="summary-item">
+            <div class="summary-item__img">
+              <img src="@(item.Product?.ThumbnailUrl ?? "/images/placeholder-product.webp")"
+                   alt="@item.Product?.Name"
+                   width="60" height="60"
+                   loading="lazy" />
+              <span class="summary-item__qty-badge" aria-label="Số lượng: @item.Quantity">@item.Quantity</span>
+            </div>
+            <div>
+              <div class="summary-item__name">@item.Product?.Name</div>
+              @if (!string.IsNullOrEmpty(variant))
+              {
+                <div class="summary-item__variant">@variant</div>
+              }
+            </div>
+            <div class="summary-item__price">
+              @((item.Quantity * (item.Product?.Price ?? 0)).ToString("C0", new System.Globalization.CultureInfo("vi-VN")))
+            </div>
+          </div>
+        }
+      }
+    </div>
+
+    @* Coupon *@
+    <div class="cart-coupon" style="margin-bottom: var(--sp-4)">
+      @if (!string.IsNullOrEmpty(Model?.AppliedCouponCode))
+      {
+        <div class="applied-coupon" style="display:flex;align-items:center;justify-content:space-between;background:var(--c-bg-alt);padding:8px 12px;border-radius:var(--r-sm);border:1px dashed var(--c-gold)">
+          <span style="font-size:var(--fs-sm);font-weight:400;color:var(--c-gold)">
+            <i class="fa-solid fa-tag" style="margin-right:6px"></i>Đã áp dụng: <strong>@Model.AppliedCouponCode</strong>
+          </span>
+          <button type="button" id="checkoutCouponRemove" style="background:transparent;border:none;color:var(--c-danger);cursor:pointer;font-size:12px;display:flex;align-items:center;gap:4px">
+            <i class="fa-solid fa-trash"></i>Xóa
+          </button>
+        </div>
+      }
+      else
+      {
+        <div class="cart-coupon__row">
+          <label for="checkoutCoupon" class="sr-only">Mã giảm giá</label>
+          <input type="text" id="checkoutCoupon" class="cart-coupon__input"
+                 placeholder="Mã giảm giá..." />
+          <button type="button" class="cart-coupon__btn" id="checkoutCouponApply">Áp dụng</button>
+        </div>
+      }
+      <span class="coupon-msg" id="checkoutCouponMsg" role="status" aria-live="polite"></span>
+    </div>
+
+    @* Totals *@
+    <div class="summary-totals">
+      <div class="summary-row">
+        <span>Tạm tính</span>
+        <span>@(Model?.SubTotal.ToString("C0", new System.Globalization.CultureInfo("vi-VN")) ?? "0 ₫")</span>
+      </div>
+      @if (Model?.DiscountAmount > 0)
+      {
+        <div class="summary-row" style="color:var(--c-success)">
+          <span>Giảm giá</span>
+          <span>-@Model.DiscountAmount.ToString("C0", new System.Globalization.CultureInfo("vi-VN"))</span>
+        </div>
+      }
+      <div class="summary-row">
+        <span>Vận chuyển</span>
+        <span>@(Model?.ShippingFee == 0 ? "Miễn phí" : Model?.ShippingFee.ToString("C0", new System.Globalization.CultureInfo("vi-VN")) ?? "Miễn phí")</span>
+      </div>
+      <div class="summary-row summary-row--total">
+        <span>Tổng cộng</span>
+        <span>@(Model?.Total.ToString("C0", new System.Globalization.CultureInfo("vi-VN")) ?? "0 ₫")</span>
+      </div>
+    </div>
+
+    @* Trust badges *@
+    <div class="trust-badges">
+      <div class="trust-badge">
+        <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+        <span>Thanh toán bảo mật SSL 256-bit</span>
+      </div>
+      <div class="trust-badge">
+        <i class="fa-solid fa-rotate-left" aria-hidden="true"></i>
+        <span>Đổi trả miễn phí trong 30 ngày</span>
+      </div>
+      <div class="trust-badge">
+        <i class="fa-solid fa-truck-fast" aria-hidden="true"></i>
+        <span>Giao hàng nhanh 2–4 ngày</span>
+      </div>
+    </div>
+  </aside>
+</div>
+
+@section Scripts {
+  <script>
+    // ── Payment option selection ──
+    document.querySelectorAll('.payment-option').forEach(option => {
+      const radio = option.querySelector('input[type=radio]');
+      radio?.addEventListener('change', () => {
+        document.querySelectorAll('.payment-option').forEach(o => o.classList.remove('is-selected'));
+        if (radio.checked) option.classList.add('is-selected');
+      });
+      option.addEventListener('click', () => {
+        if (radio) { radio.checked = true; radio.dispatchEvent(new Event('change')); }
+      });
+    });
+
+    // ── Client-side Validation ──
+    const validators = {
+      CustomerName:  { required: true, minLength: 2, label: 'Họ và tên' },
+      CustomerEmail: { required: true, email: true,  label: 'Email' },
+      CustomerPhone: { required: true, phone: true,  label: 'Số điện thoại' },
+      ShipAddress:   { required: true, minLength: 5, label: 'Địa chỉ' },
+      ShipCity:      { required: true, minLength: 2, label: 'Thành phố' },
+    };
+
+    function showFieldError(fieldId, msg) {
+      const field = document.getElementById(fieldId) || document.querySelector('[name="' + fieldId + '"]');
+      if (!field) return;
+      field.style.borderColor = 'var(--c-danger)';
+      field.style.boxShadow = '0 0 0 2px rgba(163,45,45,0.15)';
+
+      let errEl = field.parentElement.querySelector('.field-err');
+      if (!errEl) {
+        errEl = document.createElement('span');
+        errEl.className = 'field-err';
+        errEl.style.cssText = 'display:block;font-size:11px;color:var(--c-danger);margin-top:4px;font-weight:400';
+        field.parentElement.appendChild(errEl);
+      }
+      errEl.textContent = msg;
+    }
+
+    function clearFieldError(fieldId) {
+      const field = document.getElementById(fieldId) || document.querySelector('[name="' + fieldId + '"]');
+      if (!field) return;
+      field.style.borderColor = '';
+      field.style.boxShadow = '';
+      const errEl = field.parentElement.querySelector('.field-err');
+      if (errEl) errEl.textContent = '';
+    }
+
+    function validateField(fieldId, rules) {
+      const field = document.getElementById(fieldId) || document.querySelector('[name="' + fieldId + '"]');
+      if (!field) return true;
+      const val = field.value.trim();
+
+      if (rules.required && !val) {
+        showFieldError(fieldId, rules.label + ' là bắt buộc');
+        return false;
+      }
+      if (rules.minLength && val.length < rules.minLength) {
+        showFieldError(fieldId, rules.label + ' phải có ít nhất ' + rules.minLength + ' ký tự');
+        return false;
+      }
+      if (rules.email && !/^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/.test(val)) {
+        showFieldError(fieldId, 'Địa chỉ email không hợp lệ');
+        return false;
+      }
+      if (rules.phone && !/^[0-9\s\-\+\(\)]{8,15}$/.test(val)) {
+        showFieldError(fieldId, 'Số điện thoại không hợp lệ (chỉ chứa số, 8–15 chữ số)');
+        return false;
+      }
+      clearFieldError(fieldId);
+      return true;
+    }
+
+    // Real-time validation on blur
+    Object.entries(validators).forEach(function(entry) {
+      var fieldId = entry[0], rules = entry[1];
+      const field = document.getElementById(fieldId) || document.querySelector('[name="' + fieldId + '"]');
+      field?.addEventListener('blur', () => validateField(fieldId, rules));
+      field?.addEventListener('input', () => {
+        if (field.style.borderColor === 'var(--c-danger)') validateField(fieldId, rules);
+      });
+    });
+
+    // Full form validation on submit
+    document.getElementById('checkoutForm')?.addEventListener('submit', function(e) {
+      let valid = true;
+
+      // Validate all fields
+      Object.entries(validators).forEach(([fieldId, rules]) => {
+        if (!validateField(fieldId, rules)) valid = false;
+      });
+
+      // Validate payment method selected
+      const paymentSelected = document.querySelector('input[name="PaymentMethod"]:checked');
+      if (!paymentSelected) {
+        valid = false;
+        const paymentSection = document.querySelector('.payment-options');
+        if (paymentSection) {
+          let errEl = paymentSection.parentElement.querySelector('.payment-err');
+          if (!errEl) {
+            errEl = document.createElement('div');
+            errEl.className = 'payment-err';
+            errEl.style.cssText = 'color:var(--c-danger);font-size:12px;margin-top:8px;font-weight:400';
+            paymentSection.after(errEl);
+          }
+          errEl.textContent = 'Vui lòng chọn phương thức thanh toán';
+        }
+      }
+
+      // Validate terms checkbox
+      const terms = document.querySelector('input[name="AgreeTerms"]');
+      if (terms && !terms.checked) {
+        valid = false;
+        let errEl = terms.closest('.form__group') || terms.closest('.form__checkbox')?.parentElement;
+        if (errEl) {
+          let termsErr = errEl.querySelector('.terms-err');
+          if (!termsErr) {
+            termsErr = document.createElement('div');
+            termsErr.className = 'terms-err';
+            termsErr.style.cssText = 'color:var(--c-danger);font-size:12px;margin-top:6px;font-weight:400';
+            errEl.appendChild(termsErr);
+          }
+          termsErr.textContent = 'Bạn cần đồng ý với điều khoản sử dụng';
+        }
+      } else if (terms) {
+        const termsErr = document.querySelector('.terms-err');
+        if (termsErr) termsErr.textContent = '';
+      }
+
+      if (!valid) {
+        e.preventDefault();
+        // Scroll to first error
+        const firstErr = document.querySelector('.field-err:not(:empty), .payment-err:not(:empty), .terms-err:not(:empty)');
+        firstErr?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+
+      // Loading state
+      const btn = document.getElementById('placeOrderBtn');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin" style="margin-right:8px"></i>Đang xử lý...';
+      }
+    });
+
+    // Terms checkbox — clear error on check
+    document.querySelector('input[name="AgreeTerms"]')?.addEventListener('change', function() {
+      const termsErr = document.querySelector('.terms-err');
+      if (termsErr && this.checked) termsErr.textContent = '';
+    });
+
+    // ── Apply coupon ──
+    document.getElementById('checkoutCouponApply')?.addEventListener('click', async () => {
+      const btn = document.getElementById('checkoutCouponApply');
+      const input = document.getElementById('checkoutCoupon');
+      const msg = document.getElementById('checkoutCouponMsg');
+      const code = input ? input.value.trim() : '';
+
+      if (!code) {
+        if (msg) {
+          msg.textContent = 'Vui lòng nhập mã giảm giá';
+          msg.style.color = 'var(--c-danger)';
+        }
+        return;
+      }
+
+      if (btn) btn.disabled = true;
+
+      try {
+        const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+        const res = await fetch('/cart/coupon', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'RequestVerificationToken': token
+          },
+          body: JSON.stringify({ code: code })
+        });
+        const data = await res.json();
+        
+        if (msg) {
+          msg.textContent = data.message;
+          msg.style.color = data.success ? 'var(--c-success)' : 'var(--c-danger)';
+        }
+
+        if (data.success) {
+          setTimeout(() => { window.location.reload(); }, 800);
+        }
+      } catch (err) {
+        console.error(err);
+        if (msg) {
+          msg.textContent = 'Có lỗi xảy ra khi áp dụng mã giảm giá';
+          msg.style.color = 'var(--c-danger)';
+        }
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    });
+
+    // ── Remove coupon ──
+    document.getElementById('checkoutCouponRemove')?.addEventListener('click', async () => {
+      const btn = document.getElementById('checkoutCouponRemove');
+      const msg = document.getElementById('checkoutCouponMsg');
+      
+      if (btn) btn.disabled = true;
+
+      try {
+        const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+        const res = await fetch('/cart/remove-coupon', {
+          method: 'POST',
+          headers: { 'RequestVerificationToken': token }
+        });
+        const data = await res.json();
+        
+        if (data.success) {
+          if (msg) {
+            msg.textContent = 'Đã hủy áp dụng mã giảm giá';
+            msg.style.color = 'var(--c-success)';
+          }
+          setTimeout(() => { window.location.reload(); }, 800);
+        }
+      } catch (err) {
+        console.error(err);
+        if (msg) {
+          msg.textContent = 'Có lỗi xảy ra khi hủy mã giảm giá';
+          msg.style.color = 'var(--c-danger)';
+        }
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    });
+  </script>
+}

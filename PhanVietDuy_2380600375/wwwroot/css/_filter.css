@@ -1,0 +1,185 @@
+/* ============================================================
+   VIETDUY LUXURY ATELIER — Filter System
+   ============================================================ */
+
+/* Most filter styles are already in _product-grid.css.
+   This file adds advanced filter components. */
+
+/* ── Active filters display ── */
+.active-filters {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+  margin-bottom: var(--sp-4);
+}
+
+.active-filter-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--fs-2xs);
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  padding: 5px 12px;
+  background: var(--c-ink);
+  color: var(--c-bg);
+  border-radius: var(--r-full);
+  white-space: nowrap;
+}
+
+.active-filter-tag__remove {
+  background: none;
+  border: none;
+  color: rgba(247,245,242,.6);
+  font-size: 12px;
+  cursor: pointer;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.active-filter-tag__remove:hover {
+  color: rgba(247,245,242,1);
+}
+
+.clear-filters {
+  font-size: var(--fs-xs);
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--c-gold);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 5px 0;
+  transition: color var(--dur-fast) var(--ease-out);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.clear-filters:hover {
+  color: var(--c-gold-dk);
+}
+
+/* ── Price input row ── */
+.price-inputs {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-top: var(--sp-3);
+}
+
+.price-input {
+  flex: 1;
+  font-family: var(--ff-body);
+  font-size: var(--fs-sm);
+  background: var(--c-bg-alt);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-sm);
+  padding: 8px 12px;
+  color: var(--c-ink);
+  outline: none;
+  transition: border-color var(--dur-fast) var(--ease-out);
+  width: 100%;
+}
+
+.price-input:focus {
+  border-color: var(--c-gold);
+}
+
+.price-sep {
+  font-size: var(--fs-sm);
+  color: var(--c-ink-lt);
+  flex-shrink: 0;
+}
+
+/* ── Checkbox filter group ── */
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.filter-check {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  cursor: pointer;
+  padding: var(--sp-1) 0;
+}
+
+.filter-check input[type=checkbox] {
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-sm);
+  appearance: none;
+  cursor: pointer;
+  background: var(--c-surface);
+  transition: all var(--dur-fast) var(--ease-out);
+  flex-shrink: 0;
+}
+
+.filter-check input:checked {
+  background: var(--c-ink);
+  border-color: var(--c-ink);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpolyline points='3,8 7,12 13,4' stroke='white' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 12px;
+}
+
+.filter-check__label {
+  font-size: var(--fs-sm);
+  font-weight: 300;
+  color: var(--c-ink-mid);
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.filter-check:hover .filter-check__label {
+  color: var(--c-ink);
+}
+
+.filter-check__count {
+  margin-left: auto;
+  font-size: var(--fs-xs);
+  color: var(--c-ink-faint);
+}
+
+/* ── UPGRADE 4: Filter pill smooth animations ── */
+.filter-pill {
+  transition:
+    background    180ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color  180ms cubic-bezier(0.22, 1, 0.36, 1),
+    color         180ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform     180ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.filter-pill:hover { transform: translateY(-1px); }
+
+.filter-pill--active {
+  animation: pillPop 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes pillPop {
+  0%   { transform: scale(0.94); }
+  100% { transform: scale(1); }
+}
+
+/* View toggle buttons */
+.view-toggle { display: flex; gap: 4px; }
+
+.view-btn {
+  width: 32px; height: 32px;
+  display: grid; place-items: center;
+  color: var(--c-ink-faint);
+  font-size: 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  transition: color 150ms ease, background 150ms ease;
+}
+.view-btn:hover { color: var(--c-ink-mid); background: var(--c-bg-alt); }
+.view-btn.is-active { color: var(--c-ink); background: var(--c-bg-alt); }

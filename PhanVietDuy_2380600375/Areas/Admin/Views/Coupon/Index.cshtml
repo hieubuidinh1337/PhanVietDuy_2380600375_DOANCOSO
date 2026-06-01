@@ -1,0 +1,126 @@
+@using PhanVietDuy_2380600375.Models.Domain
+@model IEnumerable<Coupon>
+@{
+  ViewData["Title"] = "Quản lý mã giảm giá";
+  Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="data-table-wrap reveal">
+  <div class="data-table-header">
+    <h2 class="data-table-header__title">Danh sách mã giảm giá</h2>
+    <div style="display:flex;gap:8px">
+      <a href="/admin/coupon/create" class="btn btn--gold btn--sm">
+        <i class="fa-regular fa-plus" aria-hidden="true" style="margin-right:6px"></i>Thêm mới
+      </a>
+    </div>
+  </div>
+
+  <div style="overflow-x:auto">
+    <table class="data-table" aria-label="Danh sách mã giảm giá">
+      <thead>
+        <tr>
+          <th scope="col">Mã giảm giá</th>
+          <th scope="col">Mô tả</th>
+          <th scope="col">Loại / Giá trị</th>
+          <th scope="col" style="text-align:center">Đơn hàng T.Thiểu</th>
+          <th scope="col" style="text-align:center">Hạn sử dụng</th>
+          <th scope="col" style="text-align:center">Trạng thái</th>
+          <th scope="col"><span class="sr-only">Thao tác</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (Model != null && Model.Any())
+        {
+          foreach (var item in Model)
+          {
+            <tr id="row-@item.Id">
+              <td>
+                <span style="font-weight:700;color:var(--c-ink);font-family:monospace;font-size:1.1em;background:var(--c-surface-hover);padding:4px 8px;border-radius:4px;letter-spacing:1px">@item.Code</span>
+              </td>
+              <td>
+                <span style="color:var(--c-ink-lt)">@(item.Description ?? "Không có mô tả")</span>
+              </td>
+              <td>
+                @if (item.DiscountType == "Percentage")
+                {
+                  <span class="badge" style="background:#e0f2fe;color:#0369a1;border:1px solid #bae6fd">Giảm @item.DiscountValue.ToString("0.##")%</span>
+                }
+                else
+                {
+                  <span class="badge" style="background:#fce7f3;color:#be185d;border:1px solid #fbcfe8">Giảm @item.DiscountValue.ToString("C0", new System.Globalization.CultureInfo("vi-VN"))</span>
+                }
+              </td>
+              <td style="text-align:center;font-weight:500">
+                @(item.MinOrderAmount > 0 ? item.MinOrderAmount.ToString("C0", new System.Globalization.CultureInfo("vi-VN")) : "Không yêu cầu")
+              </td>
+              <td style="text-align:center">
+                @if (item.ExpiresAt.HasValue)
+                {
+                    if (item.ExpiresAt.Value < DateTime.UtcNow)
+                    {
+                        <span class="text-danger"><i class="fa-regular fa-clock" style="margin-right:4px"></i>@item.ExpiresAt.Value.ToString("dd/MM/yyyy") (Đã hết hạn)</span>
+                    }
+                    else
+                    {
+                        <span>@item.ExpiresAt.Value.ToString("dd/MM/yyyy")</span>
+                    }
+                }
+                else
+                {
+                  <span style="color:var(--c-ink-lt)">Vô thời hạn</span>
+                }
+              </td>
+              <td style="text-align:center">
+                <span class="status-badge @(item.IsActive && (!item.ExpiresAt.HasValue || item.ExpiresAt.Value >= DateTime.UtcNow) ? "status-badge--shipped" : "status-badge--cancelled")">
+                  @(item.IsActive ? "Hoạt động" : "Tạm khóa")
+                </span>
+              </td>
+              <td>
+                <div style="display:flex;gap:8px;justify-content:flex-end">
+                  <a href="/admin/coupon/edit/@item.Id" class="quick-action-btn">Sửa</a>
+                  <button class="quick-action-btn quick-action-btn--danger" onclick="deleteCoupon(@item.Id)" type="button">Xóa</button>
+                </div>
+              </td>
+            </tr>
+          }
+        }
+        else
+        {
+          <tr>
+            <td colspan="7" style="text-align:center;padding:var(--sp-8);color:var(--c-ink-lt)">
+              Chưa có mã giảm giá nào.
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+
+@section Scripts {
+  <script>
+    function deleteCoupon(id) {
+      if (confirm("Bạn có chắc chắn muốn xóa mã giảm giá này?")) {
+        fetch(`/admin/coupon/delete/${id}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+          }
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            alert(data.message || "Xóa thành công!");
+            document.getElementById(`row-${id}`).remove();
+          } else {
+            alert(data.message || "Xóa thất bại!");
+          }
+        })
+        .catch(err => {
+          alert("Lỗi hệ thống khi xóa!");
+          console.error(err);
+        });
+      }
+    }
+  </script>
+}

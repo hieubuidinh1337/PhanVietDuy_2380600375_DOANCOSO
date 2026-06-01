@@ -1,0 +1,415 @@
+/* ============================================================
+   VIETDUY LUXURY ATELIER — Checkout Page
+   ============================================================ */
+
+/* ── Layout ── */
+.checkout-layout {
+  display: grid;
+  grid-template-columns: 58fr 42fr;
+  max-width: var(--max-w);
+  margin: 0 auto;
+  min-height: calc(100vh - var(--nav-h));
+}
+
+/* ── Form side ── */
+.checkout-form {
+  padding: 60px 64px 80px 60px;
+  border-right: 1px solid var(--c-border);
+}
+
+/* ── Summary side ── */
+.checkout-summary {
+  padding: 60px 60px 80px 64px;
+  background: var(--c-bg-alt);
+  position: sticky;
+  top: var(--nav-h);
+  height: calc(100vh - var(--nav-h));
+  overflow-y: auto;
+}
+
+/* ── Progress steps ── */
+.progress-steps {
+  display: flex;
+  align-items: center;
+  margin-bottom: var(--sp-8);
+}
+
+.progress-step {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.progress-step__circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1.5px solid var(--c-border);
+  display: grid;
+  place-items: center;
+  font-size: var(--fs-sm);
+  font-weight: 400;
+  color: var(--c-ink-lt);
+  transition: all var(--dur-base) var(--ease-out);
+  flex-shrink: 0;
+}
+
+.progress-step__label {
+  font-size: var(--fs-xs);
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--c-ink-lt);
+  transition: color var(--dur-base) var(--ease-out);
+  white-space: nowrap;
+}
+
+.progress-step.is-active .progress-step__circle {
+  background: var(--c-ink);
+  color: var(--c-bg);
+  border-color: var(--c-ink);
+}
+
+.progress-step.is-active .progress-step__label {
+  color: var(--c-ink);
+}
+
+.progress-step.is-complete .progress-step__circle {
+  background: var(--c-gold);
+  color: #fff;
+  border-color: var(--c-gold);
+}
+
+.progress-connector {
+  flex: 1;
+  height: 1px;
+  background: var(--c-border);
+  margin: 0 var(--sp-4);
+}
+
+/* ── Checkout section heading ── */
+.checkout-section-title {
+  font-family: var(--ff-display);
+  font-size: var(--fs-display-sm);
+  font-weight: 400;
+  margin-bottom: var(--sp-6);
+  margin-top: var(--sp-7);
+}
+
+.checkout-section-title:first-child {
+  margin-top: 0;
+}
+
+/* ── Payment options ── */
+.payment-options {
+  display: grid;
+  gap: var(--sp-3);
+}
+
+.payment-option {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  border: 1.5px solid var(--c-border);
+  border-radius: var(--r-md);
+  padding: var(--sp-4) var(--sp-5);
+  cursor: pointer;
+  transition: border-color var(--dur-fast) var(--ease-out),
+              background   var(--dur-fast) var(--ease-out);
+}
+
+.payment-option:hover {
+  border-color: var(--c-border-s);
+}
+
+.payment-option.is-selected {
+  border-color: var(--c-ink);
+  background: var(--c-bg-alt);
+}
+
+.payment-option input[type=radio] {
+  display: none;
+}
+
+.payment-option__radio {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1.5px solid var(--c-border);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  transition: all var(--dur-fast) var(--ease-out);
+}
+
+.payment-option.is-selected .payment-option__radio {
+  border-color: var(--c-ink);
+  background: var(--c-ink);
+}
+
+.payment-option.is-selected .payment-option__radio::after {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--c-bg);
+}
+
+.payment-option__icon {
+  font-size: 20px;
+  color: var(--c-ink-lt);
+  width: 28px;
+  text-align: center;
+}
+
+.payment-option__label {
+  font-size: var(--fs-base);
+  font-weight: 300;
+  color: var(--c-ink);
+}
+
+.payment-option__desc {
+  font-size: var(--fs-xs);
+  font-weight: 300;
+  color: var(--c-ink-lt);
+  margin-top: 2px;
+}
+
+/* ── Order summary items ── */
+.summary-items {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  margin-bottom: var(--sp-5);
+}
+
+.summary-item {
+  display: grid;
+  grid-template-columns: 60px 1fr auto;
+  gap: var(--sp-3);
+  align-items: center;
+}
+
+.summary-item__img {
+  width: 60px;
+  height: 60px;
+  border-radius: var(--r-sm);
+  overflow: hidden;
+  position: relative;
+  border: 1px solid var(--c-border);
+}
+
+.summary-item__img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.summary-item__qty-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--c-ink-mid);
+  color: #fff;
+  font-size: 9px;
+  display: grid;
+  place-items: center;
+}
+
+.summary-item__name {
+  font-size: var(--fs-sm);
+  font-weight: 400;
+  color: var(--c-ink);
+  line-height: 1.3;
+}
+
+.summary-item__variant {
+  font-size: var(--fs-xs);
+  font-weight: 300;
+  color: var(--c-ink-lt);
+  margin-top: 2px;
+}
+
+.summary-item__price {
+  font-family: var(--ff-display);
+  font-size: var(--fs-base);
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+/* ── Summary totals ── */
+.summary-totals {
+  border-top: 1px solid var(--c-border);
+  padding-top: var(--sp-4);
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--fs-sm);
+  color: var(--c-ink-mid);
+  font-weight: 300;
+  margin-bottom: var(--sp-2);
+}
+
+.summary-row--total {
+  font-size: var(--fs-base);
+  font-weight: 400;
+  color: var(--c-ink);
+  border-top: 1px solid var(--c-border);
+  padding-top: var(--sp-3);
+  margin-top: var(--sp-2);
+}
+
+.summary-row--total span:last-child {
+  font-family: var(--ff-display);
+  font-size: 1.2rem;
+}
+
+/* ── Trust badges ── */
+.trust-badges {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  margin-top: var(--sp-6);
+  padding-top: var(--sp-5);
+  border-top: 1px solid var(--c-border);
+}
+
+.trust-badge {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  font-size: var(--fs-xs);
+  font-weight: 300;
+  color: var(--c-ink-lt);
+}
+
+.trust-badge i {
+  color: var(--c-gold);
+  font-size: 14px;
+  width: 16px;
+  flex-shrink: 0;
+}
+
+/* ── Confirmation page ── */
+.confirmation-page {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: var(--sp-9) 24px;
+  text-align: center;
+}
+
+.confirmation-check {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto var(--sp-6);
+}
+
+.check-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.check-circle {
+  fill: none;
+  stroke: var(--c-gold);
+  stroke-width: 2;
+  stroke-dasharray: 226;
+  stroke-dashoffset: 226;
+  animation: drawCircle 800ms var(--ease-out) 200ms forwards;
+}
+
+.check-mark {
+  fill: none;
+  stroke: var(--c-ink);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 50;
+  stroke-dashoffset: 50;
+  animation: drawCheck 400ms var(--ease-out) 900ms forwards;
+}
+
+.confirmation-title {
+  font-family: var(--ff-display);
+  font-size: var(--fs-display-md);
+  font-weight: 300;
+  margin-bottom: var(--sp-3);
+  animation: fadeUp 600ms var(--ease-out) 1100ms both;
+}
+
+.confirmation-code {
+  display: inline-block;
+  font-family: var(--ff-display);
+  font-size: var(--fs-lg);
+  font-weight: 400;
+  color: var(--c-gold);
+  letter-spacing: 0.1em;
+  margin-bottom: var(--sp-4);
+  animation: fadeUp 600ms var(--ease-out) 1200ms both;
+}
+
+.confirmation-detail {
+  background: var(--c-bg-alt);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-md);
+  padding: var(--sp-6);
+  margin: var(--sp-7) 0;
+  text-align: left;
+  animation: fadeUp 600ms var(--ease-out) 1300ms both;
+}
+
+.confirmation-detail__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--sp-3) 0;
+  border-bottom: 1px solid var(--c-border);
+  font-size: var(--fs-sm);
+}
+
+.confirmation-detail__row:last-child {
+  border-bottom: none;
+}
+
+.confirmation-detail__label {
+  font-weight: 400;
+  color: var(--c-ink-lt);
+}
+
+.confirmation-detail__value {
+  font-weight: 300;
+  color: var(--c-ink);
+}
+
+.confirmation-actions {
+  display: flex;
+  justify-content: center;
+  gap: var(--sp-4);
+  flex-wrap: wrap;
+  animation: fadeUp 600ms var(--ease-out) 1400ms both;
+}
+
+/* ── Responsive ── */
+@media (max-width: 1024px) {
+  .checkout-layout {
+    grid-template-columns: 1fr;
+  }
+  .checkout-summary {
+    position: static;
+    height: auto;
+    padding: 40px 40px;
+    border-top: 1px solid var(--c-border);
+  }
+  .checkout-form { padding: 40px 40px 40px; border-right: none; }
+}
+
+@media (max-width: 768px) {
+  .checkout-form { padding: var(--sp-6) 24px; }
+  .checkout-summary { padding: var(--sp-6) 24px; }
+  .progress-steps { overflow-x: auto; }
+}

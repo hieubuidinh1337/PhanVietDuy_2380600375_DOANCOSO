@@ -1,0 +1,386 @@
+@using PhanVietDuy_2380600375.Models.ViewModels
+@model ProductIndexViewModel
+@{
+  ViewData["Title"] = "Sản phẩm";
+  ViewData["Page"] = "products";
+  ViewData["Description"] = "Khám phá bộ sưu tập sản phẩm cao cấp của Vietduy Atelier.";
+  var currentCategory = ViewBag.CurrentCategory as string ?? "";
+  var currentSort = ViewBag.CurrentSort as string ?? "";
+  var currentQ = ViewBag.Query as string ?? "";
+}
+@* ── Banner CSS ── *@
+<style>
+.prod-banner {
+    position: relative;
+    width: 100%;
+    height: 380px;
+    background: var(--c-bg-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    margin-bottom: 0;
+}
+.prod-banner__bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    opacity: 0.85;
+    animation: prodBannerPan 25s ease-in-out infinite alternate;
+}
+@@keyframes prodBannerPan {
+    from { transform: scale(1.05) translateX(-1%); }
+    to   { transform: scale(1.05) translateX(1%); }
+}
+.prod-banner__shade {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        to bottom,
+        rgba(14,12,10,0.6) 0%,
+        rgba(14,12,10,0.2) 50%,
+        rgba(14,12,10,0.7) 100%
+    );
+}
+.prod-banner__content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    padding: 0 24px;
+}
+.prod-banner__eyebrow {
+    display: block;
+    font-family: var(--ff-body);
+    font-size: var(--fs-2xs);
+    font-weight: 400;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--c-gold);
+    margin-bottom: 16px;
+}
+.prod-banner__title {
+    font-family: var(--ff-display);
+    font-size: clamp(2.5rem, 5vw, 4.5rem);
+    font-weight: 300;
+    color: #F0EDE8;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    text-shadow: 0 4px 24px rgba(0,0,0,0.4);
+}
+.prod-banner__title em {
+    font-style: italic;
+    color: var(--c-gold);
+}
+</style>
+
+@* ── Banner HTML ── *@
+<section class="prod-banner">
+    <img src="/images/products-banner.jpg" alt="Vietduy Atelier Bộ sưu tập" class="prod-banner__bg" loading="eager" />
+    <div class="prod-banner__shade"></div>
+    <div class="prod-banner__content">
+        <span class="prod-banner__eyebrow">Bộ sưu tập</span>
+        <h1 class="prod-banner__title">
+            Tuyệt tác <em>vượt thời gian</em>
+        </h1>
+    </div>
+</section>
+
+@* ── Filter bar (sticky) ── *@
+<div class="filter-bar" id="filterBar" role="navigation" aria-label="Lọc sản phẩm">
+
+  @* Category pills *@
+  <div class="filter-bar__pills">
+    <a href="/product" class="filter-pill @(string.IsNullOrEmpty(currentCategory) ? "filter-pill--active" : "")"
+       aria-current="@(string.IsNullOrEmpty(currentCategory) ? "true" : "false")">
+      Tất cả
+    </a>
+
+    @if (Model?.Categories != null)
+    {
+      foreach (var cat in Model.Categories)
+      {
+        <a href="/product?category=@cat.Slug@(!string.IsNullOrEmpty(currentQ) ? $"&q={currentQ}" : "")"
+           class="filter-pill @(currentCategory == cat.Slug ? "filter-pill--active" : "")"
+           aria-current="@(currentCategory == cat.Slug ? "true" : "false")">
+          @cat.Label
+        </a>
+      }
+    }
+  </div>
+
+  <div class="filter-divider" aria-hidden="true"></div>
+
+  @* Sort dropdown *@
+  <div class="sort-dropdown" id="sortDropdown">
+    <button class="sort-trigger" id="sortTrigger" aria-haspopup="listbox" aria-expanded="false">
+      <span id="sortLabel">
+        @(currentSort switch {
+          "price-asc"  => "Giá: Thấp đến cao",
+          "price-desc" => "Giá: Cao đến thấp",
+          "newest"     => "Mới nhất",
+          "popular"    => "Phổ biến nhất",
+          _            => "Sắp xếp"
+        })
+      </span>
+      <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+    </button>
+    <div class="sort-menu" id="sortMenu" role="listbox" aria-label="Tùy chọn sắp xếp">
+      @{
+        var sortOptions = new[] {
+          ("", "Mặc định"),
+          ("newest", "Mới nhất"),
+          ("popular", "Phổ biến nhất"),
+          ("price-asc", "Giá: Thấp đến cao"),
+          ("price-desc", "Giá: Cao đến thấp"),
+        };
+        foreach (var (val, label) in sortOptions)
+        {
+          <a href="/product?@(string.IsNullOrEmpty(currentCategory) ? "" : $"category={currentCategory}&")sort=@val@(!string.IsNullOrEmpty(currentQ) ? $"&q={currentQ}" : "")"
+             class="sort-option @(currentSort == val ? "is-active" : "")"
+             role="option"
+             aria-selected="@(currentSort == val ? "true" : "false")">
+            @label
+          </a>
+        }
+      }
+    </div>
+  </div>
+
+  <div class="filter-spacer" aria-hidden="true"></div>
+
+  @* View toggle *@
+  <div style="display:flex;gap:4px" role="group" aria-label="Chế độ xem">
+    <button class="view-btn is-active" id="viewGrid" aria-label="Xem dạng lưới" aria-pressed="true">
+      <i class="fa-solid fa-table-cells-large" aria-hidden="true"></i>
+    </button>
+    <button class="view-btn" id="viewList" aria-label="Xem dạng danh sách" aria-pressed="false">
+      <i class="fa-solid fa-list" aria-hidden="true"></i>
+    </button>
+  </div>
+</div>
+
+@* ── Page content ── *@
+<div class="products-page">
+  @* Left: products *@
+  <div>
+    @* Results bar *@
+    <div class="results-bar">
+      <p class="result-count" aria-live="polite" aria-atomic="true">
+        @if (!string.IsNullOrEmpty(currentQ))
+        {
+          <span>Kết quả cho "<strong>@currentQ</strong>": </span>
+        }
+        <strong>@(Model?.TotalCount ?? 0)</strong> sản phẩm
+      </p>
+
+      @if (!string.IsNullOrEmpty(currentCategory) || !string.IsNullOrEmpty(currentQ))
+      {
+        <a href="/product" class="btn btn--ghost btn--sm">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i> Xóa bộ lọc
+        </a>
+      }
+    </div>
+
+    @* ── UPGRADE 5: Active filter chip ── *@
+    @if (!string.IsNullOrEmpty(Model?.CurrentCategory))
+    {
+      <div style="margin-bottom:16px">
+        <span class="active-filter-chip">
+          <i class="fa-solid fa-tag" style="font-size:10px;color:var(--c-gold)"></i>
+          @(Model.Categories?.FirstOrDefault(c => c.Slug == Model.CurrentCategory)?.Name ?? Model.CurrentCategory)
+          <a href="/product" class="active-filter-chip__remove" aria-label="Xóa filter">
+            <i class="fa-solid fa-xmark"></i>
+          </a>
+        </span>
+      </div>
+    }
+
+    @* Product grid *@
+    @if (Model?.Products?.Any() == true)
+    {
+      <div class="products-grid" id="productsGrid">
+        @foreach (var product in Model.Products)
+        {
+          @await Html.PartialAsync("_ProductCard", product)
+        }
+      </div>
+
+      @* Pagination *@
+      @if (Model?.Products != null)
+      {
+        @await Html.PartialAsync("_Pagination", Model.Products)
+      }
+    }
+    else
+    {
+      @await Html.PartialAsync("_EmptyState", (
+        "fa-solid fa-face-frown",
+        "Không tìm thấy sản phẩm",
+        "Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm.",
+        "/product",
+        "Xem tất cả sản phẩm"
+      ))
+    }
+  </div>
+
+  @* Right: sidebar *@
+  <aside class="sidebar" role="complementary" aria-label="Thông tin thêm">
+
+    @* About widget *@
+    <div class="widget">
+      <h3 class="widget__title">Về chúng tôi</h3>
+      <p class="widget-about__text">
+        Vietduy Atelier — hành trình 38 năm theo đuổi nghệ thuật thủ công tinh xảo.
+        Mỗi sản phẩm là một tuyên ngôn về phong cách và đẳng cấp.
+      </p>
+      <a href="#story" class="btn btn--outline btn--sm" style="width:100%">Tìm hiểu thêm</a>
+    </div>
+
+    @* Services widget — Luxury Edition *@
+    <div class="sidebar-widget">
+      <span class="sidebar-widget__label">Dịch vụ</span>
+      <h3 class="sidebar-widget__title">Cam kết của chúng tôi</h3>
+
+      <ul class="sidebar-services">
+        <li class="sidebar-service">
+          <div class="sidebar-service__icon">
+            <i class="fa-solid fa-truck-fast" aria-hidden="true"></i>
+          </div>
+          <div class="sidebar-service__body">
+            <p class="sidebar-service__title">Miễn phí vận chuyển</p>
+            <p class="sidebar-service__sub">Cho đơn hàng từ 12.500.000 ₫ toàn cầu</p>
+          </div>
+        </li>
+        <li class="sidebar-service">
+          <div class="sidebar-service__icon">
+            <i class="fa-solid fa-rotate-left" aria-hidden="true"></i>
+          </div>
+          <div class="sidebar-service__body">
+            <p class="sidebar-service__title">Đổi trả 30 ngày</p>
+            <p class="sidebar-service__sub">Miễn phí đổi trả lần đầu</p>
+          </div>
+        </li>
+        <li class="sidebar-service">
+          <div class="sidebar-service__icon">
+            <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+          </div>
+          <div class="sidebar-service__body">
+            <p class="sidebar-service__title">Bảo hành 2 năm</p>
+            <p class="sidebar-service__sub">Chứng nhận chính hãng GIA</p>
+          </div>
+        </li>
+        <li class="sidebar-service">
+          <div class="sidebar-service__icon">
+            <i class="fa-solid fa-message" aria-hidden="true"></i>
+          </div>
+          <div class="sidebar-service__body">
+            <p class="sidebar-service__title">Tư vấn 1-1</p>
+            <p class="sidebar-service__sub">T2-T7, 9:00-18:00 Paris</p>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    @* Newsletter widget *@
+    <div class="widget widget-newsletter">
+      <h3 class="widget__title">Nhận tin tức</h3>
+      <form action="/newsletter/subscribe" method="post">
+        @Html.AntiForgeryToken()
+        <label for="sidebarEmail" class="sr-only">Email</label>
+        <div class="form__inline">
+          <input type="email" name="email" id="sidebarEmail"
+                 class="form__input"
+                 placeholder="Email của bạn..." required />
+          <button type="submit" class="btn btn--solid">
+            <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+          </button>
+        </div>
+      </form>
+    </div>
+
+    @* Social widget *@
+    <div class="widget">
+      <h3 class="widget__title">Theo dõi chúng tôi</h3>
+      <div class="widget-social">
+        @{
+          var socials = new[] {
+            ("fa-brands fa-facebook-f", "Facebook", "#"),
+            ("fa-brands fa-instagram",  "Instagram", "#"),
+            ("fa-brands fa-x-twitter",  "X",         "#"),
+            ("fa-brands fa-pinterest-p","Pinterest", "#"),
+          };
+          foreach (var (icon, name, href) in socials)
+          {
+            <a href="@href" class="social-link" aria-label="@name" rel="noopener noreferrer">
+              <span class="social-link__icon"><i class="@icon" aria-hidden="true"></i></span>
+              <span>@name</span>
+              <i class="fa-solid fa-arrow-right social-link__arrow" aria-hidden="true"></i>
+            </a>
+          }
+        }
+      </div>
+    </div>
+  </aside>
+</div>
+
+@section Scripts {
+  <script>
+    // Filter bar elevation on scroll
+    const filterBar = document.getElementById('filterBar');
+    window.addEventListener('scroll', () => {
+      filterBar?.classList.toggle('is-elevated', window.scrollY > 100);
+    }, { passive: true });
+
+    // Sort dropdown
+    const sortDropdown = document.getElementById('sortDropdown');
+    const sortTrigger  = document.getElementById('sortTrigger');
+    const sortMenu     = document.getElementById('sortMenu');
+    sortTrigger?.addEventListener('click', () => {
+      const isOpen = sortDropdown.classList.toggle('is-open');
+      sortTrigger.setAttribute('aria-expanded', String(isOpen));
+    });
+    document.addEventListener('click', e => {
+      if (!sortDropdown?.contains(e.target)) {
+        sortDropdown?.classList.remove('is-open');
+        sortTrigger?.setAttribute('aria-expanded', 'false');
+      }
+    });
+
+    // ── UPGRADE 4: View toggle with localStorage + fade animation ──
+    const gridEl   = document.getElementById('productsGrid');
+    const viewGrid = document.getElementById('viewGrid');
+    const viewList = document.getElementById('viewList');
+
+    function applyView(view, animate) {
+      if (animate && gridEl) {
+        gridEl.style.transition = 'none';
+        gridEl.style.opacity = '0';
+        gridEl.style.transform = 'translateY(8px)';
+        setTimeout(() => {
+          gridEl.classList.toggle('products-grid--list', view === 'list');
+          gridEl.style.transition = 'opacity 300ms ease, transform 300ms ease';
+          gridEl.style.opacity = '1';
+          gridEl.style.transform = 'none';
+        }, 150);
+      } else if (gridEl) {
+        gridEl.classList.toggle('products-grid--list', view === 'list');
+      }
+      const isGrid = view === 'grid';
+      viewGrid?.classList.toggle('is-active', isGrid);
+      viewGrid?.setAttribute('aria-pressed', String(isGrid));
+      viewList?.classList.toggle('is-active', !isGrid);
+      viewList?.setAttribute('aria-pressed', String(!isGrid));
+      localStorage.setItem('vd-view-pref', view);
+    }
+
+    // Restore preference
+    const savedView = localStorage.getItem('vd-view-pref') || 'grid';
+    applyView(savedView, false);
+
+    viewGrid?.addEventListener('click', () => applyView('grid', true));
+    viewList?.addEventListener('click', () => applyView('list', true));
+  </script>
+}

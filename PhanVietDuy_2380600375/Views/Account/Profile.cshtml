@@ -1,0 +1,423 @@
+@using PhanVietDuy_2380600375.Models.ViewModels
+@model ProfileViewModel
+@{
+  ViewData["Title"] = "Hồ sơ cá nhân";
+  ViewData["Page"]  = "profile";
+}
+
+<div class="orders-page">
+
+  @* ── Page header ── *@
+  <div class="orders-page__header reveal-fade">
+    <div>
+      <span class="orders-page__eyebrow">Tài khoản</span>
+      <h1 class="orders-page__title">Hồ sơ <em style="font-style:italic">của tôi</em></h1>
+    </div>
+  </div>
+
+  @* ── Alert messages ── *@
+  @if (TempData["Success"] != null)
+  {
+    <div class="alert alert--success reveal-fade">
+      <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+      @TempData["Success"]
+    </div>
+  }
+  @if (TempData["Error"] != null)
+  {
+    <div class="alert alert--danger reveal-fade">
+      <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+      @TempData["Error"]
+    </div>
+  }
+
+  <div class="account-layout">
+
+    @* LEFT SIDEBAR *@
+    <aside class="account-sidebar" aria-label="Menu tài khoản">
+
+      @* Avatar card *@
+      <div class="profile-avatar-card reveal-fade">
+        <div class="profile-avatar-wrap">
+          <img
+            id="profileAvatarImg"
+            src="@(string.IsNullOrEmpty(Model.User.AvatarUrl) ? "/images/placeholder-avatar.webp" : Model.User.AvatarUrl)"
+            alt="Ảnh đại diện của @Model.User.FullName"
+            class="profile-avatar__img"
+            width="120" height="120" />
+          <label for="avatarUploadInput" class="profile-avatar__change" title="Đổi ảnh đại diện">
+            <i class="fa-solid fa-camera" aria-hidden="true"></i>
+          </label>
+          <input type="file" id="avatarUploadInput" accept="image/*" class="sr-only" aria-label="Tải lên ảnh đại diện" />
+        </div>
+
+        <h2 class="profile-avatar__name">@Model.User.FullName</h2>
+        <p class="profile-avatar__email">@Model.User.Email</p>
+        <p class="profile-avatar__since">
+          <i class="fa-regular fa-calendar" aria-hidden="true" style="margin-right:4px;color:var(--c-gold)"></i>
+          Thành viên từ @(Model.User.CreatedAt.HasValue ? Model.User.CreatedAt.Value.ToString("MMMM yyyy", new System.Globalization.CultureInfo("vi-VN")) : "")
+        </p>
+      </div>
+
+      @* Navigation *@
+      <nav class="account-nav">
+        <a href="/tai-khoan/ho-so" class="account-nav__link account-nav__link--active" aria-current="page">
+          <i class="fa-regular fa-circle-user" aria-hidden="true"></i>
+          <span>Thông tin cá nhân</span>
+        </a>
+        <a href="/don-hang" class="account-nav__link">
+          <i class="fa-regular fa-bag-shopping" aria-hidden="true"></i>
+          <span>Lịch sử đơn hàng</span>
+        </a>
+        <a href="/yeu-thich" class="account-nav__link">
+          <i class="fa-regular fa-heart" aria-hidden="true"></i>
+          <span>Sản phẩm yêu thích</span>
+        </a>
+        <a href="/tai-khoan/doi-mat-khau" class="account-nav__link">
+          <i class="fa-regular fa-lock" aria-hidden="true"></i>
+          <span>Đổi mật khẩu</span>
+        </a>
+        <div class="account-nav__divider"></div>
+        <form asp-controller="Account" asp-action="Logout" method="post">
+          @Html.AntiForgeryToken()
+          <button type="submit" class="account-nav__link account-nav__link--danger">
+            <i class="fa-regular fa-arrow-right-from-bracket" aria-hidden="true"></i>
+            <span>Đăng xuất</span>
+          </button>
+        </form>
+      </nav>
+    </aside>
+
+    @* MAIN CONTENT *@
+    <div class="account-content">
+
+      @* Personal info form *@
+      <div class="profile-form-card reveal-fade">
+        <div class="profile-form-card__header">
+          <span class="section-eyebrow">Cập nhật</span>
+          <h2 class="profile-form-card__title">Thông tin <em>cá nhân</em></h2>
+          <div class="reveal-rule is-visible" style="width:44px"></div>
+        </div>
+
+        <form method="post" action="/Account/UpdateProfile" novalidate id="profileForm">
+          @Html.AntiForgeryToken()
+
+          <div class="form__row">
+            <div class="form__group">
+              <label class="form__label" for="FullName">
+                Họ và tên <abbr title="Bắt buộc" aria-label="Bắt buộc">*</abbr>
+              </label>
+              <input class="form__input" name="FullName" id="FullName"
+                     value="@Model.User.FullName" required
+                     autocomplete="name" />
+            </div>
+            <div class="form__group">
+              <label class="form__label" for="Email">Địa chỉ Email</label>
+              <input class="form__input" id="Email" value="@Model.User.Email"
+                     disabled aria-readonly="true"
+                     style="background:var(--c-bg-alt);cursor:not-allowed;color:var(--c-ink-lt)" />
+              <span class="form__hint">Email không thể thay đổi</span>
+            </div>
+          </div>
+
+          <div class="form__row">
+            <div class="form__group">
+              <label class="form__label" for="PhoneNumber">Số điện thoại</label>
+              <input class="form__input" name="PhoneNumber" id="PhoneNumber"
+                     value="@Model.User.PhoneNumber" type="tel"
+                     autocomplete="tel" />
+            </div>
+            <div class="form__group">
+              <label class="form__label" for="Age">Tuổi</label>
+              <input class="form__input" name="Age" id="Age"
+                     value="@Model.User.Age" type="number" min="0" max="120" />
+            </div>
+          </div>
+
+          <div class="form__group">
+            <label class="form__label" for="Address">Địa chỉ nhà</label>
+            <input class="form__input" name="Address" id="Address"
+                   value="@Model.User.Address"
+                   placeholder="Số nhà, tên đường..."
+                   autocomplete="street-address" />
+          </div>
+
+          <div class="form__row">
+            <div class="form__group">
+              <label class="form__label" for="City">Thành phố</label>
+              <input class="form__input" name="City" id="City"
+                     value="@Model.User.City"
+                     autocomplete="address-level2" />
+            </div>
+            <div class="form__group">
+              <label class="form__label" for="Country">Quốc gia</label>
+              <input class="form__input" name="Country" id="Country"
+                     value="@Model.User.Country"
+                     autocomplete="country-name" />
+            </div>
+          </div>
+
+          <div style="display:flex;gap:var(--sp-3);margin-top:var(--sp-5)">
+            <button type="submit" class="btn btn--solid btn--lg" id="profileSaveBtn">
+              <i class="fa-regular fa-floppy-disk" aria-hidden="true" style="margin-right:6px"></i>
+              Lưu thay đổi
+            </button>
+            <button type="reset" class="btn btn--ghost">Đặt lại</button>
+          </div>
+        </form>
+      </div>
+
+      @* Quick access cards *@
+      <div class="profile-quick-cards reveal-fade" style="--reveal-delay:100ms">
+        <a href="/don-hang" class="profile-quick-card">
+          <div class="profile-quick-card__icon">
+            <i class="fa-regular fa-bag-shopping" aria-hidden="true"></i>
+          </div>
+          <div>
+            <div class="profile-quick-card__title">Đơn hàng của tôi</div>
+            <div class="profile-quick-card__sub">Xem lịch sử đặt hàng</div>
+          </div>
+          <i class="fa-solid fa-arrow-right profile-quick-card__arrow" aria-hidden="true"></i>
+        </a>
+
+        <a href="/yeu-thich" class="profile-quick-card">
+          <div class="profile-quick-card__icon">
+            <i class="fa-regular fa-heart" aria-hidden="true"></i>
+          </div>
+          <div>
+            <div class="profile-quick-card__title">Sản phẩm yêu thích</div>
+            <div class="profile-quick-card__sub">Xem danh sách đã lưu</div>
+          </div>
+          <i class="fa-solid fa-arrow-right profile-quick-card__arrow" aria-hidden="true"></i>
+        </a>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+@section Styles {
+  <style>
+    .account-layout {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: var(--sp-7);
+      align-items: start;
+    }
+    .account-sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: var(--sp-4);
+      position: sticky;
+      top: calc(var(--nav-h) + 24px);
+    }
+
+    /* Avatar card */
+    .profile-avatar-card {
+      background: var(--c-surface);
+      border: 1px solid var(--c-border);
+      border-radius: var(--r-lg);
+      padding: var(--sp-5);
+      text-align: center;
+      box-shadow: var(--sh-sm);
+    }
+    .profile-avatar-wrap {
+      position: relative;
+      width: 100px;
+      height: 100px;
+      margin: 0 auto var(--sp-4);
+    }
+    .profile-avatar__img {
+      width: 100px; height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--c-border);
+    }
+    .profile-avatar__change {
+      position: absolute;
+      bottom: 0; right: 0;
+      width: 28px; height: 28px;
+      background: var(--c-ink);
+      color: var(--c-bg);
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all var(--dur-fast) var(--ease-luxury);
+      border: 2px solid var(--c-surface);
+    }
+    .profile-avatar__change:hover {
+      background: var(--c-gold);
+      transform: scale(1.1);
+    }
+    .profile-avatar__name {
+      font-family: var(--ff-display);
+      font-size: 1.2rem;
+      font-weight: 400;
+      color: var(--c-ink);
+      margin-bottom: 4px;
+    }
+    .profile-avatar__email {
+      font-size: var(--fs-sm);
+      color: var(--c-ink-lt);
+      margin-bottom: 8px;
+    }
+    .profile-avatar__since {
+      font-size: var(--fs-xs);
+      color: var(--c-ink-faint);
+    }
+
+    /* Form card */
+    .profile-form-card {
+      background: var(--c-surface);
+      border: 1px solid var(--c-border);
+      border-radius: var(--r-lg);
+      padding: var(--sp-6);
+      box-shadow: var(--sh-sm);
+      margin-bottom: var(--sp-5);
+    }
+    .profile-form-card__header {
+      margin-bottom: var(--sp-6);
+      border-bottom: 1px solid var(--c-border);
+      padding-bottom: var(--sp-5);
+    }
+    .profile-form-card__title {
+      font-family: var(--ff-display);
+      font-size: var(--fs-display-sm);
+      font-weight: 300;
+      margin-top: 4px;
+    }
+    .form__hint {
+      font-size: var(--fs-xs);
+      color: var(--c-ink-faint);
+      margin-top: 4px;
+      display: block;
+    }
+
+    /* Quick cards */
+    .profile-quick-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--sp-4);
+    }
+    .profile-quick-card {
+      background: var(--c-surface);
+      border: 1px solid var(--c-border);
+      border-radius: var(--r-lg);
+      padding: var(--sp-5);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: var(--sp-4);
+      transition: all var(--dur-base) var(--ease-luxury);
+      box-shadow: var(--sh-sm);
+    }
+    .profile-quick-card:hover {
+      border-color: var(--c-gold-lt);
+      box-shadow: var(--sh-md);
+      transform: translateY(-2px);
+    }
+    .profile-quick-card__icon {
+      width: 48px; height: 48px;
+      background: rgba(184,150,62,0.1);
+      border-radius: var(--r-md);
+      display: grid;
+      place-items: center;
+      color: var(--c-gold);
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+    .profile-quick-card__title {
+      font-size: var(--fs-sm);
+      font-weight: 400;
+      color: var(--c-ink);
+      margin-bottom: 2px;
+    }
+    .profile-quick-card__sub {
+      font-size: var(--fs-xs);
+      color: var(--c-ink-lt);
+    }
+    .profile-quick-card__arrow {
+      margin-left: auto;
+      color: var(--c-ink-faint);
+      font-size: 11px;
+      transition: all var(--dur-fast) var(--ease-luxury);
+    }
+    .profile-quick-card:hover .profile-quick-card__arrow {
+      color: var(--c-gold);
+      transform: translateX(4px);
+    }
+
+    /* Account nav (same as MyOrders) */
+    .account-nav {
+      background: var(--c-surface);
+      border: 1px solid var(--c-border);
+      border-radius: var(--r-lg);
+      overflow: hidden;
+      box-shadow: var(--sh-sm);
+    }
+    .account-nav__link {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 20px;
+      font-family: var(--ff-body); font-size: var(--fs-sm); font-weight: 300;
+      color: var(--c-ink-mid);
+      text-decoration: none;
+      transition: all var(--dur-fast) var(--ease-luxury);
+      border: none; background: none; cursor: pointer;
+      width: 100%; text-align: left;
+      border-bottom: 1px solid var(--c-border);
+    }
+    .account-nav__link:last-child { border-bottom: none; }
+    .account-nav__link:hover { color: var(--c-ink); background: var(--c-bg-alt); padding-left: 24px; }
+    .account-nav__link--active {
+      color: var(--c-gold-dk); background: rgba(184,150,62,0.07);
+      font-weight: 400; border-left: 3px solid var(--c-gold); padding-left: 17px;
+    }
+    .account-nav__link--danger { color: var(--c-danger); }
+    .account-nav__link--danger:hover { background: rgba(163,45,45,0.07); color: var(--c-danger); padding-left: 24px; }
+    .account-nav__link i { width: 16px; font-size: 13px; flex-shrink: 0; }
+    .account-nav__divider { height: 1px; background: var(--c-border); }
+
+    @@media (max-width: 768px) {
+      .account-layout { grid-template-columns: 1fr; }
+      .account-sidebar { position: static; }
+      .account-nav { display: flex; overflow-x: auto; border-radius: var(--r-md); }
+      .account-nav__link { white-space: nowrap; border-bottom: none; border-right: 1px solid var(--c-border); }
+      .account-nav__link--active { border-left: none; border-bottom: 3px solid var(--c-gold); padding-left: 20px; }
+      .account-nav__divider { display: none; }
+      .profile-quick-cards { grid-template-columns: 1fr; }
+    }
+  </style>
+}
+
+@section Scripts {
+  <script>
+    document.getElementById('avatarUploadInput')?.addEventListener('change', async function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const formData = new FormData();
+      formData.append('avatar', file);
+
+      try {
+        const response = await fetch('/Account/UploadAvatar', {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+          }
+        });
+        const result = await response.json();
+        if (result.success) {
+          document.getElementById('profileAvatarImg').src = result.avatarUrl;
+          window.showToast?.('Cập nhật ảnh đại diện thành công!', 'success');
+        } else {
+          window.showToast?.(result.message || 'Có lỗi xảy ra khi tải ảnh.', 'error');
+        }
+      } catch {
+        window.showToast?.('Không thể kết nối đến máy chủ.', 'error');
+      }
+    });
+  </script>
+}

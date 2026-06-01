@@ -1,0 +1,271 @@
+@using PhanVietDuy_2380600375.Models.Domain
+@model Order
+@{
+  ViewData["Title"] = "Chi tiết đơn hàng " + Model.OrderCode;
+  ViewData["Page"] = "orders";
+}
+
+<div class="container" style="max-width:var(--content-w);margin:var(--sp-8) auto;padding:0 var(--sp-4)">
+  <div style="margin-bottom:var(--sp-6)">
+    <a href="/order" style="font-size:var(--fs-sm);color:var(--c-ink-lt);text-decoration:none;display:inline-flex;align-items:center;gap:6px;margin-bottom:var(--sp-3)">
+      <i class="fa-solid fa-arrow-left"></i> Quay lại đơn hàng
+    </a>
+    <span class="section-tag">Tài khoản</span>
+    <h1 style="font-family:var(--ff-display);font-size:var(--fs-display-lg);font-weight:300;margin-top:var(--sp-1)">
+      Đơn hàng <em>@Model.OrderCode</em>
+    </h1>
+  </div>
+
+  @if (TempData["Message"] != null)
+  {
+    <div style="background:rgba(59,109,17,0.08);border:1px solid rgba(59,109,17,0.25);border-radius:var(--r-md);padding:var(--sp-4);margin-bottom:var(--sp-5);color:var(--c-success);font-size:var(--fs-sm)">
+      <i class="fa-solid fa-circle-check" style="margin-right:8px"></i> @TempData["Message"]
+    </div>
+  }
+  @if (TempData["Error"] != null)
+  {
+    <div style="background:rgba(163,45,45,0.08);border:1px solid rgba(163,45,45,0.25);border-radius:var(--r-md);padding:var(--sp-4);margin-bottom:var(--sp-5);color:var(--c-danger);font-size:var(--fs-sm)">
+      <i class="fa-solid fa-circle-xmark" style="margin-right:8px"></i> @TempData["Error"]
+    </div>
+  }
+
+  <div style="display:grid;grid-template-columns:1fr 340px;gap:var(--sp-6);align-items:start">
+
+    @* ── LEFT: Order items ── *@
+    <div style="display:flex;flex-direction:column;gap:var(--sp-5)">
+
+      @* Status Banner *@
+      @{
+        var statusLabel = Model.Status switch {
+          "Pending"    => "Chờ xác nhận",
+          "Confirmed"  => "Đã xác nhận",
+          "Processing" => "Đang xử lý",
+          "Shipped"    => "Đang giao hàng",
+          "Delivered"  => "Đã giao hàng",
+          "Cancelled"  => "Đã hủy",
+          _            => Model.Status ?? "Chờ xác nhận"
+        };
+        var statusIcon = Model.Status switch {
+          "Pending"    => "fa-clock",
+          "Confirmed"  => "fa-circle-check",
+          "Processing" => "fa-gear",
+          "Shipped"    => "fa-truck",
+          "Delivered"  => "fa-box-open",
+          "Cancelled"  => "fa-circle-xmark",
+          _            => "fa-circle-info"
+        };
+        var statusColor = Model.Status switch {
+          "Pending"    => "var(--c-warning)",
+          "Confirmed"  => "#2563eb",
+          "Processing" => "#7c3aed",
+          "Shipped"    => "#0891b2",
+          "Delivered"  => "var(--c-success)",
+          "Cancelled"  => "var(--c-danger)",
+          _            => "var(--c-ink-lt)"
+        };
+        var statusBg = Model.Status switch {
+          "Pending"    => "rgba(133,79,11,0.06)",
+          "Confirmed"  => "rgba(37,99,235,0.06)",
+          "Processing" => "rgba(124,58,237,0.06)",
+          "Shipped"    => "rgba(8,145,178,0.06)",
+          "Delivered"  => "rgba(59,109,17,0.06)",
+          "Cancelled"  => "rgba(163,45,45,0.06)",
+          _            => "rgba(140,135,126,0.06)"
+        };
+      }
+      <div style="background:@statusBg;border:1px solid;border-color:@statusColor;border-radius:var(--r-lg);padding:var(--sp-5);display:flex;align-items:center;gap:var(--sp-4)">
+        <i class="fa-solid @statusIcon" style="font-size:1.8rem;color:@statusColor;flex-shrink:0"></i>
+        <div>
+          <div style="font-size:var(--fs-xs);color:var(--c-ink-lt);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px">Trạng thái đơn hàng</div>
+          <div style="font-size:1.1rem;font-weight:600;color:@statusColor">@statusLabel</div>
+          <div style="font-size:var(--fs-xs);color:var(--c-ink-lt);margin-top:4px">
+            Đặt lúc @Model.OrderedAt.ToString("HH:mm, dd/MM/yyyy")
+            @if (Model.ConfirmedAt.HasValue) { <span style="margin-left:8px">· Xác nhận @Model.ConfirmedAt.Value.ToString("HH:mm, dd/MM/yyyy")</span> }
+            @if (Model.ShippedAt.HasValue) { <span style="margin-left:8px">· Giao lúc @Model.ShippedAt.Value.ToString("HH:mm, dd/MM/yyyy")</span> }
+            @if (Model.DeliveredAt.HasValue) { <span style="margin-left:8px">· Đã nhận @Model.DeliveredAt.Value.ToString("HH:mm, dd/MM/yyyy")</span> }
+          </div>
+        </div>
+      </div>
+
+      @* Items Table *@
+      <div style="background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--r-lg);box-shadow:var(--sh-sm);overflow:hidden">
+        <div style="padding:var(--sp-5) var(--sp-6);border-bottom:1px solid var(--c-border)">
+          <h2 style="font-family:var(--ff-display);font-size:1.3rem;font-weight:300;margin:0">
+            Sản phẩm <em>đã đặt</em>
+          </h2>
+        </div>
+        <div style="overflow-x:auto">
+          <table style="width:100%;border-collapse:collapse;font-size:var(--fs-sm)">
+            <thead>
+              <tr style="background:var(--c-bg-alt);color:var(--c-ink-lt)">
+                <th style="padding:12px 16px;font-weight:400;text-align:left">Sản phẩm</th>
+                <th style="padding:12px 16px;font-weight:400;text-align:center">Số lượng</th>
+                <th style="padding:12px 16px;font-weight:400;text-align:right">Đơn giá</th>
+                <th style="padding:12px 16px;font-weight:400;text-align:right">Thành tiền</th>
+              </tr>
+            </thead>
+            <tbody>
+              @foreach (var item in Model.OrderDetails)
+              {
+                var lineTotal = item.UnitPrice * item.Quantity;
+                <tr style="border-bottom:1px solid var(--c-bg-alt)">
+                  <td style="padding:16px">
+                    <div style="display:flex;align-items:center;gap:12px">
+                      @if (!string.IsNullOrEmpty(item.ImageUrl))
+                      {
+                        <img src="@item.ImageUrl" alt="@item.ProductName"
+                             style="width:56px;height:56px;object-fit:cover;border-radius:var(--r-md);flex-shrink:0;border:1px solid var(--c-border)" />
+                      }
+                      else
+                      {
+                        <div style="width:56px;height:56px;background:var(--c-bg-alt);border-radius:var(--r-md);flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--c-ink-lt)">
+                          <i class="fa-regular fa-image"></i>
+                        </div>
+                      }
+                      <div>
+                        <div style="font-weight:500;color:var(--c-ink)">@item.ProductName</div>
+                        @if (!string.IsNullOrEmpty(item.SelectedColor) || !string.IsNullOrEmpty(item.SelectedSize))
+                        {
+                          <div style="font-size:var(--fs-xs);color:var(--c-ink-lt);margin-top:4px">
+                            @if (!string.IsNullOrEmpty(item.SelectedColor))
+                            { <span style="margin-right:6px">Màu: @item.SelectedColor</span> }
+                            @if (!string.IsNullOrEmpty(item.SelectedSize))
+                            { <span>Size: @item.SelectedSize</span> }
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  </td>
+                  <td style="padding:16px;text-align:center;color:var(--c-ink-mid)">×@item.Quantity</td>
+                  <td style="padding:16px;text-align:right;color:var(--c-ink-mid)">@item.UnitPrice.ToString("C0", new System.Globalization.CultureInfo("vi-VN"))</td>
+                  <td style="padding:16px;text-align:right;font-weight:500;color:var(--c-ink)">@lineTotal.ToString("C0", new System.Globalization.CultureInfo("vi-VN"))</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        @* Totals *@
+        <div style="padding:var(--sp-5) var(--sp-6);border-top:1px solid var(--c-border);display:flex;flex-direction:column;align-items:flex-end;gap:var(--sp-2)">
+          <div style="display:flex;justify-content:space-between;width:280px;font-size:var(--fs-sm);color:var(--c-ink-mid)">
+            <span>Tạm tính</span>
+            <span>@Model.SubTotal.ToString("C0", new System.Globalization.CultureInfo("vi-VN"))</span>
+          </div>
+          @if (Model.DiscountAmount > 0)
+          {
+            <div style="display:flex;justify-content:space-between;width:280px;font-size:var(--fs-sm);color:var(--c-success)">
+              <span>Giảm giá</span>
+              <span>-@Model.DiscountAmount.ToString("C0", new System.Globalization.CultureInfo("vi-VN"))</span>
+            </div>
+          }
+          <div style="display:flex;justify-content:space-between;width:280px;font-size:var(--fs-sm);color:var(--c-ink-mid)">
+            <span>Phí vận chuyển</span>
+            <span>@(Model.ShippingFee == 0 ? "Miễn phí" : Model.ShippingFee.ToString("C0", new System.Globalization.CultureInfo("vi-VN")))</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;width:280px;font-size:1.1rem;font-weight:600;color:var(--c-ink);border-top:1px solid var(--c-border);padding-top:var(--sp-3);margin-top:var(--sp-1)">
+            <span>Tổng cộng</span>
+            <span style="color:var(--c-gold);font-family:var(--ff-display)">@Model.TotalAmount.ToString("C0", new System.Globalization.CultureInfo("vi-VN"))</span>
+          </div>
+        </div>
+      </div>
+
+      @* Cancel button (only for Pending orders) *@
+      @if (Model.Status == "Pending")
+      {
+        <div style="background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--r-lg);padding:var(--sp-5);box-shadow:var(--sh-sm)">
+          <h3 style="font-size:var(--fs-base);font-weight:500;margin-bottom:var(--sp-3)">Hủy đơn hàng</h3>
+          <p style="font-size:var(--fs-sm);color:var(--c-ink-lt);margin-bottom:var(--sp-4)">
+            Bạn chỉ có thể hủy đơn hàng khi đơn đang ở trạng thái "Chờ xác nhận". Sau khi hủy, không thể hoàn tác.
+          </p>
+          <form method="post" action="/order/cancel/@Model.Id" onsubmit="return confirm('Bạn có chắc muốn hủy đơn hàng này?')">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn--outline" style="color:var(--c-danger);border-color:var(--c-danger)">
+              <i class="fa-solid fa-ban" style="margin-right:6px"></i> Hủy đơn hàng
+            </button>
+          </form>
+        </div>
+      }
+
+    </div>
+
+    @* ── RIGHT: Info sidebar ── *@
+    <div style="display:flex;flex-direction:column;gap:var(--sp-4)">
+
+      @* Delivery Info *@
+      <div style="background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--r-lg);padding:var(--sp-5);box-shadow:var(--sh-sm)">
+        <h3 style="font-family:var(--ff-display);font-size:1.1rem;font-weight:300;margin-bottom:var(--sp-4)">Địa chỉ giao hàng</h3>
+        <div style="display:flex;flex-direction:column;gap:var(--sp-3)">
+          <div>
+            <div style="font-size:var(--fs-xs);color:var(--c-ink-lt);margin-bottom:4px">Người nhận</div>
+            <div style="font-weight:500">@Model.CustomerName</div>
+          </div>
+          <div>
+            <div style="font-size:var(--fs-xs);color:var(--c-ink-lt);margin-bottom:4px">Số điện thoại</div>
+            <div>@Model.CustomerPhone</div>
+          </div>
+          <div>
+            <div style="font-size:var(--fs-xs);color:var(--c-ink-lt);margin-bottom:4px">Địa chỉ</div>
+            <div style="font-size:var(--fs-sm);line-height:1.6">@Model.ShipAddress, @Model.ShipCity@(!string.IsNullOrEmpty(Model.ShipCountry) ? ", " + Model.ShipCountry : "")</div>
+          </div>
+          @if (!string.IsNullOrEmpty(Model.ShipPostalCode))
+          {
+            <div>
+              <div style="font-size:var(--fs-xs);color:var(--c-ink-lt);margin-bottom:4px">Mã bưu chính</div>
+              <div>@Model.ShipPostalCode</div>
+            </div>
+          }
+        </div>
+      </div>
+
+      @* Payment Info *@
+      <div style="background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--r-lg);padding:var(--sp-5);box-shadow:var(--sh-sm)">
+        <h3 style="font-family:var(--ff-display);font-size:1.1rem;font-weight:300;margin-bottom:var(--sp-4)">Thanh toán</h3>
+        <div style="display:flex;flex-direction:column;gap:var(--sp-3)">
+          <div>
+            <div style="font-size:var(--fs-xs);color:var(--c-ink-lt);margin-bottom:4px">Phương thức</div>
+            <div style="font-weight:500">
+              @switch (Model.PaymentMethod?.ToLower())
+              {
+                case "cod": <text>Thanh toán khi nhận hàng (COD)</text> break;
+                case "bank": <text>Chuyển khoản ngân hàng</text> break;
+                case "card": <text>Thẻ tín dụng / ghi nợ</text> break;
+                default: @(Model.PaymentMethod ?? "COD") break;
+              }
+            </div>
+          </div>
+          <div>
+            <div style="font-size:var(--fs-xs);color:var(--c-ink-lt);margin-bottom:4px">Trạng thái thanh toán</div>
+            @{
+              var isPaid = Model.PaymentStatus == "Paid";
+              var payColor = isPaid ? "var(--c-success)" : "var(--c-warning)";
+              var payBg = isPaid ? "rgba(59,109,17,0.08)" : "rgba(133,79,11,0.08)";
+            }
+            <span style="background:@payBg;color:@payColor;padding:4px 10px;border-radius:var(--r-full);font-size:var(--fs-xs);font-weight:500">
+              @(isPaid ? "Đã thanh toán" : "Chưa thanh toán")
+            </span>
+          </div>
+        </div>
+      </div>
+
+      @* Notes *@
+      @if (!string.IsNullOrEmpty(Model.Note))
+      {
+        <div style="background:var(--c-surface);border:1px solid var(--c-border);border-radius:var(--r-lg);padding:var(--sp-5);box-shadow:var(--sh-sm)">
+          <h3 style="font-family:var(--ff-display);font-size:1.1rem;font-weight:300;margin-bottom:var(--sp-4)">Ghi chú</h3>
+          <p style="font-size:var(--fs-sm);color:var(--c-ink-mid);line-height:1.6;white-space:pre-wrap">@Model.Note</p>
+        </div>
+      }
+
+      @* Actions *@
+      <div style="display:flex;flex-direction:column;gap:var(--sp-2)">
+        <a href="/order" class="btn btn--outline btn--wide">
+          <i class="fa-solid fa-list" style="margin-right:8px"></i> Tất cả đơn hàng
+        </a>
+        <a href="/product" class="btn btn--solid btn--wide">
+          <i class="fa-solid fa-bag-shopping" style="margin-right:8px"></i> Tiếp tục mua sắm
+        </a>
+      </div>
+
+    </div>
+  </div>
+</div>

@@ -1,0 +1,132 @@
+/* ============================================================
+   VIETDUY LUXURY ATELIER — Layout System
+   ============================================================ */
+
+/* ── Container ── */
+.container {
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: 0 60px;
+}
+
+@media (max-width: 1024px) {
+  .container { padding: 0 40px; }
+}
+
+@media (max-width: 768px) {
+  .container { padding: 0 24px; }
+}
+
+/* ── Section spacing ── */
+section {
+  padding-block: var(--sp-9);
+}
+
+@media (max-width: 1024px) {
+  section { padding-block: var(--sp-8); }
+}
+
+@media (max-width: 768px) {
+  section { padding-block: var(--sp-7); }
+}
+
+/* ── Main content body ── */
+#main-content {
+  min-height: calc(100vh - var(--nav-h));
+}
+
+/* ── Main layout (product index: left + sidebar) ── */
+.main-layout {
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  gap: var(--sp-8);
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: 0 60px;
+  align-items: start;
+}
+
+@media (max-width: 1024px) {
+  .main-layout {
+    grid-template-columns: 1fr;
+    padding: 0 40px;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-layout { padding: 0 24px; }
+}
+
+/* ── Two-column equal split ── */
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-8);
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .two-col { grid-template-columns: 1fr; }
+}
+
+/* ── Generic grid ── */
+.grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--sp-5);
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--sp-5);
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--sp-5);
+}
+
+@media (max-width: 1024px) {
+  .grid-4 { grid-template-columns: repeat(2, 1fr); }
+  .grid-3 { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 768px) {
+  .grid-4, .grid-3, .grid-2 { grid-template-columns: 1fr; }
+}
+
+/* ── Utility display ── */
+.flex        { display: flex; }
+.flex-center { display: flex; align-items: center; justify-content: center; }
+.flex-between{ display: flex; align-items: center; justify-content: space-between; }
+.flex-col    { display: flex; flex-direction: column; }
+
+.gap-1  { gap: var(--sp-1); }
+.gap-2  { gap: var(--sp-2); }
+.gap-3  { gap: var(--sp-3); }
+.gap-4  { gap: var(--sp-4); }
+.gap-5  { gap: var(--sp-5); }
+
+.mt-5 { margin-top: var(--sp-5); }
+.mt-6 { margin-top: var(--sp-6); }
+.mt-7 { margin-top: var(--sp-7); }
+
+/* ── Page header ── */
+.page-header {
+  padding: var(--sp-8) 60px var(--sp-6);
+  max-width: var(--max-w);
+  margin: 0 auto;
+}
+
+.page-header__title {
+  font-family: var(--ff-display);
+  font-size: var(--fs-display-lg);
+  font-weight: 300;
+  letter-spacing: -0.01em;
+}
+
+@media (max-width: 768px) {
+  .page-header { padding: var(--sp-7) 24px var(--sp-5); }
+}

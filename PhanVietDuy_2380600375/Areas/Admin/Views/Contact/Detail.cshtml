@@ -1,0 +1,81 @@
+@using PhanVietDuy_2380600375.Models.Domain
+@model ContactMessage
+@{
+  ViewData["Title"] = $"Liên hệ từ {Model.FullName}";
+  Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div style="display:grid;grid-template-columns:2fr 1fr;gap:24px;margin-bottom:24px">
+  @* Left Column: Message & Reply *@
+  <div>
+    @* Message Details *@
+    <div class="admin-card reveal" style="margin-bottom:24px">
+      <div class="admin-card__header">
+        <h3 class="admin-card__title">Nội dung tin nhắn</h3>
+      </div>
+      <div class="admin-card__body">
+        <h4 style="font-weight:600;color:var(--c-ink);margin-top:0;margin-bottom:12px">Tiêu đề: @Model.Subject</h4>
+        <div style="font-size:var(--fs-sm);line-height:1.6;color:var(--c-ink-mid);white-space:pre-wrap;background:var(--c-surface);padding:20px;border-radius:var(--r-md);border:1px solid var(--c-border)">@Model.Message</div>
+      </div>
+    </div>
+
+    @* Reply Form *@
+    <div class="admin-card reveal reveal-delay-1">
+      <div class="admin-card__header">
+        <h3 class="admin-card__title">Trả lời tin nhắn</h3>
+      </div>
+      <div class="admin-card__body">
+        @if (Model.IsReplied)
+        {
+          <div class="alert alert--success" style="margin-bottom:20px">
+            <i class="fa-regular fa-circle-check" aria-hidden="true" style="margin-right:8px"></i>
+            Đã gửi phản hồi lúc @(Model.RepliedAt?.ToString("dd/MM/yyyy HH:mm") ?? "")
+          </div>
+        }
+
+        <form method="post" action="/admin/lien-he/reply/@Model.Id" class="form-stack">
+          <div class="form-group">
+            <label for="replyContent" class="form-label">Nội dung trả lời</label>
+            <textarea id="replyContent" name="replyContent" class="form-control" rows="6" placeholder="Nhập nội dung phản hồi gửi đến khách hàng..." required></textarea>
+          </div>
+
+          <div style="display:flex;gap:12px;margin-top:var(--sp-4)">
+            <button type="submit" class="btn btn--gold">Gửi phản hồi</button>
+            <a href="/admin/lien-he" class="btn btn--ghost">Quay lại</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  @* Right Column: Sender Info *@
+  <div>
+    <div class="admin-card reveal">
+      <div class="admin-card__header">
+        <h3 class="admin-card__title">Thông tin người gửi</h3>
+      </div>
+      <div class="admin-card__body" style="display:flex;flex-direction:column;gap:16px">
+        <div>
+          <div style="font-size:var(--fs-xxs);text-transform:uppercase;letter-spacing:1px;color:var(--c-ink-lt)">Họ và tên</div>
+          <div style="font-weight:500;color:var(--c-ink)">@Model.FullName</div>
+        </div>
+        <div>
+          <div style="font-size:var(--fs-xxs);text-transform:uppercase;letter-spacing:1px;color:var(--c-ink-lt)">Địa chỉ email</div>
+          <div>@Model.Email</div>
+        </div>
+        <div>
+          <div style="font-size:var(--fs-xxs);text-transform:uppercase;letter-spacing:1px;color:var(--c-ink-lt)">Số điện thoại</div>
+          <div>@(string.IsNullOrEmpty(Model.Phone) ? "Chưa cung cấp" : Model.Phone)</div>
+        </div>
+        <div>
+          <div style="font-size:var(--fs-xxs);text-transform:uppercase;letter-spacing:1px;color:var(--c-ink-lt)">Thời gian gửi</div>
+          <div>@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</div>
+        </div>
+        <div>
+          <div style="font-size:var(--fs-xxs);text-transform:uppercase;letter-spacing:1px;color:var(--c-ink-lt)">Địa chỉ IP</div>
+          <div style="font-family:monospace;font-size:var(--fs-xs)">@(string.IsNullOrEmpty(Model.IpAddress) ? "Không có" : Model.IpAddress)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

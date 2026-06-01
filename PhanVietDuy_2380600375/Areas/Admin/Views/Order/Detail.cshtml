@@ -1,0 +1,252 @@
+@using PhanVietDuy_2380600375.Models.Domain
+@model Order
+@{
+  ViewData["Title"] = $"Đơn hàng {Model.OrderCode}";
+  Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div style="display:grid;grid-template-columns:2fr 1fr;gap:24px;margin-bottom:24px">
+  @* Left Column: Order Items & Actions *@
+  <div>
+    @* Items List *@
+    <div class="data-table-wrap reveal" style="margin-bottom:24px">
+      <div class="data-table-header">
+        <h2 class="data-table-header__title">Sản phẩm trong đơn</h2>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="data-table" aria-label="Sản phẩm trong đơn">
+          <thead>
+            <tr>
+              <th scope="col">Hình</th>
+              <th scope="col">Sản phẩm</th>
+              <th scope="col">Màu sắc/Size</th>
+              <th scope="col">Đơn giá</th>
+              <th scope="col" style="text-align:center">Số lượng</th>
+              <th scope="col" style="text-align:right">Thành tiền</th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach (var item in Model.OrderDetails)
+            {
+              var total = item.UnitPrice * item.Quantity;
+              <tr>
+                <td>
+                  @if (!string.IsNullOrEmpty(item.ImageUrl))
+                  {
+                    <img src="@item.ImageUrl" alt="@item.ProductName" style="width:48px;height:48px;object-fit:cover;border-radius:var(--r-md)" />
+                  }
+                  else
+                  {
+                    <div style="width:48px;height:48px;background:var(--c-border);display:flex;align-items:center;justify-content:center;border-radius:var(--r-md);color:var(--c-ink-lt)">
+                      <i class="fa-regular fa-image" aria-hidden="true"></i>
+                    </div>
+                  }
+                </td>
+                <td>
+                  <div style="font-weight:500;color:var(--c-ink)">@item.ProductName</div>
+                  <div style="font-size:var(--fs-xs);color:var(--c-ink-lt)">SKU: @item.ProductSku</div>
+                </td>
+                <td>
+                  @if (!string.IsNullOrEmpty(item.SelectedColor))
+                  {
+                    <span style="display:inline-block;padding:2px 8px;background:var(--c-border);border-radius:var(--r-full);font-size:var(--fs-xxs);margin-right:4px">@item.SelectedColor</span>
+                  }
+                  @if (!string.IsNullOrEmpty(item.SelectedSize))
+                  {
+                    <span style="display:inline-block;padding:2px 8px;background:var(--c-border);border-radius:var(--r-full);font-size:var(--fs-xxs)">@item.SelectedSize</span>
+                  }
+                </td>
+                <td>@item.UnitPrice.ToString("C0", new System.Globalization.CultureInfo("vi-VN"))</td>
+                <td style="text-align:center">@item.Quantity</td>
+                <td style="text-align:right;font-family:var(--ff-display);font-weight:500">@total.ToString("C0", new System.Globalization.CultureInfo("vi-VN"))</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      @* Payment Summary *@
+      <div style="padding:24px;border-top:1px solid var(--c-border);display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+        <div style="display:flex;justify-content:space-between;width:300px;font-size:var(--fs-sm);color:var(--c-ink-mid)">
+          <span>Tạm tính:</span>
+          <span>@Model.SubTotal.ToString("C0", new System.Globalization.CultureInfo("vi-VN"))</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;width:300px;font-size:var(--fs-sm);color:var(--c-ink-mid)">
+          <span>Phí giao hàng:</span>
+          <span>@Model.ShippingFee.ToString("C0", new System.Globalization.CultureInfo("vi-VN"))</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;width:300px;font-size:var(--fs-sm);color:var(--c-ink-mid)">
+          <span>Giảm giá:</span>
+          <span>-@Model.DiscountAmount.ToString("C0", new System.Globalization.CultureInfo("vi-VN"))</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;width:300px;font-size:var(--fs-lg);font-weight:600;color:var(--c-ink);border-top:1px solid var(--c-border);padding-top:8px;margin-top:4px">
+          <span>Tổng tiền:</span>
+          <span style="color:var(--c-gold);font-family:var(--ff-display)">@Model.TotalAmount.ToString("C0", new System.Globalization.CultureInfo("vi-VN"))</span>
+        </div>
+      </div>
+    </div>
+
+    @* Admin Actions Card *@
+    <div class="admin-card reveal">
+      <div class="admin-card__header">
+        <h3 class="admin-card__title">Xử lý đơn hàng</h3>
+      </div>
+      <div class="admin-card__body" style="display:flex;flex-wrap:wrap;gap:24px">
+        <div class="form-group" style="width:220px;margin:0">
+          <label for="order-status-select" class="form-label">Trạng thái đơn hàng</label>
+          <select id="order-status-select" class="form-control" onchange="updateOrderStatus()">
+            @{
+              var orderStatuses = new (string Val, string Lbl)[] {
+                ("Pending","Chờ xác nhận"), ("Confirmed","Đã xác nhận"),
+                ("Processing","Đang xử lý"), ("Shipped","Đang giao"),
+                ("Delivered","Đã giao"), ("Cancelled","Đã hủy")
+              };
+            }
+            @foreach (var (val, lbl) in orderStatuses)
+            {
+              if (val == Model.Status) { <option value="@val" selected>@lbl</option> }
+              else { <option value="@val">@lbl</option> }
+            }
+          </select>
+        </div>
+
+        <div class="form-group" style="width:220px;margin:0">
+          <label for="payment-status-select" class="form-label">Trạng thái thanh toán</label>
+          <select id="payment-status-select" class="form-control" onchange="updatePaymentStatus()">
+            @{
+              var payStatuses = new (string Val, string Lbl)[] {
+                ("Unpaid","Chưa thanh toán"), ("Paid","Đã thanh toán"), ("Refunded","Đã hoàn tiền")
+              };
+            }
+            @foreach (var (val, lbl) in payStatuses)
+            {
+              if (val == Model.PaymentStatus) { <option value="@val" selected>@lbl</option> }
+              else { <option value="@val">@lbl</option> }
+            }
+          </select>
+        </div>
+
+        <div style="flex:1;min-width:260px">
+          <label for="admin-note" class="form-label">Ghi chú nội bộ</label>
+          <div style="display:flex;gap:8px">
+            <input type="text" id="admin-note" class="form-control" placeholder="Thêm ghi chú..." />
+            <button class="btn btn--gold" type="button" onclick="addAdminNote()" style="white-space:nowrap;padding:10px 20px">Thêm</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  @* Right Column: Customer info & Notes *@
+  <div style="display:flex;flex-direction:column;gap:20px">
+    @* Customer Info *@
+    <div class="admin-card reveal">
+      <div class="admin-card__header">
+        <h3 class="admin-card__title">Thông tin khách hàng</h3>
+      </div>
+      <div class="admin-card__body" style="display:flex;flex-direction:column;gap:12px">
+        <div>
+          <div style="font-size:var(--fs-xxs);text-transform:uppercase;letter-spacing:1px;color:var(--c-ink-lt)">Họ và tên</div>
+          <div style="font-weight:500;color:var(--c-ink)">@Model.CustomerName</div>
+        </div>
+        <div>
+          <div style="font-size:var(--fs-xxs);text-transform:uppercase;letter-spacing:1px;color:var(--c-ink-lt)">Số điện thoại</div>
+          <div>@Model.CustomerPhone</div>
+        </div>
+        <div>
+          <div style="font-size:var(--fs-xxs);text-transform:uppercase;letter-spacing:1px;color:var(--c-ink-lt)">Email</div>
+          <div>@Model.CustomerEmail</div>
+        </div>
+        <div>
+          <div style="font-size:var(--fs-xxs);text-transform:uppercase;letter-spacing:1px;color:var(--c-ink-lt)">Địa chỉ giao hàng</div>
+          <div style="font-size:var(--fs-sm);line-height:1.5">
+            @Model.ShipAddress, @Model.ShipCity, @Model.ShipCountry
+          </div>
+        </div>
+        <div>
+          <div style="font-size:var(--fs-xxs);text-transform:uppercase;letter-spacing:1px;color:var(--c-ink-lt)">Phương thức thanh toán</div>
+          <span style="font-size:var(--fs-xs);font-weight:500">@Model.PaymentMethod</span>
+        </div>
+      </div>
+    </div>
+
+    @* Notes Log *@
+    <div class="admin-card reveal reveal-delay-1">
+      <div class="admin-card__header">
+        <h3 class="admin-card__title">Ghi chú & Lịch sử</h3>
+      </div>
+      <div class="admin-card__body">
+        @if (!string.IsNullOrEmpty(Model.Note))
+        {
+          <div style="font-size:var(--fs-sm);line-height:1.6;white-space:pre-wrap;background:var(--c-surface);padding:12px;border-radius:var(--r-md);border:1px solid var(--c-border);max-height:250px;overflow-y:auto" id="notes-container">@Model.Note</div>
+        }
+        else
+        {
+          <div style="font-size:var(--fs-sm);color:var(--c-ink-lt);text-align:center;padding:12px" id="notes-container">Không có ghi chú nào.</div>
+        }
+      </div>
+    </div>
+  </div>
+</div>
+
+@section Scripts {
+  <script>
+    function updateOrderStatus() {
+      const status = document.getElementById("order-status-select").value;
+      fetch(`/admin/don-hang/UpdateStatus/@Model.Id`, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `newStatus=${status}`
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          alert("Cập nhật trạng thái đơn hàng thành công!");
+          location.reload();
+        } else {
+          alert(data.message || "Cập nhật trạng thái thất bại!");
+        }
+      });
+    }
+
+    function updatePaymentStatus() {
+      const status = document.getElementById("payment-status-select").value;
+      fetch(`/admin/don-hang/UpdatePaymentStatus/@Model.Id`, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `paymentStatus=${status}`
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          alert("Cập nhật trạng thái thanh toán thành công!");
+          location.reload();
+        } else {
+          alert(data.message || "Cập nhật trạng thái thanh toán thất bại!");
+        }
+      });
+    }
+
+    function addAdminNote() {
+      const input = document.getElementById("admin-note");
+      const note = input.value.trim();
+      if (!note) return;
+
+      fetch(`/admin/don-hang/AddNote/@Model.Id`, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `note=${encodeURIComponent(note)}`
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          alert("Thêm ghi chú thành công!");
+          input.value = "";
+          location.reload();
+        } else {
+          alert("Lỗi khi thêm ghi chú!");
+        }
+      });
+    }
+  </script>
+}

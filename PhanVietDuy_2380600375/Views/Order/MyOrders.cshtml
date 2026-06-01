@@ -1,0 +1,266 @@
+@using PhanVietDuy_2380600375.Models.ViewModels
+@model MyOrdersViewModel
+@{
+  ViewData["Title"] = "Đơn hàng của tôi";
+  ViewData["Page"]  = "orders";
+}
+
+<div class="orders-page">
+
+  @* ── Page header ── *@
+  <div class="orders-page__header reveal-fade">
+    <div>
+      <span class="orders-page__eyebrow">Tài khoản</span>
+      <h1 class="orders-page__title">Đơn hàng <em style="font-style:italic">của tôi</em></h1>
+    </div>
+    <span class="orders-count">@(Model?.Orders?.TotalItemCount ?? 0) đơn hàng</span>
+  </div>
+
+  @* ── Alert message ── *@
+  @if (TempData["Message"] != null)
+  {
+    <div class="alert alert--success reveal-fade">
+      <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+      @TempData["Message"]
+    </div>
+  }
+
+  @* ── Layout: sidebar + content ── *@
+  <div class="account-layout">
+
+    @* LEFT SIDEBAR *@
+    <aside class="account-sidebar" aria-label="Menu tài khoản">
+      <nav class="account-nav">
+        <a href="/account/profile" class="account-nav__link">
+          <i class="fa-regular fa-circle-user" aria-hidden="true"></i>
+          <span>Thông tin cá nhân</span>
+        </a>
+        <a href="/order" class="account-nav__link account-nav__link--active" aria-current="page">
+          <i class="fa-regular fa-bag-shopping" aria-hidden="true"></i>
+          <span>Lịch sử đơn hàng</span>
+        </a>
+        <a href="/wishlist" class="account-nav__link">
+          <i class="fa-regular fa-heart" aria-hidden="true"></i>
+          <span>Sản phẩm yêu thích</span>
+        </a>
+        <a href="/account/change-password" class="account-nav__link">
+          <i class="fa-regular fa-lock" aria-hidden="true"></i>
+          <span>Đổi mật khẩu</span>
+        </a>
+        <div class="account-nav__divider"></div>
+        <form asp-controller="Account" asp-action="Logout" method="post">
+          @Html.AntiForgeryToken()
+          <button type="submit" class="account-nav__link account-nav__link--danger">
+            <i class="fa-regular fa-arrow-right-from-bracket" aria-hidden="true"></i>
+            <span>Đăng xuất</span>
+          </button>
+        </form>
+      </nav>
+    </aside>
+
+    @* MAIN CONTENT *@
+    <div class="account-content">
+
+      @if (Model?.Orders?.Any() == true)
+      {
+        <div class="orders-list">
+          @foreach (var order in Model.Orders)
+          {
+            var statusLabel = order.Status switch {
+              "Pending"    => "Chờ xác nhận",
+              "Confirmed"  => "Đã xác nhận",
+              "Processing" => "Đang xử lý",
+              "Shipped"    => "Đang giao hàng",
+              "Delivered"  => "Đã giao hàng",
+              "Cancelled"  => "Đã hủy",
+              _            => order.Status
+            };
+            var statusCls = order.Status switch {
+              "Pending"    => "order-status--pending",
+              "Confirmed"  => "order-status--confirmed",
+              "Processing" => "order-status--confirmed",
+              "Shipped"    => "order-status--shipping",
+              "Delivered"  => "order-status--delivered",
+              "Cancelled"  => "order-status--cancelled",
+              _            => ""
+            };
+            var statusIcon = order.Status switch {
+              "Pending"    => "fa-clock",
+              "Confirmed"  => "fa-circle-check",
+              "Processing" => "fa-gear",
+              "Shipped"    => "fa-truck",
+              "Delivered"  => "fa-box-check",
+              "Cancelled"  => "fa-circle-xmark",
+              _            => "fa-circle"
+            };
+
+            <article class="order-card reveal-fade">
+              <div class="order-card__header">
+                <div>
+                  <div class="order-card__code">
+                    <i class="fa-regular fa-receipt" style="font-size:0.8em;margin-right:6px;color:var(--c-gold)" aria-hidden="true"></i>
+                    #@order.OrderCode
+                  </div>
+                  <div class="order-card__date">
+                    @order.OrderedAt.ToString("dd/MM/yyyy · HH:mm")
+                  </div>
+                </div>
+                <span class="order-status @statusCls">
+                  <span class="order-status__dot" aria-hidden="true"></span>
+                  <i class="fa-solid @statusIcon" aria-hidden="true" style="font-size:9px"></i>
+                  @statusLabel
+                </span>
+              </div>
+
+              <div class="order-card__body">
+                <div class="order-card__items-preview">
+                  @if (order.OrderDetails?.Any() == true)
+                  {
+                    foreach (var item in order.OrderDetails.Take(3))
+                    {
+                      <img
+                        src="@(item.Product?.ThumbnailUrl ?? "/images/placeholder-product.webp")"
+                        alt="@item.Product?.Name"
+                        class="order-card__thumb"
+                        loading="lazy"
+                        width="64" height="64" />
+                    }
+                    if (order.OrderDetails.Count > 3)
+                    {
+                      <span class="order-card__more">+@(order.OrderDetails.Count - 3) sản phẩm</span>
+                    }
+                  }
+                </div>
+
+                <div class="order-card__meta">
+                  <span class="order-card__total-label">Tổng tiền</span>
+                  <span class="order-card__total">
+                    @order.TotalAmount.ToString("N0", new System.Globalization.CultureInfo("vi-VN"))₫
+                  </span>
+                </div>
+              </div>
+
+              <div class="order-card__footer">
+                <span style="font-size:var(--fs-xs);color:@(order.PaymentStatus == "Paid" ? "var(--c-success)" : "var(--c-warning)")">
+                  <i class="fa-solid @(order.PaymentStatus == "Paid" ? "fa-circle-check" : "fa-clock")" aria-hidden="true" style="margin-right:4px"></i>
+                  @(order.PaymentStatus == "Paid" ? "Đã thanh toán" : "Chưa thanh toán")
+                </span>
+                <a href="/order/detail/@order.Id" class="btn btn--outline" style="padding:7px 18px;font-size:10px">
+                  Xem chi tiết
+                </a>
+              </div>
+            </article>
+          }
+        </div>
+
+        @* Pagination *@
+        @if (Model.Orders.PageCount > 1)
+        {
+          <div style="display:flex;justify-content:center;margin-top:var(--sp-7);gap:var(--sp-2)">
+            @if (Model.Orders.HasPreviousPage)
+            {
+              <a href="?page=@(Model.Orders.PageNumber - 1)" class="btn btn--outline btn--sm">← Trước</a>
+            }
+            @for (int i = 1; i <= Model.Orders.PageCount; i++)
+            {
+              <a href="?page=@i"
+                 class="btn @(i == Model.Orders.PageNumber ? "btn--solid" : "btn--outline") btn--sm"
+                 style="width:36px;text-align:center;padding:0">@i</a>
+            }
+            @if (Model.Orders.HasNextPage)
+            {
+              <a href="?page=@(Model.Orders.PageNumber + 1)" class="btn btn--outline btn--sm">Sau →</a>
+            }
+          </div>
+        }
+      }
+      else
+      {
+        <div class="orders-empty reveal-fade">
+          <i class="orders-empty__icon fa-regular fa-bag-shopping" aria-hidden="true"></i>
+          <h2 class="orders-empty__title">Chưa có đơn hàng nào</h2>
+          <p class="orders-empty__text">
+            Khám phá bộ sưu tập và bắt đầu hành trình mua sắm của bạn.
+          </p>
+          <a href="/product" class="btn btn--solid">Mua sắm ngay</a>
+        </div>
+      }
+
+    </div>
+  </div>
+</div>
+
+@section Styles {
+  <style>
+    .account-layout {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: var(--sp-7);
+      align-items: start;
+    }
+
+    /* Sidebar */
+    .account-sidebar {
+      position: sticky;
+      top: calc(var(--nav-h) + 24px);
+    }
+
+    .account-nav {
+      background: var(--c-surface);
+      border: 1px solid var(--c-border);
+      border-radius: var(--r-lg);
+      overflow: hidden;
+      box-shadow: var(--sh-sm);
+    }
+
+    .account-nav__link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 20px;
+      font-family: var(--ff-body);
+      font-size: var(--fs-sm);
+      font-weight: 300;
+      color: var(--c-ink-mid);
+      text-decoration: none;
+      transition: all var(--dur-fast) var(--ease-luxury);
+      border: none;
+      background: none;
+      cursor: pointer;
+      width: 100%;
+      text-align: left;
+      border-bottom: 1px solid var(--c-border);
+    }
+
+    .account-nav__link:last-child { border-bottom: none; }
+
+    .account-nav__link:hover {
+      color: var(--c-ink);
+      background: var(--c-bg-alt);
+      padding-left: 24px;
+    }
+
+    .account-nav__link--active {
+      color: var(--c-gold-dk);
+      background: rgba(184,150,62,0.07);
+      font-weight: 400;
+      border-left: 3px solid var(--c-gold);
+      padding-left: 17px;
+    }
+
+    .account-nav__link--danger { color: var(--c-danger); }
+    .account-nav__link--danger:hover { background: rgba(163,45,45,0.07); color: var(--c-danger); }
+
+    .account-nav__link i { width: 16px; font-size: 13px; flex-shrink: 0; }
+    .account-nav__divider { height: 1px; background: var(--c-border); }
+
+    @@media (max-width: 768px) {
+      .account-layout { grid-template-columns: 1fr; }
+      .account-sidebar { position: static; }
+      .account-nav { display: flex; overflow-x: auto; border-radius: var(--r-md); }
+      .account-nav__link { white-space: nowrap; border-bottom: none; border-right: 1px solid var(--c-border); }
+      .account-nav__link--active { border-left: none; border-bottom: 3px solid var(--c-gold); padding-left: 20px; }
+      .account-nav__divider { display: none; }
+    }
+  </style>
+}

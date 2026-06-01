@@ -1,0 +1,25 @@
+@* _StarRating.cshtml — Renders 5 star icons
+   Model: decimal (average rating 0.0–5.0) *@
+@model decimal
+
+@{
+  var rating = Math.Max(0, Math.Min(5, Model));
+  int fullStars = (int)Math.Floor(rating);
+  bool halfStar = (rating - fullStars) >= 0.5m;
+  int emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
+}
+
+<div class="star-rating" role="img" aria-label="Đánh giá @rating trên 5 sao">
+  @for (int i = 0; i < fullStars; i++)
+  {
+    <i class="fa-solid fa-star" aria-hidden="true"></i>
+  }
+  @if (halfStar)
+  {
+    <i class="fa-solid fa-star-half-stroke" aria-hidden="true"></i>
+  }
+  @for (int i = 0; i < emptyStars; i++)
+  {
+    <i class="fa-solid fa-star" style="opacity:0.25" aria-hidden="true"></i>
+  }
+</div>

@@ -1,0 +1,93 @@
+@model Order
+@{
+  ViewData["Title"] = "Thanh toán thất bại";
+  ViewData["Page"]  = "payment-failed";
+}
+
+<div class="confirmation-page">
+
+  @* ── Animated X mark (thay checkmark bằng dấu X màu đỏ) ── *@
+  <div class="confirmation-check fail-check" aria-hidden="true">
+    <svg viewBox="0 0 80 80" class="check-svg fail-svg" role="img" aria-label="Thất bại">
+      <circle class="check-circle fail-circle" cx="40" cy="40" r="36" />
+      <line class="fail-line" x1="26" y1="26" x2="54" y2="54" />
+      <line class="fail-line" x1="54" y1="26" x2="26" y2="54" />
+    </svg>
+  </div>
+
+  <h1 class="confirmation-title" style="color:var(--c-danger)">Thanh toán thất bại</h1>
+
+  @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage as string))
+  {
+    <p style="font-size:var(--fs-base);font-weight:300;color:var(--c-ink-mid);margin-bottom:var(--sp-3);line-height:1.75">
+      @ViewBag.ErrorMessage
+    </p>
+  }
+
+  @if (Model != null)
+  {
+    <div class="confirmation-detail">
+      <div class="confirmation-detail__row">
+        <span class="confirmation-detail__label">Mã đơn hàng</span>
+        <span class="confirmation-detail__value">@Model.OrderCode</span>
+      </div>
+      <div class="confirmation-detail__row">
+        <span class="confirmation-detail__label">Tổng tiền</span>
+        <span class="confirmation-detail__value">
+          @Model.TotalAmount.ToString("C0", new System.Globalization.CultureInfo("vi-VN"))
+        </span>
+      </div>
+      <div class="confirmation-detail__row">
+        <span class="confirmation-detail__label">Trạng thái</span>
+        <span class="status-badge status-badge--failed">Thanh toán thất bại</span>
+      </div>
+    </div>
+
+    <p style="font-size:var(--fs-sm);color:var(--c-ink-lt);margin-bottom:var(--sp-6)">
+      Đơn hàng của bạn đã được lưu. Bạn có thể thử thanh toán lại hoặc chọn phương thức khác.
+    </p>
+
+    <div class="confirmation-actions">
+      @* Nút thử lại: redirect về trang checkout với orderId để retry *@
+      <a href="/checkout" class="btn btn--solid">Thử thanh toán lại</a>
+      <a href="/don-hang/chi-tiet/@Model.Id" class="btn btn--outline">Xem đơn hàng</a>
+    </div>
+  }
+  else
+  {
+    <div class="confirmation-actions">
+      <a href="/" class="btn btn--solid">Về trang chủ</a>
+      <a href="/product" class="btn btn--outline">Tiếp tục mua sắm</a>
+    </div>
+  }
+</div>
+
+@section Styles {
+  <style>
+    /* Vòng tròn thất bại màu đỏ */
+    .fail-circle {
+      fill: none;
+      stroke: var(--c-danger, #a32d2d);
+      stroke-width: 3;
+      stroke-dasharray: 226;
+      stroke-dashoffset: 226;
+      animation: drawCircle 0.6s ease forwards;
+    }
+    /* Hai đường gạch chéo */
+    .fail-line {
+      fill: none;
+      stroke: var(--c-danger, #a32d2d);
+      stroke-width: 3.5;
+      stroke-linecap: round;
+      stroke-dasharray: 40;
+      stroke-dashoffset: 40;
+      animation: drawLine 0.4s ease 0.5s forwards;
+    }
+    @@keyframes drawCircle {
+      to { stroke-dashoffset: 0; }
+    }
+    @@keyframes drawLine {
+      to { stroke-dashoffset: 0; }
+    }
+  </style>
+}

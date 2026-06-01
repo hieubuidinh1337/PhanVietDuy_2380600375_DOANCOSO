@@ -1,0 +1,121 @@
+/* ============================================================
+   VIETDUY LUXURY ATELIER — Typography System
+   ============================================================ */
+
+/* ── Display headings ── */
+h1, h2, h3, h4 {
+  font-weight: 400;
+  line-height: 1.1;
+}
+
+/* ── Section utilities ── */
+.section-tag {
+  display: inline-block;
+  font-family: var(--ff-body);
+  font-size: var(--fs-2xs);
+  font-weight: 400;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--c-gold);
+  margin-bottom: var(--sp-3);
+}
+
+.section-title {
+  font-family: var(--ff-display);
+  font-size: var(--fs-display-md);
+  font-weight: 300;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: var(--c-ink);
+  margin-bottom: var(--sp-7);
+}
+
+.section-title em {
+  font-style: italic;
+  color: var(--c-gold);
+}
+
+.section-subtitle {
+  font-size: var(--fs-lg);
+  font-weight: 300;
+  color: var(--c-ink-mid);
+  max-width: 68ch;
+  line-height: 1.7;
+  margin-bottom: var(--sp-7);
+}
+
+/* ── Prose text ── */
+.prose {
+  max-width: var(--prose-w);
+  font-size: var(--fs-base);
+  font-weight: 300;
+  line-height: 1.75;
+  color: var(--c-ink-mid);
+}
+
+.prose p + p {
+  margin-top: var(--sp-5);
+}
+
+/* ── Utility text sizes ── */
+.text-xs   { font-size: var(--fs-xs); }
+.text-sm   { font-size: var(--fs-sm); }
+.text-base { font-size: var(--fs-base); }
+.text-lg   { font-size: var(--fs-lg); }
+
+.text-display-sm { font-family: var(--ff-display); font-size: var(--fs-display-sm); font-weight: 400; }
+.text-display-md { font-family: var(--ff-display); font-size: var(--fs-display-md); font-weight: 300; }
+.text-display-lg { font-family: var(--ff-display); font-size: var(--fs-display-lg); font-weight: 300; }
+
+/* ── Color utilities ── */
+.text-gold    { color: var(--c-gold); }
+.text-muted   { color: var(--c-ink-mid); }
+.text-faint   { color: var(--c-ink-lt); }
+.text-success { color: var(--c-success); }
+.text-warning { color: var(--c-warning); }
+.text-danger  { color: var(--c-danger); }
+
+/* ── Badges ── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 9px;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: var(--r-sm);
+  white-space: nowrap;
+}
+.badge--ink     { background: var(--c-ink);    color: var(--c-bg); }
+.badge--gold    { background: var(--c-gold);   color: #fff; }
+.badge--danger  { background: var(--c-danger); color: #fff; }
+.badge--success { background: var(--c-success);color: #fff; }
+.badge--info    { background: var(--c-info);   color: #fff; }
+
+/* ── Label above input ── */
+.form__label {
+  display: block;
+  font-size: var(--fs-xs);
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--c-ink-mid);
+  margin-bottom: var(--sp-2);
+}
+
+/* ── Blockquote ── */
+blockquote {
+  font-family: var(--ff-display);
+  font-style: italic;
+  font-size: var(--fs-display-sm);
+  line-height: 1.5;
+  color: var(--c-ink);
+}
+
+/* ── Divider ── */
+.divider {
+  height: 1px;
+  background: var(--c-border);
+  margin: var(--sp-6) 0;
+}

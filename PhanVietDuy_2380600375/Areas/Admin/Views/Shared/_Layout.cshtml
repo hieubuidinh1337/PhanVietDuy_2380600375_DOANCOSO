@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>@(ViewData["Title"] != null ? ViewData["Title"] + " — " : "")Vietduy Admin</title>
+  <meta name="robots" content="noindex" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" />
+  <link rel="stylesheet" href="~/css/main.css" asp-append-version="true" />
+
+  @RenderSection("Styles", required: false)
+</head>
+<body>
+
+<div id="toastContainer" role="status" aria-live="polite"></div>
+
+<div class="admin-layout">
+  @* ── Sidebar ── *@
+  <nav class="admin-sidebar" id="adminSidebar" role="navigation" aria-label="Admin navigation">
+
+    <div class="admin-sidebar__brand">
+      <a href="/admin" class="admin-sidebar__name">Vietduy Admin</a>
+      <span class="admin-sidebar__sub">Management Console</span>
+    </div>
+
+    <div class="admin-nav">
+      @{
+        var c = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+        var ctrl = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+
+        bool IsNav(string controller, string? action = null) =>
+          ctrl.Equals(controller, StringComparison.OrdinalIgnoreCase) &&
+          (action == null || c.Equals(action, StringComparison.OrdinalIgnoreCase));
+      }
+
+      <div class="admin-nav__group">
+        <span class="admin-nav__group-label">Tổng quan</span>
+        <a href="/admin" class="admin-nav__link @(IsNav("AdminDashboard", "Index") ? "is-active" : "")">
+          <i class="fa-regular fa-chart-pie admin-nav__icon" aria-hidden="true"></i>
+          Dashboard
+        </a>
+      </div>
+
+      <div class="admin-nav__group">
+        <span class="admin-nav__group-label">Thương mại</span>
+        <a href="/admin/product" class="admin-nav__link @(IsNav("AdminProduct") ? "is-active" : "")">
+          <i class="fa-regular fa-bag-shopping admin-nav__icon" aria-hidden="true"></i>
+          Sản phẩm
+        </a>
+        <a href="/admin/category" class="admin-nav__link @(IsNav("AdminCategory") ? "is-active" : "")">
+          <i class="fa-regular fa-folder-tree admin-nav__icon" aria-hidden="true"></i>
+          Danh mục
+        </a>
+        <a href="/admin/order" class="admin-nav__link @(IsNav("AdminOrder") ? "is-active" : "")">
+          <i class="fa-regular fa-box admin-nav__icon" aria-hidden="true"></i>
+          Đơn hàng
+          @if (ViewBag.PendingOrders is int p && p > 0)
+          {
+            <span class="admin-nav__badge">@p</span>
+          }
+        </a>
+        <a href="/admin/coupon" class="admin-nav__link @(IsNav("Coupon") ? "is-active" : "")">
+          <i class="fa-solid fa-ticket-simple admin-nav__icon" aria-hidden="true"></i>
+          Mã giảm giá
+        </a>
+      </div>
+
+      <div class="admin-nav__group">
+        <span class="admin-nav__group-label">Khách hàng</span>
+        <a href="/admin/user" class="admin-nav__link @(IsNav("AdminUser") ? "is-active" : "")">
+          <i class="fa-regular fa-users admin-nav__icon" aria-hidden="true"></i>
+          Người dùng
+        </a>
+        <a href="/admin/review" class="admin-nav__link @(IsNav("AdminReview") ? "is-active" : "")">
+          <i class="fa-regular fa-star admin-nav__icon" aria-hidden="true"></i>
+          Đánh giá
+        </a>
+        <a href="/admin/contact" class="admin-nav__link @(IsNav("AdminContact") ? "is-active" : "")">
+          <i class="fa-regular fa-envelope admin-nav__icon" aria-hidden="true"></i>
+          Liên hệ
+          @if (ViewBag.UnreadContacts is int uc && uc > 0)
+          {
+            <span class="admin-nav__badge">@uc</span>
+          }
+        </a>
+        <a href="/admin/newslettersubscriber" class="admin-nav__link @(IsNav("NewsletterSubscriber") ? "is-active" : "")">
+          <i class="fa-regular fa-newspaper admin-nav__icon" aria-hidden="true"></i>
+          Bản tin
+        </a>
+      </div>
+
+      <div class="admin-nav__group">
+        <span class="admin-nav__group-label">Hệ thống</span>
+        <a href="/" class="admin-nav__link" target="_blank" rel="noopener">
+          <i class="fa-regular fa-arrow-up-right-from-square admin-nav__icon" aria-hidden="true"></i>
+          Xem trang web
+        </a>
+        <a href="/account/logout" class="admin-nav__link">
+          <i class="fa-regular fa-arrow-right-from-bracket admin-nav__icon" aria-hidden="true"></i>
+          Đăng xuất
+        </a>
+      </div>
+    </div>
+
+    <div class="admin-sidebar__footer">
+      <div class="admin-sidebar__user">
+        <div class="admin-sidebar__avatar" aria-hidden="true">
+          <i class="fa-regular fa-user-tie"></i>
+        </div>
+        <div>
+          <div class="admin-sidebar__user-name">@(User.Identity?.Name ?? "Admin")</div>
+          <div class="admin-sidebar__user-role">Administrator</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  @* ── Main ── *@
+  <div class="admin-main">
+    @* Topbar *@
+    <header class="admin-topbar" role="banner">
+      <div style="display:flex;align-items:center;gap:var(--sp-4)">
+        @* Mobile toggle *@
+        <button id="sidebarToggle"
+                style="display:none"
+                class="btn-icon hide-desktop"
+                aria-label="Mở sidebar"
+                aria-expanded="false"
+                aria-controls="adminSidebar"
+                type="button">
+          <i class="fa-regular fa-bars" aria-hidden="true"></i>
+        </button>
+        <div>
+          <h1 class="admin-topbar__title">@(ViewData["Title"] ?? "Dashboard")</h1>
+          @if (ViewData["Breadcrumb"] != null)
+          {
+            <nav class="admin-topbar__breadcrumb" aria-label="Breadcrumb">
+              @Html.Raw(ViewData["Breadcrumb"])
+            </nav>
+          }
+        </div>
+      </div>
+      <div class="admin-topbar__actions">
+        <a href="/product" class="btn btn--ghost btn--sm">
+          <i class="fa-regular fa-arrow-up-right-from-square" aria-hidden="true"></i>
+          Xem shop
+        </a>
+      </div>
+    </header>
+
+    @* Content *@
+    <div class="admin-content" id="main-content" role="main">
+      @if (TempData["Success"] != null)
+      {
+        <div class="alert alert--success" role="alert">
+          <i class="fa-regular fa-circle-check" aria-hidden="true" style="margin-right:8px"></i>
+          @TempData["Success"]
+        </div>
+      }
+      @if (TempData["Error"] != null)
+      {
+        <div class="alert alert--danger" role="alert">@TempData["Error"]</div>
+      }
+
+      @RenderBody()
+    </div>
+  </div>
+</div>
+
+<script type="module" src="~/js/app.js" asp-append-version="true"></script>
+<script>
+  // Mobile sidebar toggle
+  const toggle = document.getElementById('sidebarToggle');
+  const sidebar = document.getElementById('adminSidebar');
+  toggle?.addEventListener('click', () => {
+    const isOpen = sidebar?.classList.toggle('is-open');
+    toggle.setAttribute('aria-expanded', String(isOpen));
+  });
+</script>
+@RenderSection("Scripts", required: false)
+</body>
+</html>

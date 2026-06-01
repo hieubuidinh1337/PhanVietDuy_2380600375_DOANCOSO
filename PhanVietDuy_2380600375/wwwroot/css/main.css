@@ -1,0 +1,40 @@
+/* ============================================================
+   VIETDUY LUXURY ATELIER — Main CSS Entry Point v2.0
+   Import order matters: tokens → reset → base → components → pages → admin
+   ============================================================ */
+
+/* ── 1. Design Tokens (v2: luxury timings, dark-mode palette) ── */
+@import './_variables.css';
+
+/* ── 2. Reset & Base ── */
+@import './_reset.css';
+@import './_typography.css';
+@import './_animations.css';
+
+/* ── 3. Layout ── */
+@import './_layout.css';
+@import './_cursor.css';
+
+/* ── 4. Components ── */
+@import './_buttons.css';
+@import './_forms.css';
+@import './_nav.css';
+@import './_footer.css';
+@import './_product-card.css';
+@import './_product-grid.css';
+@import './_filter.css';
+@import './_sidebar.css';
+@import './_cart.css';
+@import './_quick-view.css';
+
+/* ── 5. Pages ── */
+@import './_hero.css';
+@import './_product-detail.css';
+@import './_checkout.css';
+@import './_order.css';
+
+/* ── 6. Admin ── */
+@import './_admin.css';
+
+/* ── 7. Utilities (always last) ── */
+@import './_utilities.css';

@@ -1,0 +1,678 @@
+@using PhanVietDuy_2380600375.Models.Domain
+@model List<Category>
+@{
+    ViewData["Title"] = "Danh mục nổi bật";
+    ViewData["Description"] = "Khám phá toàn bộ danh mục sản phẩm thủ công tinh xảo của Vietduy Atelier.";
+    var categories = Model ?? new List<Category>();
+}
+
+<style>
+/* ════════════════════════════════════════════════════════════════
+   CATEGORIES PAGE — Luxury Editorial Grid
+   DesignSkillsV2.md · ACT 2 — THE WORLD
+   Bottega Veneta editorial masonry technique
+   ════════════════════════════════════════════════════════════════ */
+
+/* ── Hero ── */
+.cat-hero {
+    position: relative;
+    min-height: 480px;
+    display: flex;
+    align-items: flex-end;
+    overflow: hidden;
+    background: var(--c-bg-dark);
+}
+
+/* ── Hero background image ── */
+.cat-hero__bg {
+    position: absolute;
+    inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    object-position: center 30%;
+    display: block;
+    /* Ken Burns slow zoom */
+    animation: catHeroZoom 18s ease-in-out infinite alternate;
+    will-change: transform;
+}
+@@keyframes catHeroZoom {
+    from { transform: scale(1.0); }
+    to   { transform: scale(1.07); }
+}
+
+/* ── Hero gradient overlay ── */
+.cat-hero__shade {
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(
+            to right,
+            rgba(14,12,10,0.82) 0%,
+            rgba(14,12,10,0.45) 55%,
+            rgba(14,12,10,0.15) 100%
+        ),
+        linear-gradient(
+            to top,
+            rgba(14,12,10,0.60) 0%,
+            transparent 50%
+        );
+}
+
+/* ── Decorative vertical year text ── */
+.cat-hero__year {
+    position: absolute;
+    right: 60px;
+    top: 50%;
+    transform: translateY(-50%) rotate(90deg);
+    transform-origin: center;
+    font-family: var(--ff-body);
+    font-size: var(--fs-2xs);
+    font-weight: 400;
+    letter-spacing: 0.30em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.25);
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+.cat-hero__inner {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: var(--max-w);
+    margin: 0 auto;
+    padding: 80px clamp(24px, 5vw, 80px) 72px;
+}
+.cat-hero__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    font-family: var(--ff-body);
+    font-size: var(--fs-2xs);
+    font-weight: 400;
+    letter-spacing: 0.30em;
+    text-transform: uppercase;
+    color: var(--c-gold);
+    margin-bottom: 18px;
+}
+.cat-hero__eyebrow::before {
+    content: '';
+    width: 32px; height: 1px;
+    background: var(--c-gold);
+    display: inline-block;
+}
+.cat-hero__title {
+    font-family: var(--ff-display);
+    font-size: clamp(2.8rem, 6vw, 5.2rem);
+    font-weight: 300;
+    color: #F0EDE8;
+    letter-spacing: -0.02em;
+    line-height: 1.03;
+    margin-bottom: 18px;
+    max-width: 640px;
+    text-shadow: 0 2px 32px rgba(0,0,0,0.3);
+}
+.cat-hero__title em {
+    font-style: italic;
+    color: var(--c-gold);
+}
+.cat-hero__sub {
+    font-family: var(--ff-body);
+    font-size: var(--fs-base);
+    font-weight: 300;
+    line-height: 1.8;
+    color: rgba(240,237,232,0.68);
+    max-width: 440px;
+    margin-bottom: 28px;
+}
+.cat-hero__meta {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    font-family: var(--ff-body);
+    font-size: var(--fs-2xs);
+    letter-spacing: 0.12em;
+    color: rgba(240,237,232,0.45);
+}
+.cat-hero__meta-num {
+    font-family: var(--ff-display);
+    font-style: italic;
+    font-size: 1.15rem;
+    color: var(--c-gold);
+    margin-right: 4px;
+}
+.cat-hero__sep {
+    width: 24px; height: 1px;
+    background: rgba(255,255,255,0.18);
+}
+
+/* ── Gold rule animation ── */
+.cat-gold-rule {
+    display: block;
+    width: 0; height: 1px;
+    background: var(--c-gold);
+    margin-bottom: 36px;
+    transition: width 1s var(--ease-luxury) 0.15s;
+}
+.cat-gold-rule.revealed { width: 44px; }
+
+
+/* ═══════════════════════════════════════════════════════════
+   GRID SECTION
+   ═══════════════════════════════════════════════════════════ */
+.cat-section {
+    background: var(--c-bg);
+    padding-bottom: 120px;
+}
+.cat-section__inner {
+    max-width: var(--max-w);
+    margin: 0 auto;
+    padding: 0 clamp(24px, 5vw, 80px);
+}
+
+/* ── All-products row ── */
+.cat-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 0 44px;
+    border-bottom: 1px solid var(--c-border);
+    margin-bottom: 52px;
+}
+.cat-topbar__label {
+    font-family: var(--ff-body);
+    font-size: var(--fs-2xs);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--c-ink-lt);
+}
+.cat-topbar__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 32px;
+    border: 1px solid var(--c-ink);
+    border-radius: 2px;
+    font-family: var(--ff-body);
+    font-size: var(--fs-2xs);
+    font-weight: 400;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--c-ink);
+    text-decoration: none;
+    transition: background var(--dur-base) var(--ease-out),
+                color var(--dur-base) var(--ease-out);
+}
+.cat-topbar__btn:hover { background: var(--c-ink); color: var(--c-bg); }
+.cat-topbar__btn svg { transition: transform var(--dur-fast) var(--ease-out); }
+.cat-topbar__btn:hover svg { transform: translateX(4px); }
+
+/* ═══════════════════════════════════════════════════════════
+   EDITORIAL GRID — Bottega Veneta 3-col masonry hybrid
+   Gap 2px = bleed effect
+   ═══════════════════════════════════════════════════════════ */
+.cat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+}
+
+/* ── Card ── */
+.cat-card {
+    position: relative;
+    overflow: hidden;
+    display: block;
+    text-decoration: none;
+    background: var(--c-ink);
+    /* Reveal animation: starts hidden, JS adds .revealed */
+    opacity: 0;
+    transform: translateY(24px);
+    transition:
+        opacity   0.65s var(--ease-luxury),
+        transform 0.65s var(--ease-luxury);
+}
+.cat-card.revealed {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Unequal heights — editorial feel */
+.cat-card:nth-child(3n + 1) { aspect-ratio: 3/4; }
+.cat-card:nth-child(3n + 2) { aspect-ratio: 1/1; }
+.cat-card:nth-child(3n + 3) { aspect-ratio: 5/4; }
+
+/* Edge cases for < 3 cards */
+.cat-card:only-child { aspect-ratio: 16/7; grid-column: 1 / -1; }
+
+/* ── Image ── */
+.cat-card__img {
+    position: absolute;
+    inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    transition:
+        transform 0.7s var(--ease-luxury),
+        filter    0.6s var(--ease-luxury);
+    filter: brightness(0.82);
+}
+.cat-card:hover .cat-card__img {
+    transform: scale(1.05);
+    filter: brightness(0.65);
+}
+
+/* ── Fallback placeholder ── */
+.cat-card__placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(
+        140deg,
+        #1a1814 0%,
+        #2c2620 50%,
+        #3a3028 100%
+    );
+}
+.cat-card__initial {
+    font-family: var(--ff-display);
+    font-style: italic;
+    font-weight: 300;
+    font-size: clamp(5rem, 10vw, 10rem);
+    color: rgba(184,150,62,0.18);
+    -webkit-text-stroke: 1px rgba(184,150,62,0.12);
+    user-select: none;
+    line-height: 1;
+}
+
+/* ── Gradient overlay ── */
+.cat-card__overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        to top,
+        rgba(14,12,10,0.90) 0%,
+        rgba(14,12,10,0.15) 50%,
+        transparent 100%
+    );
+}
+
+/* ── Product count badge ── */
+.cat-card__badge {
+    position: absolute;
+    top: 18px; right: 18px;
+    padding: 5px 11px;
+    background: rgba(14,12,10,0.42);
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(255,255,255,0.13);
+    font-family: var(--ff-body);
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    color: rgba(255,255,255,0.6);
+    opacity: 0;
+    transition: opacity 0.3s var(--ease-out);
+}
+.cat-card:hover .cat-card__badge { opacity: 1; }
+
+/* ── Card body ── */
+.cat-card__body {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    padding: clamp(18px, 3.5vw, 36px) clamp(18px, 3vw, 32px);
+    transform: translateY(4px);
+    transition: transform 0.5s var(--ease-luxury);
+}
+.cat-card:hover .cat-card__body { transform: translateY(0); }
+
+.cat-card__tag {
+    display: block;
+    font-family: var(--ff-body);
+    font-size: 9px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.48);
+    margin-bottom: 8px;
+}
+.cat-card__name {
+    display: block;
+    font-family: var(--ff-display);
+    font-style: italic;
+    font-size: clamp(1.3rem, 2.4vw, 1.85rem);
+    font-weight: 400;
+    color: #fff;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    margin-bottom: 10px;
+}
+.cat-card__desc {
+    display: block;
+    font-family: var(--ff-body);
+    font-size: var(--fs-sm);
+    font-weight: 300;
+    line-height: 1.65;
+    color: rgba(255,255,255,0.48);
+    max-width: 300px;
+    /* animate in on hover */
+    opacity: 0;
+    transform: translateY(6px);
+    transition:
+        opacity   0.4s var(--ease-luxury) 0.05s,
+        transform 0.4s var(--ease-luxury) 0.05s;
+}
+.cat-card:hover .cat-card__desc { opacity: 1; transform: translateY(0); }
+
+.cat-card__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 14px;
+    font-family: var(--ff-body);
+    font-size: 9px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--c-gold-lt);
+    opacity: 0;
+    transform: translateX(-10px);
+    transition:
+        opacity   0.4s var(--ease-luxury) 0.1s,
+        transform 0.4s var(--ease-luxury) 0.1s;
+}
+.cat-card:hover .cat-card__cta { opacity: 1; transform: translateX(0); }
+.cat-card__cta svg { transition: transform 0.3s var(--ease-luxury); }
+.cat-card:hover .cat-card__cta svg { transform: translateX(4px); }
+
+/* ── Empty state ── */
+.cat-empty {
+    padding: 120px 0;
+    text-align: center;
+}
+.cat-empty__glyph {
+    font-family: var(--ff-display);
+    font-style: italic;
+    font-weight: 300;
+    font-size: clamp(4rem, 9vw, 8rem);
+    color: var(--c-ink-faint);
+    display: block;
+    margin-bottom: 24px;
+}
+.cat-empty__title {
+    font-family: var(--ff-display);
+    font-size: var(--fs-display-md);
+    font-weight: 300;
+    color: var(--c-ink);
+    margin-bottom: 12px;
+}
+.cat-empty__sub {
+    font-family: var(--ff-body);
+    font-weight: 300;
+    color: var(--c-ink-lt);
+    margin-bottom: 40px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   OUTRO
+   ═══════════════════════════════════════════════════════════ */
+.cat-outro {
+    background: var(--c-bg-dark);
+    padding: 100px 0;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+.cat-outro::before {
+    content: 'ATELIER';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: var(--ff-display);
+    font-size: clamp(5rem, 16vw, 18rem);
+    font-weight: 300;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(184,150,62,0.05);
+    white-space: nowrap;
+    pointer-events: none;
+    user-select: none;
+}
+.cat-outro__inner {
+    position: relative;
+    max-width: var(--max-w);
+    margin: 0 auto;
+    padding: 0 clamp(24px, 5vw, 80px);
+}
+.cat-outro__eyebrow {
+    display: block;
+    font-family: var(--ff-body);
+    font-size: var(--fs-2xs);
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--c-gold);
+    margin-bottom: 20px;
+}
+.cat-outro__title {
+    font-family: var(--ff-display);
+    font-size: clamp(2rem, 4.5vw, 3.8rem);
+    font-weight: 300;
+    color: #F0EDE8;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 36px;
+}
+.cat-outro__title em { font-style: italic; color: var(--c-gold); }
+.cat-outro__btns {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+.btn-ghost-inv {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 13px 40px;
+    border: 1px solid rgba(240,237,232,0.22);
+    border-radius: 2px;
+    font-family: var(--ff-body);
+    font-size: var(--fs-2xs);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(240,237,232,0.65);
+    text-decoration: none;
+    transition: color var(--dur-base) var(--ease-out),
+                border-color var(--dur-base) var(--ease-out);
+}
+.btn-ghost-inv:hover {
+    color: #F0EDE8;
+    border-color: rgba(240,237,232,0.55);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════════════════════ */
+@@media (max-width: 1024px) {
+    .cat-grid { grid-template-columns: repeat(2, 1fr); }
+    .cat-card:nth-child(3n+1),
+    .cat-card:nth-child(3n+2),
+    .cat-card:nth-child(3n+3) { aspect-ratio: unset; }
+    .cat-card:nth-child(odd)  { aspect-ratio: 3/4; }
+    .cat-card:nth-child(even) { aspect-ratio: 4/3; }
+}
+@@media (max-width: 600px) {
+    .cat-grid { grid-template-columns: 1fr; }
+    .cat-card:nth-child(n) { aspect-ratio: 4/3 !important; }
+    .cat-topbar { flex-direction: column; gap: 16px; align-items: flex-start; }
+    .cat-hero { padding: 52px 0 36px; }
+}
+</style>
+
+@* ════ HERO ════ *@
+<section class="cat-hero" aria-labelledby="catHeroTitle">
+    <img src="/images/categories-hero.jpg"
+         alt="Vietduy Atelier — Danh mục"
+         class="cat-hero__bg"
+         loading="eager" />
+    <div class="cat-hero__shade"></div>
+    <span class="cat-hero__year">Vietduy Atelier &nbsp;·&nbsp; Est. 1987</span>
+
+    <div class="cat-hero__inner">
+        <span class="cat-hero__eyebrow">Khám phá</span>
+        <span class="cat-gold-rule" id="catGoldRule"></span>
+        <h1 class="cat-hero__title" id="catHeroTitle">
+            Danh mục <em>nổi bật</em>
+        </h1>
+        <p class="cat-hero__sub">
+            Từng danh mục là một chương trong câu chuyện của chúng tôi —
+            nghề thủ công tinh xảo, vật liệu cao cấp, và những thiết kế vượt thời gian.
+        </p>
+        <div class="cat-hero__meta">
+            <span>
+                <span class="cat-hero__meta-num">@categories.Count</span>
+                danh mục
+            </span>
+            <span class="cat-hero__sep"></span>
+            <span>Vietduy Atelier</span>
+            <span class="cat-hero__sep"></span>
+            <span>Est. 1987</span>
+        </div>
+    </div>
+</section>
+
+@* ════ GRID ════ *@
+<section class="cat-section">
+    <div class="cat-section__inner">
+
+        <div class="cat-topbar">
+            <span class="cat-topbar__label">
+                @categories.Count danh mục &nbsp;·&nbsp; Tất cả sản phẩm
+            </span>
+            <a href="/product" class="cat-topbar__btn">
+                Xem tất cả sản phẩm
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                    <path d="M2 7h10M7 2l5 5-5 5" stroke="currentColor" stroke-width="1.2"
+                          stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </a>
+        </div>
+
+        @if (!categories.Any())
+        {
+            <div class="cat-empty">
+                <span class="cat-empty__glyph">∅</span>
+                <h2 class="cat-empty__title">Chưa có danh mục nào</h2>
+                <p class="cat-empty__sub">Các danh mục sẽ xuất hiện tại đây sau khi được thêm vào.</p>
+                <a href="/product" class="btn btn--solid"><span>Xem tất cả sản phẩm</span></a>
+            </div>
+        }
+        else
+        {
+            <div class="cat-grid" id="catGrid" role="list">
+                @{ int idx = 0; }
+                @foreach (var cat in categories)
+                {
+                    idx++;
+                    bool hasImg = !string.IsNullOrEmpty(cat.ImageUrl);
+                    string initial = cat.Name.Length > 0 ? cat.Name[0].ToString().ToUpper() : "C";
+                    string label = !string.IsNullOrEmpty(cat.Label) ? cat.Label : cat.Name;
+
+                    <a href="/product?category=@cat.Slug"
+                       class="cat-card"
+                       data-delay="@((idx - 1) * 100)"
+                       role="listitem"
+                       aria-label="Xem sản phẩm danh mục @cat.Name">
+
+                        @* Image or placeholder *@
+                        @if (hasImg)
+                        {
+                            <img src="@cat.ImageUrl"
+                                 alt="Danh mục @cat.Name"
+                                 class="cat-card__img"
+                                 loading="@(idx <= 3 ? "eager" : "lazy")" />
+                        }
+                        else
+                        {
+                            <div class="cat-card__placeholder">
+                                <span class="cat-card__initial">@initial</span>
+                            </div>
+                        }
+
+                        <div class="cat-card__overlay"></div>
+
+                        <div class="cat-card__body">
+                            <span class="cat-card__tag">@idx.ToString("D2") &mdash; @label</span>
+                            <span class="cat-card__name">@cat.Name</span>
+                            @if (!string.IsNullOrEmpty(cat.Description))
+                            {
+                                <span class="cat-card__desc">@cat.Description</span>
+                            }
+                            <span class="cat-card__cta">
+                                Khám phá ngay
+                                <svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                                    <path d="M2 7h10M7 2l5 5-5 5" stroke="currentColor" stroke-width="1.2"
+                                          stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </span>
+                        </div>
+                    </a>
+                }
+            </div>
+        }
+
+    </div>
+</section>
+
+@* ════ OUTRO ════ *@
+<section class="cat-outro" aria-label="Gọi mời khám phá">
+    <div class="cat-outro__inner">
+        <span class="cat-outro__eyebrow">Bộ sưu tập</span>
+        <h2 class="cat-outro__title">
+            Mỗi sản phẩm là một <em>tác phẩm</em>
+        </h2>
+        <div class="cat-outro__btns">
+            <a href="/product" class="btn btn--solid"><span>Xem tất cả sản phẩm</span></a>
+            <a href="/contact" class="btn-ghost-inv">Liên hệ chúng tôi</a>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+<script>
+(function () {
+    /* ── Gold rule ── */
+    const rule = document.getElementById('catGoldRule');
+    if (rule) setTimeout(() => rule.classList.add('revealed'), 350);
+
+    /* ── Card reveal with IntersectionObserver ── */
+    const cards = Array.from(document.querySelectorAll('.cat-card'));
+    if (!cards.length) return;
+
+    function revealCard(card) {
+        const delay = parseInt(card.dataset.delay || '0', 10);
+        setTimeout(() => card.classList.add('revealed'), delay);
+    }
+
+    // If IntersectionObserver is available, use it; otherwise reveal all
+    if ('IntersectionObserver' in window) {
+        const io = new IntersectionObserver((entries, obs) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    revealCard(entry.target);
+                    obs.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.06, rootMargin: '0px 0px -40px 0px' });
+
+        cards.forEach(c => io.observe(c));
+    } else {
+        // Fallback: reveal all immediately
+        cards.forEach(c => c.classList.add('revealed'));
+    }
+
+    // Safety net: reveal any card still hidden after 2s
+    setTimeout(() => {
+        cards.forEach(c => c.classList.add('revealed'));
+    }, 2000);
+})();
+</script>
+}

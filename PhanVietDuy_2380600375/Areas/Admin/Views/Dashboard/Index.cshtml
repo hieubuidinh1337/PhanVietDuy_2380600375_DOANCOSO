@@ -1,0 +1,212 @@
+@using PhanVietDuy_2380600375.Models.ViewModels
+@model AdminDashboardViewModel
+@{
+  ViewData["Title"] = "Dashboard";
+  Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+@* ── Stat cards ── *@
+<div class="stat-cards">
+  @{
+    var stats = new[] {
+      ("fa-regular fa-coins",          "Doanh thu", $"{(Model?.TotalRevenue ?? 0).ToString("N0")} ₫", Model?.RevenueGrowth ?? 0, "so với tháng trước"),
+      ("fa-regular fa-box-open",       "Đơn hàng",  $"{Model?.TotalOrders:N0}",  Model?.OrderGrowth   ?? 0, "so với tháng trước"),
+      ("fa-regular fa-users",          "Khách hàng",$"{Model?.TotalCustomers:N0}",Model?.CustomerGrowth ?? 0,"khách hàng mới"),
+      ("fa-regular fa-bag-shopping",   "Sản phẩm",  $"{Model?.TotalProducts:N0}",0m,                         "còn hàng"),
+    };
+    int si = 0;
+    foreach (var (icon, label, value, delta, suffix) in stats)
+    {
+      si++;
+      <div class="stat-card reveal reveal-delay-@si">
+        <div class="stat-card__icon"><i class="@icon" aria-hidden="true"></i></div>
+        <div class="stat-card__value">@value</div>
+        <div class="stat-card__label">@label</div>
+        @if (delta != 0)
+        {
+          <div class="stat-card__delta @(delta > 0 ? "stat-card__delta--up" : "stat-card__delta--down")">
+            <i class="fa-solid @(delta > 0 ? "fa-arrow-up" : "fa-arrow-down") fa-xs" aria-hidden="true"></i>
+            @Math.Abs(delta).ToString("F1")% @suffix
+          </div>
+        }
+      </div>
+    }
+  }
+</div>
+
+@* ── Main content row ── *@
+<div style="display:grid;grid-template-columns:2fr 1fr;gap:24px;margin-bottom:24px">
+
+  @* Revenue chart *@
+  <div class="admin-card reveal">
+    <div class="admin-card__header">
+      <h2 class="admin-card__title">Doanh thu theo tháng</h2>
+      <div style="display:flex;gap:8px">
+        @{
+          var years = new[] { DateTime.Now.Year, DateTime.Now.Year - 1 };
+          foreach (var y in years)
+          {
+            <button class="filter-pill @(y == DateTime.Now.Year ? "filter-pill--active" : "")"
+                    data-year="@y" type="button" style="font-size:10px">@y</button>
+          }
+        }
+      </div>
+    </div>
+    <div class="admin-card__body" style="padding:0">
+      <div class="chart-container" id="revenueChart" aria-label="Biểu đồ doanh thu">
+        @if (Model?.MonthlySales?.Any() == true)
+        {
+          var max = Model.MonthlySales.Max(x => x.Revenue);
+          foreach (var month in Model.MonthlySales)
+          {
+            var pct = max > 0 ? (double)month.Revenue / (double)max * 100 : 0;
+            <div class="chart-bar" style="height:@pct.ToString("F1")%"
+                 title="@month.Month: @month.Revenue.ToString("N0") ₫"
+                 role="listitem">
+               <div class="chart-bar__tooltip">@month.Month: @month.Revenue.ToString("N0") ₫</div>
+            </div>
+          }
+        }
+        else
+        {
+          @* Placeholder bars *@
+          var heights = new[] { 45, 60, 35, 80, 55, 70, 40, 90, 65, 75, 50, 85 };
+          foreach (var h in heights)
+          {
+            <div class="chart-bar" style="height:@h%"></div>
+          }
+        }
+      </div>
+    </div>
+  </div>
+
+  @* Quick stats *@
+  <div style="display:flex;flex-direction:column;gap:20px">
+    @* Pending orders *@
+    <div class="admin-card reveal reveal-delay-1">
+      <div class="admin-card__header">
+        <h3 class="admin-card__title">Cần xử lý</h3>
+        <a href="/admin/don-hang?status=pending" class="quick-action-btn">Xem tất cả</a>
+      </div>
+      <div class="admin-card__body">
+        <div style="display:flex;flex-direction:column;gap:12px">
+          @{
+            var pendingItems = new[] {
+              ("Đơn chờ xác nhận", Model?.PendingOrders ?? 0, "status-badge--pending"),
+              ("Đơn đang giao",    Model?.ShippingOrders ?? 0, "status-badge--shipped"),
+              ("Đánh giá chờ duyệt", Model?.PendingReviews ?? 0, "status-badge--info"),
+              ("Tin liên hệ mới",  Model?.UnreadContacts ?? 0, "status-badge--pending"),
+            };
+            foreach (var (label, count, badgeCls) in pendingItems)
+            {
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span style="font-size:var(--fs-sm);font-weight:300;color:var(--c-ink-mid)">@label</span>
+                <span class="status-badge @badgeCls">@count</span>
+              </div>
+            }
+          }
+        </div>
+      </div>
+    </div>
+
+    @* Top categories *@
+    <div class="admin-card reveal reveal-delay-2">
+      <div class="admin-card__header">
+        <h3 class="admin-card__title">Danh mục nổi bật</h3>
+      </div>
+      <div class="admin-card__body">
+        @if (Model?.TopCategories?.Any() == true)
+        {
+          <div style="display:flex;flex-direction:column;gap:12px">
+            @foreach (var cat in Model.TopCategories.Take(4))
+            {
+              <div>
+                <div style="display:flex;justify-content:space-between;font-size:var(--fs-sm);margin-bottom:4px">
+                  <span style="font-weight:400;color:var(--c-ink)">@cat.Name</span>
+                  <span style="font-weight:300;color:var(--c-ink-lt)">@cat.Percentage.ToString("F0")%</span>
+                </div>
+                <div style="height:3px;background:var(--c-border);border-radius:var(--r-full);overflow:hidden">
+                  <div style="height:100%;width:@cat.Percentage.ToString("F0")%;background:var(--c-gold);border-radius:var(--r-full)"></div>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>
+
+@* ── Recent orders ── *@
+<div class="data-table-wrap reveal">
+  <div class="data-table-header">
+    <h2 class="data-table-header__title">Đơn hàng gần đây</h2>
+    <div style="display:flex;gap:8px">
+      <a href="/admin/don-hang" class="quick-action-btn">Xem tất cả</a>
+      <a href="/admin/don-hang/export" class="quick-action-btn">
+        <i class="fa-regular fa-file-excel" aria-hidden="true"></i> Xuất Excel
+      </a>
+    </div>
+  </div>
+  <div style="overflow-x:auto">
+    <table class="data-table" aria-label="Đơn hàng gần đây">
+      <thead>
+        <tr>
+          <th scope="col">Mã đơn</th>
+          <th scope="col">Khách hàng</th>
+          <th scope="col">Sản phẩm</th>
+          <th scope="col">Tổng tiền</th>
+          <th scope="col">Trạng thái</th>
+          <th scope="col">Ngày đặt</th>
+          <th scope="col"><span class="sr-only">Thao tác</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (Model?.RecentOrders?.Any() == true)
+        {
+          foreach (var order in Model.RecentOrders)
+          {
+            <tr>
+              <td>
+                <a href="/admin/don-hang/@order.Id"
+                   style="font-weight:400;color:var(--c-ink);text-decoration:underline;text-underline-offset:2px">
+                  @order.OrderCode
+                </a>
+              </td>
+              <td>@order.CustomerName</td>
+              <td style="color:var(--c-ink-lt)">@order.ItemCount sản phẩm</td>
+              <td style="font-family:var(--ff-display);font-size:var(--fs-base)">
+                @order.TotalAmount.ToString("C0", new System.Globalization.CultureInfo("vi-VN"))
+              </td>
+              <td>
+                <span class="status-badge status-badge--@order.Status.ToLower()">
+                  @(order.Status switch {
+                    "Pending"    => "Chờ xác nhận",
+                    "Confirmed"  => "Đã xác nhận",
+                    "Processing" => "Đang xử lý",
+                    "Shipped"    => "Đang giao",
+                    "Delivered"  => "Đã giao",
+                    "Cancelled"  => "Đã hủy",
+                    _            => order.Status
+                  })
+                </span>
+              </td>
+              <td>@order.OrderedAt.ToString("dd/MM/yyyy")</td>
+              <td>
+                <a href="/admin/don-hang/@order.Id" class="quick-action-btn">Chi tiết</a>
+              </td>
+            </tr>
+          }
+        }
+        else
+        {
+          <tr>
+            <td colspan="7" style="text-align:center;padding:var(--sp-8);color:var(--c-ink-lt)">
+              Chưa có đơn hàng nào.
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

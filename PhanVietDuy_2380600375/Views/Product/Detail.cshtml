@@ -1,0 +1,326 @@
+@using PhanVietDuy_2380600375.Models.ViewModels
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+@model ProductDetailViewModel
+@{
+  ViewData["Title"] = Model.Product.Name;
+  ViewData["Page"] = "product-detail";
+  ViewData["Description"] = Model.Product.ShortDesc ?? $"Khám phá {Model.Product.Name} từ Vietduy Atelier.";
+
+  var wishlistCookie = HttpContextAccessor.HttpContext?.Request.Cookies["Wishlist"] ?? "";
+  var isWishlisted = wishlistCookie.Split(',').Select(s => int.TryParse(s, out int id) ? id : 0).Contains(Model.Product.Id);
+}
+
+@* ── PRODUCT DETAIL ── *@
+<div class="product-detail">
+
+  @* ── GALLERY (left) ── *@
+  <div class="product-gallery" id="productGallery">
+    <div class="product-gallery__main" id="galleryMain">
+      <img
+        src="@(Model.Images?.FirstOrDefault()?.Url ?? Model.Product.ThumbnailUrl ?? "/images/placeholder-product.webp")"
+        alt="@Model.Product.Name"
+        class="product-gallery__img"
+        id="mainImage"
+        width="900" height="1200"
+        loading="eager"
+        fetchpriority="high" />
+
+      @if (Model.Images?.Count > 1)
+      {
+        <button class="gallery-nav gallery-nav--prev" id="galleryPrev" aria-label="Ảnh trước">
+          <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+        </button>
+        <button class="gallery-nav gallery-nav--next" id="galleryNext" aria-label="Ảnh tiếp theo">
+          <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+        </button>
+        <span class="gallery-count" id="galleryCount" aria-live="polite">1 / @Model.Images.Count</span>
+      }
+    </div>
+
+    @if (Model.Images?.Count > 1)
+    {
+      <div class="product-gallery__thumbs" id="galleryThumbs">
+        @for (int i = 0; i < Model.Images.Count; i++)
+        {
+          var img = Model.Images[i];
+          <button class="gallery-thumb @(i == 0 ? "is-active" : "")"
+                  data-src="@img.Url"
+                  data-index="@i"
+                  aria-label="Ảnh @(i+1) của @Model.Product.Name"
+                  type="button">
+            <img src="@img.Url" alt="" width="72" height="72" loading="lazy" />
+          </button>
+        }
+      </div>
+    }
+  </div>
+
+  @* ── INFO PANEL (right) ── *@
+  <div class="product-info">
+
+    @* Breadcrumb *@
+    @await Html.PartialAsync("_Breadcrumb", new List<(string, string?)> {
+      ("Trang chủ", "/"),
+      ("Sản phẩm", "/product"),
+      (Model.Product.Category?.Label ?? Model.Product.Category?.Name ?? "", $"/product?category={Model.Product.Category?.Slug}"),
+      (Model.Product.Name, null)
+    })
+
+    <p class="product-info__cat">@(Model.Product.Category?.Label ?? Model.Product.Category?.Name)</p>
+    <h1 class="product-info__name">@Model.Product.Name</h1>
+
+    @* Rating *@
+    <div class="product-info__rating">
+      @await Html.PartialAsync("_StarRating", Model.AvgRating)
+      <a href="#reviews" class="product-info__review-link">
+        (@Model.TotalReviews đánh giá)
+      </a>
+    </div>
+
+    @* Price *@
+    <div class="product-info__price-block">
+      <span class="product-info__price">
+        @Model.Product.Price.ToString("C0", new System.Globalization.CultureInfo("vi-VN"))
+      </span>
+      @if (Model.Product.OriginalPrice.HasValue && Model.Product.OriginalPrice > Model.Product.Price)
+      {
+        <span class="product-info__original">
+          @Model.Product.OriginalPrice.Value.ToString("C0", new System.Globalization.CultureInfo("vi-VN"))
+        </span>
+        var pct = (int)Math.Round((1 - (double)Model.Product.Price / (double)Model.Product.OriginalPrice.Value) * 100);
+        <span class="badge badge--danger">-@pct%</span>
+      }
+    </div>
+
+    <p class="product-info__desc">@Model.Product.ShortDesc</p>
+    <div class="product-info__divider"></div>
+
+    @* Color selector *@
+    @if (Model.Colors?.Any() == true)
+    {
+      <div class="product-info__colors" id="colorSelector">
+        <p class="product-info__option-label">
+          Màu sắc: <strong id="colorLabel">@Model.Colors.First().ColorName</strong>
+        </p>
+        <div class="color-swatches">
+          @foreach (var (color, ci) in Model.Colors.Select((c, i) => (c, i)))
+          {
+            <button class="color-swatch @(ci == 0 ? "is-active" : "")"
+                    data-color="@color.ColorName"
+                    style="background: @(color.HexCode ?? "#E4DED6")"
+                    aria-label="Màu @color.ColorName"
+                    aria-pressed="@(ci == 0 ? "true" : "false")"
+                    type="button">
+            </button>
+          }
+        </div>
+      </div>
+    }
+
+    @* Size selector *@
+    @if (Model.Sizes?.Any() == true)
+    {
+      <div class="product-info__sizes" id="sizeSelector">
+        <div class="product-info__size-header">
+          <p class="product-info__option-label">
+            Size: <strong id="sizeLabel">Chọn size</strong>
+          </p>
+          <a href="#" class="product-info__size-guide">Hướng dẫn chọn size</a>
+        </div>
+        <div class="size-buttons">
+          @foreach (var size in Model.Sizes)
+          {
+            <button class="size-btn"
+                    data-size="@size.SizeName"
+                    aria-label="Size @size.SizeName"
+                    type="button">
+              @size.SizeName
+            </button>
+          }
+        </div>
+      </div>
+    }
+
+    @* Quantity + stock *@
+    <div class="product-info__qty-row">
+      <div class="qty-stepper" role="group" aria-label="Số lượng">
+        <button class="qty-btn" data-action="decrease" aria-label="Giảm số lượng" type="button">−</button>
+        <span class="qty-value" id="qtyValue" aria-live="polite" aria-atomic="true">1</span>
+        <button class="qty-btn" data-action="increase" aria-label="Tăng số lượng" type="button">+</button>
+      </div>
+      <span class="product-info__stock">
+        @if (!Model.Product.IsActive)
+        {
+          <span class="text-danger"><i class="fa-solid fa-circle-xmark" aria-hidden="true" style="color:var(--c-danger);margin-right:4px"></i>Tạm hết hàng</span>
+        }
+        else if (Model.Product.StockQuantity > 10)
+        {
+          <span><i class="fa-solid fa-circle-check" aria-hidden="true" style="color:var(--c-success);margin-right:4px"></i>Còn hàng</span>
+        }
+        else if (Model.Product.StockQuantity > 0)
+        {
+          <span class="text-warning">Chỉ còn @Model.Product.StockQuantity sản phẩm</span>
+        }
+        else
+        {
+          <span class="text-danger">Tạm hết hàng</span>
+        }
+      </span>
+    </div>
+
+    @* Add to cart *@
+    <button class="btn btn--solid btn--lg btn--wide"
+            id="addToCartBtn"
+            data-product-id="@Model.Product.Id"
+            data-stock="@(!Model.Product.IsActive ? 0 : Model.Product.StockQuantity)"
+            @(!Model.Product.IsActive || Model.Product.StockQuantity == 0 ? "disabled" : "")
+            type="button">
+      @(!Model.Product.IsActive || Model.Product.StockQuantity == 0 ? "Tạm hết hàng" : "Thêm vào giỏ hàng")
+    </button>
+
+    <button class="product-info__wishlist @(isWishlisted ? "is-active" : "")"
+            id="wishlistBtn"
+            data-product-id="@Model.Product.Id"
+            type="button"
+            aria-pressed="@(isWishlisted ? "true" : "false")">
+      <i class="@(isWishlisted ? "fa-solid fa-heart" : "fa-regular fa-heart")" aria-hidden="true"></i>
+      @(isWishlisted ? "Đã yêu thích" : "Thêm vào yêu thích")
+    </button>
+
+    <div class="product-info__divider"></div>
+
+    @* Accordion: Details *@
+    <div class="accordion" id="productAccordion">
+      @if (!string.IsNullOrEmpty(Model.Product.Materials))
+      {
+        <div class="accordion__item">
+          <button class="accordion__trigger" aria-expanded="false" type="button">
+            Chất liệu & Kỹ thuật
+            <i class="fa-solid fa-chevron-down accordion__icon" aria-hidden="true"></i>
+          </button>
+          <div class="accordion__content">@Model.Product.Materials</div>
+        </div>
+      }
+      @if (!string.IsNullOrEmpty(Model.Product.Dimensions))
+      {
+        <div class="accordion__item">
+          <button class="accordion__trigger" aria-expanded="false" type="button">
+            Kích thước
+            <i class="fa-solid fa-chevron-down accordion__icon" aria-hidden="true"></i>
+          </button>
+          <div class="accordion__content">@Model.Product.Dimensions</div>
+        </div>
+      }
+      <div class="accordion__item">
+        <button class="accordion__trigger" aria-expanded="false" type="button">
+          Vận chuyển & Hoàn trả
+          <i class="fa-solid fa-chevron-down accordion__icon" aria-hidden="true"></i>
+        </button>
+        <div class="accordion__content">
+          @(Model.Product.ShippingInfo ?? "Miễn phí vận chuyển cho đơn hàng từ $500. Đổi trả miễn phí trong vòng 30 ngày.")
+        </div>
+      </div>
+    </div>
+
+    <a href="/product" class="product-info__back">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+      Tiếp tục mua sắm
+    </a>
+  </div>
+</div>
+
+@* ── REVIEWS ── *@
+<section class="reviews-section" id="reviews" aria-labelledby="reviews-title">
+  <div class="reviews-header">
+    <div>
+      <span class="section-tag">Đánh giá</span>
+      <h2 class="section-title" id="reviews-title" style="margin-bottom:0">
+        Nhận xét <em>khách hàng</em>
+      </h2>
+    </div>
+    <div style="text-align:center">
+      <div class="reviews-avg">@Model.AvgRating.ToString("F1")</div>
+      @await Html.PartialAsync("_StarRating", Model.AvgRating)
+      <p class="text-muted" style="font-size:var(--fs-sm);margin-top:4px">@Model.TotalReviews đánh giá</p>
+    </div>
+  </div>
+
+  @if (Model.Reviews?.Any() == true)
+  {
+    foreach (var review in Model.Reviews)
+    {
+      <article class="review-card">
+        <div class="review-card__meta">
+          <div style="display:flex;align-items:center;gap:12px">
+            <strong class="review-card__author">@review.AuthorName</strong>
+            @await Html.PartialAsync("_StarRating", (decimal)review.Rating)
+          </div>
+          <time class="review-card__date" datetime="@review.CreatedAt.ToString("yyyy-MM-dd")">
+            @review.CreatedAt.ToString("dd/MM/yyyy")
+          </time>
+        </div>
+        <p class="review-card__body">@review.Content</p>
+      </article>
+    }
+  }
+  else
+  {
+    <p class="text-muted" style="padding:var(--sp-6) 0">
+      Chưa có đánh giá nào. Hãy là người đầu tiên đánh giá sản phẩm này!
+    </p>
+  }
+
+  @* Write review (logged-in users only) *@
+  @if (User.Identity?.IsAuthenticated == true)
+  {
+    <div style="margin-top:var(--sp-7);padding-top:var(--sp-6);border-top:1px solid var(--c-border)">
+      <h3 class="section-title" style="font-size:var(--fs-display-sm);margin-bottom:var(--sp-5)">
+        Viết đánh giá
+      </h3>
+      <form action="/product/@Model.Product.Slug/danh-gia" method="post" id="reviewForm">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="ProductId" value="@Model.Product.Id" />
+
+        <div class="form__group">
+          <label class="form__label" for="reviewRating">Đánh giá sao <span aria-hidden="true">*</span></label>
+          <select name="Rating" id="reviewRating" class="form__select" required>
+            <option value="">Chọn số sao</option>
+            <option value="5">⭐⭐⭐⭐⭐ Xuất sắc</option>
+            <option value="4">⭐⭐⭐⭐ Tốt</option>
+            <option value="3">⭐⭐⭐ Bình thường</option>
+            <option value="2">⭐⭐ Kém</option>
+            <option value="1">⭐ Rất kém</option>
+          </select>
+        </div>
+
+        <div class="form__group">
+          <label class="form__label" for="reviewContent">Nội dung <span aria-hidden="true">*</span></label>
+          <textarea name="Content" id="reviewContent" class="form__textarea"
+                    placeholder="Chia sẻ trải nghiệm của bạn về sản phẩm này..."
+                    required minlength="20" maxlength="1000" rows="5"></textarea>
+          <span class="form__error"></span>
+        </div>
+
+        <button type="submit" class="btn btn--solid">Gửi đánh giá</button>
+      </form>
+    </div>
+  }
+</section>
+
+@* ── RELATED PRODUCTS ── *@
+@if (Model.RelatedProducts?.Any() == true)
+{
+  <section class="related-section" aria-labelledby="related-title">
+    <div class="container">
+      <span class="section-tag">Gợi ý</span>
+      <h2 class="section-title" id="related-title">Sản phẩm <em>tương tự</em></h2>
+      <div class="products-grid products-grid--4col">
+        @foreach (var related in Model.RelatedProducts.Take(4))
+        {
+          @await Html.PartialAsync("_ProductCard", related)
+        }
+      </div>
+    </div>
+  </section>
+}

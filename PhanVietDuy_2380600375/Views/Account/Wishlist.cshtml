@@ -1,0 +1,175 @@
+@using PhanVietDuy_2380600375.Models.DTOs
+@model List<ProductListItem>
+@{
+  ViewData["Title"] = "Sản phẩm yêu thích";
+  ViewData["Page"]  = "wishlist";
+  var wishCount = Model?.Count ?? 0;
+}
+
+<div class="orders-page">
+
+  @* ── Page header ── *@
+  <div class="orders-page__header reveal-fade">
+    <div>
+      <span class="orders-page__eyebrow">Tài khoản</span>
+      <h1 class="orders-page__title">Sản phẩm <em style="font-style:italic">yêu thích</em></h1>
+    </div>
+    @if (wishCount > 0)
+    {
+      <span class="orders-count">@wishCount sản phẩm</span>
+    }
+  </div>
+
+  <div class="account-layout">
+
+    @* LEFT SIDEBAR *@
+    <aside class="account-sidebar" aria-label="Menu tài khoản">
+      <nav class="account-nav">
+        <a href="/account/profile" class="account-nav__link">
+          <i class="fa-regular fa-circle-user" aria-hidden="true"></i>
+          <span>Thông tin cá nhân</span>
+        </a>
+        <a href="/order" class="account-nav__link">
+          <i class="fa-regular fa-bag-shopping" aria-hidden="true"></i>
+          <span>Lịch sử đơn hàng</span>
+        </a>
+        <a href="/wishlist" class="account-nav__link account-nav__link--active" aria-current="page">
+          <i class="fa-regular fa-heart" aria-hidden="true"></i>
+          <span>Sản phẩm yêu thích</span>
+          @if (wishCount > 0)
+          {
+            <span class="account-nav__badge">@wishCount</span>
+          }
+        </a>
+        <a href="/account/change-password" class="account-nav__link">
+          <i class="fa-regular fa-lock" aria-hidden="true"></i>
+          <span>Đổi mật khẩu</span>
+        </a>
+        <div class="account-nav__divider"></div>
+        <form asp-controller="Account" asp-action="Logout" method="post">
+          @Html.AntiForgeryToken()
+          <button type="submit" class="account-nav__link account-nav__link--danger">
+            <i class="fa-regular fa-arrow-right-from-bracket" aria-hidden="true"></i>
+            <span>Đăng xuất</span>
+          </button>
+        </form>
+      </nav>
+
+      @* Wishlist hint *@
+      @if (wishCount > 0)
+      {
+        <div class="wishlist-hint reveal-fade" style="--reveal-delay:200ms">
+          <i class="fa-regular fa-lightbulb" aria-hidden="true" style="color:var(--c-gold);margin-right:6px"></i>
+          Nhấn vào ♡ để xóa khỏi danh sách yêu thích.
+        </div>
+      }
+    </aside>
+
+    @* MAIN CONTENT *@
+    <div class="account-content">
+
+      @if (Model?.Any() == true)
+      {
+        <div class="products-grid reveal-fade">
+          @foreach (var product in Model)
+          {
+            @await Html.PartialAsync("_ProductCard", product)
+          }
+        </div>
+
+        <div style="margin-top:var(--sp-6);padding-top:var(--sp-5);border-top:1px solid var(--c-border)">
+          <a href="/product" class="btn btn--ghost">
+            ← Tiếp tục mua sắm
+          </a>
+        </div>
+      }
+      else
+      {
+        <div class="orders-empty reveal-fade">
+          <i class="orders-empty__icon fa-regular fa-heart" aria-hidden="true"></i>
+          <h2 class="orders-empty__title">Chưa có sản phẩm yêu thích</h2>
+          <p class="orders-empty__text">
+            Nhấp vào biểu tượng ♡ trên sản phẩm để thêm vào danh sách yêu thích của bạn.
+          </p>
+          <a href="/product" class="btn btn--solid">Khám phá sản phẩm</a>
+        </div>
+      }
+
+    </div>
+  </div>
+</div>
+
+@section Styles {
+  <style>
+    .account-layout {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: var(--sp-7);
+      align-items: start;
+    }
+    .account-sidebar {
+      position: sticky;
+      top: calc(var(--nav-h) + 24px);
+      display: flex;
+      flex-direction: column;
+      gap: var(--sp-4);
+    }
+    .account-nav {
+      background: var(--c-surface);
+      border: 1px solid var(--c-border);
+      border-radius: var(--r-lg);
+      overflow: hidden;
+      box-shadow: var(--sh-sm);
+    }
+    .account-nav__link {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 20px;
+      font-family: var(--ff-body); font-size: var(--fs-sm); font-weight: 300;
+      color: var(--c-ink-mid); text-decoration: none;
+      transition: all var(--dur-fast) var(--ease-luxury);
+      border: none; background: none; cursor: pointer;
+      width: 100%; text-align: left;
+      border-bottom: 1px solid var(--c-border);
+    }
+    .account-nav__link:last-child { border-bottom: none; }
+    .account-nav__link:hover { color: var(--c-ink); background: var(--c-bg-alt); padding-left: 24px; }
+    .account-nav__link--active {
+      color: var(--c-gold-dk); background: rgba(184,150,62,0.07);
+      font-weight: 400; border-left: 3px solid var(--c-gold); padding-left: 17px;
+    }
+    .account-nav__link--danger { color: var(--c-danger); }
+    .account-nav__link--danger:hover { background: rgba(163,45,45,0.07); color: var(--c-danger); padding-left: 24px; }
+    .account-nav__link i { width: 16px; font-size: 13px; flex-shrink: 0; }
+    .account-nav__badge {
+      margin-left: auto;
+      min-width: 20px; height: 20px;
+      background: var(--c-gold); color: #fff;
+      font-size: 9px; font-weight: 500;
+      border-radius: var(--r-full);
+      display: grid; place-items: center;
+      padding: 0 5px;
+    }
+    .account-nav__divider { height: 1px; background: var(--c-border); }
+
+    .wishlist-hint {
+      background: rgba(184,150,62,0.07);
+      border: 1px solid rgba(184,150,62,0.2);
+      border-radius: var(--r-md);
+      padding: var(--sp-3) var(--sp-4);
+      font-size: var(--fs-xs);
+      color: var(--c-ink-lt);
+      font-weight: 300;
+      line-height: 1.6;
+    }
+
+    @@media (max-width: 768px) {
+      .account-layout { grid-template-columns: 1fr; }
+      .account-sidebar { position: static; }
+      .account-nav { display: flex; overflow-x: auto; border-radius: var(--r-md); }
+      .account-nav__link { white-space: nowrap; border-bottom: none; border-right: 1px solid var(--c-border); }
+      .account-nav__link--active { border-left: none; border-bottom: 3px solid var(--c-gold); padding-left: 20px; }
+      .account-nav__divider { display: none; }
+      .wishlist-hint { display: none; }
+    }
+  </style>
+}

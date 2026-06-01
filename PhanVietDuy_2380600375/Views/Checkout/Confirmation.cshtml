@@ -1,0 +1,113 @@
+@model Order
+@{
+  ViewData["Title"] = "Đặt hàng thành công";
+  ViewData["Page"] = "confirmation";
+}
+
+<div class="confirmation-page">
+
+  @* ── Animated checkmark ── *@
+  <div class="confirmation-check" aria-hidden="true">
+    <svg viewBox="0 0 80 80" class="check-svg" role="img" aria-label="Thành công">
+      <circle class="check-circle" cx="40" cy="40" r="36" />
+      <polyline class="check-mark" points="24,40 34,52 56,28" />
+    </svg>
+  </div>
+
+  <h1 class="confirmation-title">Đặt hàng thành công!</h1>
+  <span class="confirmation-code" aria-label="Mã đơn hàng @Model?.OrderCode">
+    @Model?.OrderCode
+  </span>
+
+  <p style="font-size:var(--fs-base);font-weight:300;color:var(--c-ink-mid);margin-bottom:var(--sp-3);line-height:1.75">
+    Cảm ơn bạn đã tin tưởng Vietduy Atelier.<br />
+    Chúng tôi đã gửi xác nhận đến <strong>@Model?.CustomerEmail</strong>.
+  </p>
+
+  @* ── Order details ── *@
+  <div class="confirmation-detail" aria-label="Chi tiết đơn hàng">
+    <div class="confirmation-detail__row">
+      <span class="confirmation-detail__label">Mã đơn hàng</span>
+      <span class="confirmation-detail__value">@Model?.OrderCode</span>
+    </div>
+    <div class="confirmation-detail__row">
+      <span class="confirmation-detail__label">Tên khách hàng</span>
+      <span class="confirmation-detail__value">@Model?.CustomerName</span>
+    </div>
+    <div class="confirmation-detail__row">
+      <span class="confirmation-detail__label">Địa chỉ giao hàng</span>
+      <span class="confirmation-detail__value">@Model?.ShipAddress, @Model?.ShipCity</span>
+    </div>
+    <div class="confirmation-detail__row">
+      <span class="confirmation-detail__label">Phương thức thanh toán</span>
+      <span class="confirmation-detail__value">
+        @(Model?.PaymentMethod.ToLower() switch {
+          "cod"  => "Thanh toán khi nhận hàng",
+          "bank" => "Chuyển khoản ngân hàng",
+          "card" => "Thẻ tín dụng / ghi nợ",
+          _ => Model?.PaymentMethod
+        })
+      </span>
+    </div>
+    <div class="confirmation-detail__row">
+      <span class="confirmation-detail__label">Tổng tiền</span>
+      <span class="confirmation-detail__value" style="font-family:var(--ff-display);font-size:1.1rem;color:var(--c-ink)">
+        @Model?.TotalAmount.ToString("C0", new System.Globalization.CultureInfo("vi-VN"))
+      </span>
+    </div>
+    <div class="confirmation-detail__row">
+      <span class="confirmation-detail__label">Trạng thái</span>
+      <span class="status-badge status-badge--pending">Chờ xác nhận</span>
+    </div>
+  </div>
+
+  @* ── Items ordered ── *@
+  @if (Model?.OrderDetails?.Any() == true)
+  {
+    <div style="text-align:left;margin-bottom:var(--sp-7)">
+      <h2 style="font-family:var(--ff-display);font-size:var(--fs-display-sm);font-weight:400;margin-bottom:var(--sp-5)">
+        Sản phẩm đã đặt
+      </h2>
+      <div class="summary-items">
+        @foreach (var item in Model.OrderDetails)
+        {
+          var variant = string.IsNullOrEmpty(item.SelectedColor) 
+            ? item.SelectedSize 
+            : string.IsNullOrEmpty(item.SelectedSize) 
+              ? item.SelectedColor 
+              : $"{item.SelectedColor} / {item.SelectedSize}";
+          
+          <div class="summary-item">
+            <div class="summary-item__img">
+              <img src="@(item.ImageUrl ?? "/images/placeholder-product.webp")"
+                   alt="@item.ProductName" width="60" height="60" loading="lazy" />
+              <span class="summary-item__qty-badge">@item.Quantity</span>
+            </div>
+            <div>
+              <div class="summary-item__name">@item.ProductName</div>
+              @if (!string.IsNullOrEmpty(variant))
+              {
+                <div class="summary-item__variant">@variant</div>
+              }
+            </div>
+            <div class="summary-item__price">
+              @((item.LineTotal ?? (item.UnitPrice * item.Quantity)).ToString("C0", new System.Globalization.CultureInfo("vi-VN")))
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  @* ── CTA ── *@
+  <div class="confirmation-actions">
+    <a href="/order" class="btn btn--outline">Xem đơn hàng</a>
+    <a href="/product" class="btn btn--solid">Tiếp tục mua sắm</a>
+  </div>
+
+  @* ── Expected delivery ── *@
+  <p style="margin-top:var(--sp-6);font-size:var(--fs-sm);font-weight:300;color:var(--c-ink-lt)">
+    <i class="fa-solid fa-truck-fast" aria-hidden="true" style="color:var(--c-gold);margin-right:6px"></i>
+    Dự kiến giao hàng trong 2–4 ngày làm việc.
+  </p>
+</div>

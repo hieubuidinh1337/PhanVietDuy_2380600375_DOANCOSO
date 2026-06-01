@@ -1,0 +1,98 @@
+@using PhanVietDuy_2380600375.Models.Domain
+@model IEnumerable<NewsletterSubscriber>
+@{
+  ViewData["Title"] = "Người đăng ký nhận tin";
+  Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="data-table-wrap reveal">
+  <div class="data-table-header">
+    <h2 class="data-table-header__title">Danh sách đăng ký nhận tin</h2>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn--outline btn--sm" onclick="alert('Tính năng đang được phát triển!')" type="button">
+        <i class="fa-regular fa-file-excel" aria-hidden="true" style="margin-right:6px"></i>Xuất Excel
+      </button>
+    </div>
+  </div>
+
+  <div style="overflow-x:auto">
+    <table class="data-table" aria-label="Danh sách người đăng ký nhận bản tin">
+      <thead>
+        <tr>
+          <th scope="col">ID</th>
+          <th scope="col">Email</th>
+          <th scope="col">Họ tên</th>
+          <th scope="col" style="text-align:center">Ngày đăng ký</th>
+          <th scope="col" style="text-align:center">Trạng thái</th>
+          <th scope="col"><span class="sr-only">Thao tác</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (Model != null && Model.Any())
+        {
+          foreach (var item in Model)
+          {
+            <tr id="row-@item.Id">
+              <td>#@item.Id</td>
+              <td>
+                <span style="font-weight:500;color:var(--c-ink)">@item.Email</span>
+              </td>
+              <td>
+                <span style="color:var(--c-ink-lt)">@(string.IsNullOrEmpty(item.FullName) ? "Khách" : item.FullName)</span>
+              </td>
+              <td style="text-align:center">
+                @item.SubscribedAt.ToString("dd/MM/yyyy HH:mm")
+              </td>
+              <td style="text-align:center">
+                <span class="status-badge @(item.IsActive ? "status-badge--shipped" : "status-badge--cancelled")">
+                  @(item.IsActive ? "Đang theo dõi" : "Đã hủy")
+                </span>
+              </td>
+              <td>
+                <div style="display:flex;gap:8px;justify-content:flex-end">
+                  <button class="quick-action-btn quick-action-btn--danger" onclick="deleteSubscriber(@item.Id)" type="button">Xóa</button>
+                </div>
+              </td>
+            </tr>
+          }
+        }
+        else
+        {
+          <tr>
+            <td colspan="6" style="text-align:center;padding:var(--sp-8);color:var(--c-ink-lt)">
+              Chưa có ai đăng ký nhận tin.
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+
+@section Scripts {
+  <script>
+    function deleteSubscriber(id) {
+      if (confirm("Bạn có chắc chắn muốn xóa email này khỏi danh sách nhận tin?")) {
+        fetch(`/admin/newslettersubscriber/delete/${id}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+          }
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            alert(data.message || "Xóa thành công!");
+            document.getElementById(`row-${id}`).remove();
+          } else {
+            alert(data.message || "Xóa thất bại!");
+          }
+        })
+        .catch(err => {
+          alert("Lỗi hệ thống khi xóa!");
+          console.error(err);
+        });
+      }
+    }
+  </script>
+}

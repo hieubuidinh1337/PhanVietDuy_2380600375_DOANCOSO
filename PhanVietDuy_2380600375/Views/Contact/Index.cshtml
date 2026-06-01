@@ -1,0 +1,166 @@
+@using PhanVietDuy_2380600375.Models.ViewModels
+@model ContactFormViewModel
+@{
+  ViewData["Title"] = "Liên hệ";
+  ViewData["Page"] = "contact";
+  ViewData["Description"] = "Liên hệ với Vietduy Atelier để được tư vấn và hỗ trợ.";
+}
+
+@* ── Hero ── *@
+<section class="page-header reveal">
+  <div class="container">
+    <span class="section-tag">Liên hệ</span>
+    <h1 class="page-header__title">Chúng tôi luôn <em>lắng nghe</em></h1>
+    <p class="section-subtitle">
+      Dù là câu hỏi về sản phẩm, dịch vụ tùy chỉnh, hay chỉ muốn chia sẻ —
+      chúng tôi luôn ở đây để lắng nghe.
+    </p>
+  </div>
+</section>
+
+@* ── Content grid ── *@
+<section style="padding-top:0">
+  <div class="container">
+    <div class="two-col" style="gap:80px;align-items:flex-start">
+
+      @* Left: Form *@
+      <div class="reveal">
+        @if (TempData["Success"] != null)
+        {
+          <div class="alert alert--success" role="alert">
+            <i class="fa-solid fa-circle-check" aria-hidden="true" style="margin-right:8px"></i>
+            @TempData["Success"]
+          </div>
+        }
+
+        @if (TempData["Error"] != null)
+        {
+          <div class="alert alert--danger" role="alert">@TempData["Error"]</div>
+        }
+
+        <form action="/contact" method="post" id="contactForm" novalidate>
+          @Html.AntiForgeryToken()
+
+          <div class="form__row">
+            <div class="form__group">
+              <label class="form__label" asp-for="FullName">Họ và tên <span aria-hidden="true">*</span></label>
+              <input class="form__input" asp-for="FullName" autocomplete="name" />
+              <span class="form__error" asp-validation-for="FullName"></span>
+            </div>
+            <div class="form__group">
+              <label class="form__label" asp-for="Email">Email <span aria-hidden="true">*</span></label>
+              <input class="form__input" asp-for="Email" type="email" autocomplete="email" />
+              <span class="form__error" asp-validation-for="Email"></span>
+            </div>
+          </div>
+
+          <div class="form__group">
+            <label class="form__label" asp-for="Phone">Số điện thoại</label>
+            <input class="form__input" asp-for="Phone" type="tel" />
+          </div>
+
+          <div class="form__group">
+            <label class="form__label" asp-for="Subject">Chủ đề <span aria-hidden="true">*</span></label>
+            <select class="form__select" asp-for="Subject">
+              <option value="">Chọn chủ đề...</option>
+              <option value="product">Tư vấn sản phẩm</option>
+              <option value="order">Theo dõi đơn hàng</option>
+              <option value="custom">Đặt hàng tùy chỉnh</option>
+              <option value="return">Đổi trả hàng</option>
+              <option value="other">Khác</option>
+            </select>
+            <span class="form__error" asp-validation-for="Subject"></span>
+          </div>
+
+          <div class="form__group">
+            <label class="form__label" asp-for="Message">Nội dung <span aria-hidden="true">*</span></label>
+            <textarea class="form__textarea" asp-for="Message"
+                      placeholder="Chia sẻ yêu cầu của bạn..."
+                      rows="6"></textarea>
+            <span class="form__error" asp-validation-for="Message"></span>
+          </div>
+
+          <p class="form__required-note"><span aria-hidden="true">*</span> Thông tin bắt buộc</p>
+
+          <button type="submit" class="btn btn--solid btn--lg" id="contactSubmit">
+            Gửi tin nhắn
+          </button>
+        </form>
+      </div>
+
+      @* Right: Contact info *@
+      <aside aria-label="Thông tin liên hệ">
+        <div style="margin-bottom:var(--sp-7)" class="reveal reveal-delay-1">
+          <h2 style="font-family:var(--ff-display);font-size:var(--fs-display-sm);font-weight:400;margin-bottom:var(--sp-5)">
+            Thông tin liên hệ
+          </h2>
+
+          <div style="display:flex;flex-direction:column;gap:var(--sp-4)">
+            <div style="display:flex;gap:var(--sp-4)">
+              <div style="width:40px;height:40px;border:1px solid var(--c-border);border-radius:50%;display:grid;place-items:center;color:var(--c-gold);flex-shrink:0">
+                <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+              </div>
+              <div>
+                <p style="font-size:var(--fs-xs);text-transform:uppercase;letter-spacing:.12em;color:var(--c-ink-lt);margin-bottom:4px">Địa chỉ</p>
+                <p style="font-size:var(--fs-sm);font-weight:300;color:var(--c-ink-mid);line-height:1.7">
+                  12 Rue du Faubourg Saint-Honoré<br/>Paris, 75008, France
+                </p>
+              </div>
+            </div>
+
+            <div style="display:flex;gap:var(--sp-4)">
+              <div style="width:40px;height:40px;border:1px solid var(--c-border);border-radius:50%;display:grid;place-items:center;color:var(--c-gold);flex-shrink:0">
+                <i class="fa-solid fa-phone" aria-hidden="true"></i>
+              </div>
+              <div>
+                <p style="font-size:var(--fs-xs);text-transform:uppercase;letter-spacing:.12em;color:var(--c-ink-lt);margin-bottom:4px">Điện thoại</p>
+                <a href="tel:+33142650000" style="font-size:var(--fs-sm);font-weight:300;color:var(--c-ink-mid)">+33 1 42 65 00 00</a>
+              </div>
+            </div>
+
+            <div style="display:flex;gap:var(--sp-4)">
+              <div style="width:40px;height:40px;border:1px solid var(--c-border);border-radius:50%;display:grid;place-items:center;color:var(--c-gold);flex-shrink:0">
+                <i class="fa-solid fa-envelope" aria-hidden="true"></i>
+              </div>
+              <div>
+                <p style="font-size:var(--fs-xs);text-transform:uppercase;letter-spacing:.12em;color:var(--c-ink-lt);margin-bottom:4px">Email</p>
+                <a href="mailto:contact@vietduy.com" style="font-size:var(--fs-sm);font-weight:300;color:var(--c-ink-mid)">contact@vietduy.com</a>
+              </div>
+            </div>
+
+            <div style="display:flex;gap:var(--sp-4)">
+              <div style="width:40px;height:40px;border:1px solid var(--c-border);border-radius:50%;display:grid;place-items:center;color:var(--c-gold);flex-shrink:0">
+                <i class="fa-solid fa-clock" aria-hidden="true"></i>
+              </div>
+              <div>
+                <p style="font-size:var(--fs-xs);text-transform:uppercase;letter-spacing:.12em;color:var(--c-ink-lt);margin-bottom:4px">Giờ mở cửa</p>
+                <p style="font-size:var(--fs-sm);font-weight:300;color:var(--c-ink-mid);line-height:1.7">
+                  Thứ 2 – Thứ 6: 9:00 – 18:00<br/>Thứ 7: 10:00 – 16:00
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        @* Map placeholder *@
+        <div class="reveal reveal-delay-2"
+             style="border:1px solid var(--c-border);border-radius:var(--r-md);overflow:hidden;aspect-ratio:16/9;background:var(--c-bg-alt);display:flex;align-items:center;justify-content:center">
+          <iframe
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2624.2133097843196!2d2.3084669!3d48.8698836!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e66fc4a2cba5b9%3A0xd2c7f3c6f6a7b831!2s12%20Rue%20du%20Faubourg%20Saint-Honor%C3%A9%2C%2075008%20Paris%2C%20France!5e0!3m2!1sfr!2sfr!4v1715000000000"
+            width="100%" height="100%" style="border:0" allowfullscreen="" loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+            title="Bản đồ địa chỉ Vietduy Atelier"></iframe>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+@section Scripts {
+  <script>
+    document.getElementById('contactForm')?.addEventListener('submit', function() {
+      const btn = document.getElementById('contactSubmit');
+      if (btn) { btn.disabled = true; btn.textContent = 'Đang gửi...'; }
+    });
+  </script>
+}

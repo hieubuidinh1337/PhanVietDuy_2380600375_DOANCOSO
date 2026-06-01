@@ -1,0 +1,312 @@
+@using PhanVietDuy_2380600375.Models.ViewModels
+@model ProductCreateViewModel
+@{
+  ViewData["Title"] = "Thêm sản phẩm mới";
+  Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+  <style>
+    .media-upload-zone {
+      position: relative;
+      border: 1px dashed var(--c-gold);
+      border-radius: var(--r-sm);
+      padding: 24px;
+      text-align: center;
+      background: var(--c-bg-alt);
+      transition: all var(--dur-base) var(--ease-out);
+      cursor: pointer;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+    .media-upload-zone:hover {
+      background: rgba(184,150,62,0.03);
+    }
+    .media-upload-input {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+      z-index: 2;
+    }
+    .media-upload-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--sp-1);
+    }
+    .media-upload-icon {
+      font-size: 1.6rem;
+      color: var(--c-gold);
+      margin-bottom: 4px;
+    }
+    .media-upload-text {
+      font-size: var(--fs-xs);
+      letter-spacing: 0.05em;
+      font-weight: 400;
+      color: var(--c-ink);
+    }
+    .media-upload-sub {
+      font-size: 10px;
+      color: var(--c-ink-lt);
+    }
+    .media-upload-preview {
+      position: relative;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 3;
+    }
+    .media-upload-preview img {
+      max-height: 120px;
+      max-width: 100%;
+      object-fit: contain;
+      border-radius: var(--r-sm);
+      border: 1px solid var(--c-border);
+    }
+    .media-upload-remove {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: var(--c-surface);
+      border: 1px solid var(--c-border);
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--c-danger);
+      cursor: pointer;
+      transition: all var(--dur-fast);
+      box-shadow: var(--sh-sm);
+    }
+    .media-upload-remove:hover {
+      background: var(--c-danger);
+      color: #fff;
+      border-color: var(--c-danger);
+    }
+    .multi-preview-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+      justify-content: center;
+    }
+    .multi-preview-item {
+      width: 50px;
+      height: 50px;
+      border-radius: var(--r-sm);
+      border: 1px solid var(--c-border);
+      overflow: hidden;
+      position: relative;
+    }
+    .multi-preview-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  </style>
+}
+
+<div class="admin-card reveal" style="max-width:900px;margin:0 auto">
+  <div class="admin-card__header">
+    <h2 class="admin-card__title">Thông tin sản phẩm mới</h2>
+  </div>
+  <div class="admin-card__body">
+    <form method="post" enctype="multipart/form-data" class="form-stack">
+      <div asp-validation-summary="ModelOnly" class="validation-summary" role="alert"></div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px">
+        @* Left Column: Details *@
+        <div>
+          <div class="form__group">
+            <label asp-for="Name" class="form__label">Tên sản phẩm <span style="color:var(--c-gold)">*</span></label>
+            <input asp-for="Name" class="form__input" placeholder="Nhập tên sản phẩm..." />
+            <span asp-validation-for="Name" class="form__error"></span>
+          </div>
+
+          <div class="form__group">
+            <label asp-for="CategoryId" class="form__label">Danh mục sản phẩm <span style="color:var(--c-gold)">*</span></label>
+            <select asp-for="CategoryId" class="form__select" asp-items="@(ViewBag.Categories as SelectList)">
+              <option value="">Chọn danh mục...</option>
+            </select>
+            <span asp-validation-for="CategoryId" class="form__error"></span>
+          </div>
+
+          <div class="form__row">
+            <div class="form__group">
+              <label asp-for="Price" class="form__label">Giá bán ($) <span style="color:var(--c-gold)">*</span></label>
+              <input asp-for="Price" type="number" step="0.01" class="form__input" placeholder="0.00" />
+              <span asp-validation-for="Price" class="form__error"></span>
+            </div>
+
+            <div class="form__group">
+              <label asp-for="OriginalPrice" class="form__label">Giá gốc ($)</label>
+              <input asp-for="OriginalPrice" type="number" step="0.01" class="form__input" placeholder="Giá niêm yết..." />
+              <span asp-validation-for="OriginalPrice" class="form__error"></span>
+            </div>
+          </div>
+
+          <div class="form__group">
+            <label asp-for="StockQuantity" class="form__label">Số lượng tồn kho</label>
+            <input asp-for="StockQuantity" type="number" class="form__input" value="10" />
+            <span asp-validation-for="StockQuantity" class="form__error"></span>
+          </div>
+        </div>
+
+        @* Right Column: Media & Badges *@
+        <div>
+          <div class="form__group">
+            <label asp-for="ThumbnailFile" class="form__label">Ảnh đại diện (Thumbnail) <span style="color:var(--c-gold)">*</span></label>
+            <div class="media-upload-zone" id="thumbZone">
+              <input asp-for="ThumbnailFile" type="file" class="media-upload-input" accept="image/*" onchange="previewThumb(this)" />
+              <div class="media-upload-placeholder" id="thumbPlaceholder">
+                <i class="fa-regular fa-cloud-arrow-up media-upload-icon" aria-hidden="true"></i>
+                <span class="media-upload-text">Tải lên ảnh sản phẩm chính</span>
+                <span class="media-upload-sub">Kích thước khuyên dùng: 800x800</span>
+              </div>
+              <div class="media-upload-preview" id="thumbPreview" style="display:none">
+                <img id="imageThumbPreview" src="" alt="Thumbnail Preview" />
+                <button type="button" class="media-upload-remove" onclick="removeThumb(event)"><i class="fa-regular fa-trash"></i></button>
+              </div>
+            </div>
+            <span asp-validation-for="ThumbnailFile" class="form__error"></span>
+          </div>
+
+          <div class="form__group">
+            <label asp-for="AdditionalImages" class="form__label">Album ảnh bổ sung</label>
+            <div class="media-upload-zone" id="multiZone">
+              <input asp-for="AdditionalImages" type="file" class="media-upload-input" accept="image/*" multiple onchange="previewMultipleImages(this)" />
+              <div class="media-upload-placeholder" id="multiPlaceholder">
+                <i class="fa-regular fa-images media-upload-icon" aria-hidden="true"></i>
+                <span class="media-upload-text">Chọn nhiều ảnh bổ sung</span>
+                <span class="media-upload-sub">Có thể chọn nhiều tệp cùng lúc</span>
+              </div>
+              <div class="multi-preview-container" id="additionalPreviewContainer" style="display:none"></div>
+            </div>
+            <span asp-validation-for="AdditionalImages" class="form__error"></span>
+          </div>
+
+          <div class="form__row">
+            <div class="form__group">
+              <label asp-for="Badge" class="form__label">Nhãn (Badge)</label>
+              <input asp-for="Badge" class="form__input" placeholder="Ví dụ: New, Sale" />
+            </div>
+
+            <div class="form__group">
+              <label asp-for="BadgeStyle" class="form__label">Màu Nhãn</label>
+              <select asp-for="BadgeStyle" class="form__select">
+                <option value="default">Vàng (Mặc định)</option>
+                <option value="success">Xanh lá</option>
+                <option value="danger">Đỏ</option>
+                <option value="info">Xanh dương</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form__group" style="display:flex;gap:24px;margin-top:16px;margin-bottom:0">
+            <label class="form__checkbox">
+              <input asp-for="IsFeatured" type="checkbox" />
+              <span class="form__checkbox-label">Sản phẩm nổi bật</span>
+            </label>
+
+            <label class="form__checkbox">
+              <input asp-for="IsActive" type="checkbox" />
+              <span class="form__checkbox-label">Kích hoạt hoạt động</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <hr style="border:0;border-top:1px solid var(--c-border);margin:32px 0" />
+
+      @* Descriptions & Technical details *@
+      <div class="form__group">
+        <label asp-for="ShortDesc" class="form__label">Mô tả ngắn</label>
+        <textarea asp-for="ShortDesc" class="form__textarea" rows="2" placeholder="Tóm tắt ngắn gọn giới thiệu sản phẩm..."></textarea>
+      </div>
+
+      <div class="form__group">
+        <label asp-for="Description" class="form__label">Mô tả chi tiết</label>
+        <textarea asp-for="Description" class="form__textarea" rows="5" placeholder="Thông tin chi tiết, đặc điểm nổi bật..."></textarea>
+      </div>
+
+      <div class="form__row">
+        <div class="form__group">
+          <label asp-for="Materials" class="form__label">Chất liệu</label>
+          <input asp-for="Materials" class="form__input" placeholder="Ví dụ: Da tự nhiên, Kim loại mạ vàng..." />
+        </div>
+
+        <div class="form__group">
+          <label asp-for="Dimensions" class="form__label">Kích thước</label>
+          <input asp-for="Dimensions" class="form__input" placeholder="Ví dụ: 30 x 20 x 10 cm..." />
+        </div>
+      </div>
+
+      <div class="form__group">
+        <label asp-for="ShippingInfo" class="form__label">Thông tin giao hàng</label>
+        <input asp-for="ShippingInfo" class="form__input" placeholder="Vận chuyển toàn quốc miễn phí, đổi trả trong 7 ngày..." />
+      </div>
+
+      <div style="display:flex;gap:12px;margin-top:var(--sp-8)">
+        <button type="submit" class="btn btn--gold">Lưu sản phẩm</button>
+        <a href="/admin/san-pham" class="btn btn--ghost">Quay lại</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+@section Scripts {
+  <script>
+    function previewThumb(input) {
+      if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+          document.getElementById('imageThumbPreview').src = e.target.result;
+          document.getElementById('thumbPlaceholder').style.display = 'none';
+          document.getElementById('thumbPreview').style.display = 'flex';
+        }
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+
+    function removeThumb(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      var input = document.querySelector('#thumbZone input');
+      input.value = '';
+      document.getElementById('imageThumbPreview').src = '';
+      document.getElementById('thumbPlaceholder').style.display = 'flex';
+      document.getElementById('thumbPreview').style.display = 'none';
+    }
+
+    function previewMultipleImages(input) {
+      var container = document.getElementById('additionalPreviewContainer');
+      container.innerHTML = '';
+      if (input.files && input.files.length > 0) {
+        document.getElementById('multiPlaceholder').style.display = 'none';
+        container.style.display = 'flex';
+        for (var i = 0; i < input.files.length; i++) {
+          var reader = new FileReader();
+          reader.onload = (function(file) {
+            return function(e) {
+              var div = document.createElement('div');
+              div.className = 'multi-preview-item';
+              div.innerHTML = `<img src="${e.target.result}" alt="${file.name}" />`;
+              container.appendChild(div);
+            };
+          })(input.files[i]);
+          reader.readAsDataURL(input.files[i]);
+        }
+      } else {
+        document.getElementById('multiPlaceholder').style.display = 'flex';
+        container.style.display = 'none';
+      }
+    }
+  </script>
+}

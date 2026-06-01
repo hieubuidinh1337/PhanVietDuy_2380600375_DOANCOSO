@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="vi" class="no-js">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#1A1814" />
+
+  @* CSRF *@
+  @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
+  <meta name="csrf-token" content="@Antiforgery.GetAndStoreTokens(Context).RequestToken" />
+
+  <title>@(ViewData["Title"] != null ? ViewData["Title"] + " — " : "")Vietduy Luxury Atelier</title>
+  <meta name="description" content="@(ViewData["Description"] ?? "Vietduy Atelier — Nghệ thuật thủ công tinh xảo từ Paris, 1987.")" />
+  <meta property="og:title" content="@(ViewData["Title"] ?? "Vietduy Luxury Atelier")" />
+  <meta property="og:type" content="website" />
+  <meta name="robots" content="index, follow" />
+
+  @* Google Fonts — preconnect first, then load *@
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet" />
+
+  @* Font Awesome 6.5.1 — icons CDN (no SRI so browser always loads it) *@
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  @* Main stylesheet & direct component sheets to bypass import cache *@
+  <link rel="stylesheet" href="~/css/main.css" asp-append-version="true" />
+  <link rel="stylesheet" href="~/css/_nav.css" asp-append-version="true" />
+  <link rel="stylesheet" href="~/css/_cart.css" asp-append-version="true" />
+  <link rel="stylesheet" href="~/css/_product-card.css" asp-append-version="true" />
+  <link rel="stylesheet" href="~/css/_filter.css" asp-append-version="true" />
+  <link rel="stylesheet" href="~/css/_sidebar.css" asp-append-version="true" />
+  <link rel="stylesheet" href="~/css/_utilities.css" asp-append-version="true" />
+
+  @* Page-specific styles *@
+  @RenderSection("Styles", required: false)
+</head>
+<body
+  data-page="@(ViewData["Page"] ?? "")"
+  data-toast="@(TempData["Toast"] != null ? Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["Toast"])) : "")">
+
+  @* Skip link — MUST be first focusable element *@
+  <a href="#main-content" class="skip-link">Chuyển tới nội dung chính</a>
+
+  @* Custom cursor (desktop only, JS-controlled) *@
+  <div class="cursor-dot" aria-hidden="true"></div>
+  <div class="cursor-ring" aria-hidden="true"></div>
+
+  @* Toast container *@
+  <div id="toastContainer" role="status" aria-live="polite" aria-atomic="false"></div>
+
+  @* Cart scrim (backdrop) *@
+  <div class="cart-scrim" id="cartScrim" aria-hidden="true"></div>
+
+  @* Cart sidebar drawer *@
+  @await Html.PartialAsync("_CartSidebar")
+
+  @* Navigation *@
+  @await Html.PartialAsync("_Nav")
+
+  @* Main content *@
+  <main id="main-content" role="main">
+    @RenderBody()
+  </main>
+
+  @* Footer *@
+  @await Html.PartialAsync("_Footer")
+
+  @* App JS — deferred so it doesn't block rendering *@
+  <script type="module" src="~/js/app.js" asp-append-version="true"></script>
+
+  @* Page-specific scripts *@
+  @RenderSection("Scripts", required: false)
+</body>
+</html>

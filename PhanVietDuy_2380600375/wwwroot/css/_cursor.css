@@ -1,0 +1,41 @@
+/* ============================================================
+   VIETDUY LUXURY ATELIER — Cursor System
+   Restored to browser default cursor.
+   Custom cursor disabled per user preference.
+   ============================================================ */
+
+/* Restore default cursor on all devices */
+body {
+  cursor: default;
+}
+
+/* Hide custom cursor elements if they exist in DOM */
+.cursor-dot,
+.cursor-ring {
+  display: none !important;
+}
+
+/* Ensure interactive elements show pointer */
+a,
+button,
+[role="button"],
+input[type="submit"],
+input[type="button"],
+input[type="checkbox"],
+input[type="radio"],
+select,
+label[for],
+.btn,
+.nav__link,
+.nav__link--mega-trigger,
+.filter-pill,
+.product-card,
+.coll-card {
+  cursor: pointer;
+}
+
+/* Disabled states */
+[disabled],
+.btn:disabled {
+  cursor: not-allowed;
+}

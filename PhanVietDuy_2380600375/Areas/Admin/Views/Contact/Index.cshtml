@@ -1,0 +1,121 @@
+@using PhanVietDuy_2380600375.Models.Domain
+@using X.PagedList
+@model IPagedList<ContactMessage>
+@{
+  ViewData["Title"] = "Quản lý liên hệ";
+  Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+@* ── Filters ── *@
+<div class="admin-card reveal" style="margin-bottom:24px">
+  <div class="admin-card__body">
+    <form method="get" style="display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end">
+      <div class="form-group" style="width:200px;margin:0">
+        <label for="isRead" class="form-label">Trạng thái đọc</label>
+        <select id="isRead" name="isRead" class="form-control">
+          <option value="">Tất cả</option>
+          <!option value="true" @(ViewBag.IsRead == true ? "selected" : "")>Đã đọc</!option>
+          <!option value="false" @(ViewBag.IsRead == false ? "selected" : "")>Chưa đọc</!option>
+        </select>
+      </div>
+
+      <div style="display:flex;gap:8px">
+        <button type="submit" class="btn btn--gold" style="padding:10px 20px">Lọc</button>
+        <a href="/admin/lien-he" class="btn btn--ghost" style="padding:10px 20px">Xóa lọc</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+@* ── Table ── *@
+<div class="data-table-wrap reveal">
+  <div class="data-table-header">
+    <h2 class="data-table-header__title">Tin nhắn liên hệ</h2>
+  </div>
+
+  <div style="overflow-x:auto">
+    <table class="data-table" aria-label="Tin nhắn liên hệ">
+      <thead>
+        <tr>
+          <th scope="col">Người gửi</th>
+          <th scope="col">Tiêu đề</th>
+          <th scope="col">Ngày nhận</th>
+          <th scope="col" style="text-align:center">Đã đọc</th>
+          <th scope="col" style="text-align:center">Đã phản hồi</th>
+          <th scope="col"><span class="sr-only">Thao tác</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (Model != null && Model.Any())
+        {
+          foreach (var c in Model)
+          {
+            <tr id="row-@c.Id">
+              <td>
+                <div style="font-weight:500;color:var(--c-ink)">@c.FullName</div>
+                <div style="font-size:var(--fs-xs);color:var(--c-ink-lt)">@c.Email</div>
+              </td>
+              <td>
+                <div style="font-weight:400;color:var(--c-ink)">@c.Subject</div>
+                <div style="font-size:var(--fs-xs);color:var(--c-ink-lt);max-width:300px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">@c.Message</div>
+              </td>
+              <td style="font-size:var(--fs-xs)">@c.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+              <td style="text-align:center">
+                <span class="status-badge @(c.IsRead ? "status-badge--shipped" : "status-badge--pending")">
+                  @(c.IsRead ? "Đã đọc" : "Chưa đọc")
+                </span>
+              </td>
+              <td style="text-align:center">
+                <span class="status-badge @(c.IsReplied ? "status-badge--shipped" : "status-badge--cancelled")">
+                  @(c.IsReplied ? "Đã trả lời" : "Chưa trả lời")
+                </span>
+              </td>
+              <td>
+                <div style="display:flex;gap:8px;justify-content:flex-end">
+                  <a href="/admin/lien-he/detail/@c.Id" class="quick-action-btn">Chi tiết / Trả lời</a>
+                  <button class="quick-action-btn quick-action-btn--danger" onclick="deleteContact(@c.Id)" type="button">Xóa</button>
+                </div>
+              </td>
+            </tr>
+          }
+        }
+        else
+        {
+          <tr>
+            <td colspan="6" style="text-align:center;padding:var(--sp-8);color:var(--c-ink-lt)">
+              Không tìm thấy tin nhắn liên hệ nào.
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  @if (Model != null && Model.PageCount > 1)
+  {
+    <div style="display:flex;justify-content:center;padding:24px">
+      @await Html.PartialAsync("~/Views/Shared/_Pagination.cshtml", Model)
+    </div>
+  }
+</div>
+
+@section Scripts {
+  <script>
+    function deleteContact(id) {
+      if (confirm("Bạn có chắc muốn xóa tin nhắn này?")) {
+        fetch(`/admin/lien-he/delete/${id}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" }
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            document.getElementById(`row-${id}`).remove();
+          } else {
+            alert("Xóa tin nhắn thất bại!");
+          }
+        });
+      }
+    }
+  </script>
+}

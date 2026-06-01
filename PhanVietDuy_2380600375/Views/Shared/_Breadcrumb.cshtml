@@ -1,0 +1,25 @@
+@* _Breadcrumb.cshtml
+   Model: IEnumerable<(string Label, string? Url)> *@
+@model IEnumerable<(string Label, string? Url)>
+
+@if (Model != null && Model.Any())
+{
+  var items = Model.ToList();
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    @for (int i = 0; i < items.Count; i++)
+    {
+      var item = items[i];
+      var isLast = i == items.Count - 1;
+
+      if (!isLast && item.Url != null)
+      {
+        <a href="@item.Url" class="breadcrumb__link">@item.Label</a>
+        <span class="breadcrumb__sep" aria-hidden="true">/</span>
+      }
+      else
+      {
+        <span class="breadcrumb__current" aria-current="page">@item.Label</span>
+      }
+    }
+  </nav>
+}

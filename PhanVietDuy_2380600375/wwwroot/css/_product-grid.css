@@ -1,0 +1,372 @@
+/* ============================================================
+   VIETDUY LUXURY ATELIER — Product Grid & Filter Bar
+   ============================================================ */
+
+/* ── Filter bar (sticky) ── */
+.filter-bar {
+  position: sticky;
+  top: var(--nav-h);
+  z-index: calc(var(--z-sticky) - 1);
+  background: rgba(247,245,242,0.94);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--c-border);
+  height: var(--filter-h);
+  display: flex;
+  align-items: center;
+  padding: 0 60px;
+  gap: var(--sp-2);
+  overflow: visible;
+  transition: box-shadow var(--dur-base) var(--ease-out);
+}
+
+.filter-bar.is-elevated {
+  box-shadow: var(--sh-sm);
+}
+
+/* ── Filter bar pills container ── */
+.filter-bar__pills {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  flex: 1;
+  height: 100%;
+}
+
+.filter-bar__pills::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Filter pill ── */
+.filter-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+  white-space: nowrap;
+  font-size: var(--fs-2xs);
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--c-ink-mid);
+  border: 1px solid var(--c-border);
+  padding: 6px 16px;
+  border-radius: var(--r-full);
+  cursor: pointer;
+  transition: all var(--dur-fast) var(--ease-out);
+  text-decoration: none;
+  flex-shrink: 0;
+  background: transparent;
+}
+
+.filter-pill:hover {
+  border-color: var(--c-border-s);
+  color: var(--c-ink);
+}
+
+.filter-pill--active {
+  background: var(--c-ink);
+  color: var(--c-bg);
+  border-color: var(--c-ink);
+}
+
+.filter-pill--active:hover {
+  background: #2A2520;
+  border-color: #2A2520;
+  color: var(--c-bg);
+}
+
+/* ── Filter divider ── */
+.filter-divider {
+  width: 1px;
+  height: 24px;
+  background: var(--c-border);
+  margin: 0 var(--sp-2);
+  flex-shrink: 0;
+}
+
+/* ── Filter spacer ── */
+.filter-spacer {
+  flex: 1;
+  min-width: var(--sp-4);
+}
+
+/* ── Sort dropdown ── */
+.sort-dropdown {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.sort-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--fs-2xs);
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--c-ink-mid);
+  border: 1px solid var(--c-border);
+  padding: 6px 14px;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  background: transparent;
+  transition: all var(--dur-fast) var(--ease-out);
+  white-space: nowrap;
+}
+
+.sort-trigger:hover {
+  color: var(--c-ink);
+  border-color: var(--c-border-s);
+}
+
+.sort-trigger i {
+  font-size: 10px;
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+
+.sort-dropdown.is-open .sort-trigger i {
+  transform: rotate(180deg);
+}
+
+.sort-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-md);
+  box-shadow: var(--sh-md);
+  min-width: 200px;
+  z-index: var(--z-dropdown);
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(-8px);
+  pointer-events: none;
+  transition:
+    opacity   var(--dur-base) var(--ease-out),
+    transform var(--dur-base) var(--ease-out);
+}
+
+.sort-dropdown.is-open .sort-menu {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+
+.sort-option {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 12px 16px;
+  font-size: var(--fs-sm);
+  font-weight: 300;
+  color: var(--c-ink-mid);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all var(--dur-fast) var(--ease-out);
+  text-decoration: none;
+}
+
+.sort-option:hover {
+  background: var(--c-bg-alt);
+  color: var(--c-ink);
+}
+
+.sort-option.is-active {
+  color: var(--c-gold);
+  font-weight: 400;
+}
+
+/* ── View toggle ── */
+.view-btn {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  color: var(--c-ink-faint);
+  font-size: 14px;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid transparent;
+  transition: all var(--dur-fast) var(--ease-out);
+}
+
+.view-btn.is-active {
+  color: var(--c-ink);
+  background: var(--c-bg-alt);
+  border-color: var(--c-border);
+}
+
+.view-btn:hover {
+  color: var(--c-ink);
+}
+
+/* ── Product grid ── */
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  transition: all var(--dur-base) var(--ease-out);
+}
+
+.products-grid--4col {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.products-grid--3col {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.products-grid--2col {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+/* ── List view ── */
+.products-grid--list {
+  grid-template-columns: 1fr !important;
+  gap: 24px !important;
+}
+
+.products-grid--list .product-card__desc {
+  -webkit-line-clamp: 4;
+}
+
+/* ── Products + sidebar layout ── */
+.products-page {
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: var(--sp-7) 60px var(--sp-10);
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: var(--sp-8);
+  align-items: start;
+}
+
+/* ── Results bar ── */
+.results-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--sp-5);
+  padding-bottom: var(--sp-4);
+  border-bottom: 1px solid var(--c-border);
+}
+
+.results-count {
+  font-size: var(--fs-sm);
+  color: var(--c-ink-lt);
+}
+
+/* ── Empty state ── */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--sp-10) var(--sp-7);
+  gap: var(--sp-4);
+}
+
+.empty-state__icon {
+  font-size: 3rem;
+  color: var(--c-ink-faint);
+  margin-bottom: var(--sp-2);
+}
+
+.empty-state__title {
+  font-family: var(--ff-display);
+  font-size: var(--fs-display-sm);
+  font-weight: 400;
+  color: var(--c-ink);
+}
+
+.empty-state__text {
+  font-size: var(--fs-base);
+  font-weight: 300;
+  color: var(--c-ink-mid);
+  max-width: 48ch;
+}
+
+/* ── Pagination ── */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  margin-top: var(--sp-8);
+}
+
+.pagination__btn {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  font-size: var(--fs-sm);
+  font-weight: 300;
+  color: var(--c-ink-mid);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  background: transparent;
+  text-decoration: none;
+  transition: all var(--dur-fast) var(--ease-out);
+}
+
+.pagination__btn:hover {
+  color: var(--c-ink);
+  border-color: var(--c-border-s);
+  background: var(--c-bg-alt);
+}
+
+.pagination__btn--active {
+  background: var(--c-ink);
+  color: var(--c-bg);
+  border-color: var(--c-ink);
+}
+
+.pagination__btn--disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.pagination__ellipsis {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  color: var(--c-ink-faint);
+  font-size: var(--fs-sm);
+}
+
+/* ── Responsive ── */
+@media (max-width: 1200px) {
+  .products-grid--4col { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 1024px) {
+  .products-page { grid-template-columns: 1fr; padding: var(--sp-6) 40px var(--sp-9); }
+  .products-grid--4col, .products-grid--3col { grid-template-columns: repeat(2, 1fr); }
+  .filter-bar { padding: 0 40px; }
+}
+
+@media (max-width: 768px) {
+  .products-page { padding: var(--sp-5) 24px var(--sp-8); }
+  .products-grid, .products-grid--4col, .products-grid--3col, .products-grid--2col {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .filter-bar { padding: 0 24px; }
+}
+
+@media (max-width: 480px) {
+  .products-grid, .products-grid--4col, .products-grid--3col {
+    grid-template-columns: 1fr;
+  }
+}

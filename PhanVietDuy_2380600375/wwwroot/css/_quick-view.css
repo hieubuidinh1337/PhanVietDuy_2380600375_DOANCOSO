@@ -1,0 +1,415 @@
+/* ============================================================
+   VIETDUY LUXURY ATELIER — Quick View Modal Styles
+   ============================================================ */
+
+.luxury-quickview-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1100;
+  background: rgba(18, 16, 13, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              visibility 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  padding: 20px;
+}
+
+.luxury-quickview-backdrop.is-active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.luxury-quickview-modal {
+  background: var(--bg-primary, #FAF9F6);
+  border: 1px solid rgba(132, 109, 85, 0.2);
+  width: 100%;
+  max-width: 900px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  transform: translateY(30px) scale(0.96);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  border-radius: 4px;
+}
+
+.luxury-quickview-backdrop.is-active .luxury-quickview-modal {
+  transform: translateY(0) scale(1);
+}
+
+.luxury-quickview-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: none;
+  border: none;
+  font-size: 28px;
+  cursor: pointer;
+  color: var(--c-text-primary, #1A1814);
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.3s, color 0.3s;
+  z-index: 10;
+}
+
+.luxury-quickview-close:hover {
+  background-color: var(--c-accent-light, #FAF5F0);
+  color: var(--c-gold, #A48968);
+}
+
+.luxury-quickview-body {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 30px;
+  padding: 40px;
+}
+
+@media (max-width: 768px) {
+  .luxury-quickview-body {
+    grid-template-columns: 1fr;
+    padding: 30px 20px;
+    gap: 20px;
+  }
+  .luxury-quickview-modal {
+    max-height: 95vh;
+  }
+}
+
+/* ── Left Column: Gallery ── */
+.luxury-quickview-gallery {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.gallery-main-container {
+  aspect-ratio: 1 / 1;
+  width: 100%;
+  background-color: #F6F4F0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 1px solid rgba(0,0,0,0.04);
+}
+
+.gallery-main-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.gallery-main-container:hover .gallery-main-img {
+  transform: scale(1.04);
+}
+
+.gallery-thumbs {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 5px;
+}
+
+.gallery-thumb {
+  width: 60px;
+  height: 60px;
+  border: 1px solid rgba(132, 109, 85, 0.15);
+  cursor: pointer;
+  background-color: #F6F4F0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  opacity: 0.6;
+  transition: opacity 0.3s, border-color 0.3s;
+}
+
+.gallery-thumb:hover,
+.gallery-thumb.is-active {
+  opacity: 1;
+  border-color: var(--c-gold, #A48968);
+}
+
+.gallery-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ── Right Column: Info ── */
+.luxury-quickview-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.luxury-quickview-info .info-header {
+  margin-bottom: 20px;
+}
+
+.luxury-quickview-info .badge {
+  display: inline-block;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  padding: 4px 10px;
+  margin-bottom: 12px;
+  font-weight: 500;
+  border-radius: 20px;
+}
+
+.badge--exclusive {
+  background: linear-gradient(135deg, #1A1814, #332D24);
+  color: var(--c-gold, #A48968);
+  border: 1px solid rgba(164, 137, 104, 0.3);
+}
+
+.badge--new {
+  background-color: #E6DFD5;
+  color: #1A1814;
+}
+
+.luxury-quickview-info .product-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 32px;
+  font-weight: 400;
+  line-height: 1.15;
+  color: var(--c-text-primary, #1A1814);
+  margin-bottom: 12px;
+}
+
+.luxury-quickview-info .product-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.luxury-quickview-info .price {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 24px;
+  font-weight: 500;
+  color: var(--c-gold, #A48968);
+}
+
+.luxury-quickview-info .original-price {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  text-decoration: line-through;
+  color: #8C867E;
+}
+
+.luxury-quickview-info .discount-badge {
+  background-color: #9C2A2A;
+  color: #FFF;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 3px;
+  letter-spacing: 0.5px;
+}
+
+.luxury-quickview-info .product-desc {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #5C564E;
+  margin-bottom: 25px;
+}
+
+.luxury-quickview-info .divider {
+  height: 1px;
+  background-color: rgba(132, 109, 85, 0.15);
+  margin-bottom: 25px;
+}
+
+/* ── Option groups (Colors & Sizes) ── */
+.luxury-quickview-info .option-group {
+  margin-bottom: 20px;
+}
+
+.luxury-quickview-info .option-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: #1A1814;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.luxury-quickview-info .selected-option-label {
+  color: var(--c-gold, #A48968);
+  font-weight: 500;
+}
+
+/* Colors styling */
+.luxury-quickview-info .color-swatches {
+  display: flex;
+  gap: 12px;
+}
+
+.luxury-quickview-info .color-swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.2s, border-color 0.2s;
+  padding: 0;
+}
+
+.luxury-quickview-info .color-swatch::after {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  transition: border-color 0.2s;
+}
+
+.luxury-quickview-info .color-swatch.is-active::after {
+  border-color: var(--c-gold, #A48968);
+}
+
+.luxury-quickview-info .color-swatch:hover {
+  transform: scale(1.08);
+}
+
+/* Sizes styling */
+.luxury-quickview-info .size-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.luxury-quickview-info .size-btn {
+  background: none;
+  border: 1px solid rgba(132, 109, 85, 0.2);
+  color: #5C564E;
+  padding: 8px 16px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+  min-width: 50px;
+  text-align: center;
+}
+
+.luxury-quickview-info .size-btn:hover,
+.luxury-quickview-info .size-btn.is-active {
+  background-color: var(--c-gold, #A48968);
+  color: #FAF9F6;
+  border-color: var(--c-gold, #A48968);
+}
+
+/* Purchase row (quantity & Add to cart) */
+.luxury-quickview-info .purchase-row {
+  display: flex;
+  gap: 15px;
+  margin-top: 25px;
+  margin-bottom: 25px;
+}
+
+.luxury-quickview-info .qty-stepper {
+  display: flex;
+  border: 1px solid rgba(132, 109, 85, 0.2);
+  align-items: center;
+  background-color: #FAF9F6;
+}
+
+.luxury-quickview-info .qty-btn {
+  background: none;
+  border: none;
+  width: 44px;
+  height: 44px;
+  cursor: pointer;
+  font-size: 16px;
+  color: #1A1814;
+  transition: background-color 0.2s;
+}
+
+.luxury-quickview-info .qty-btn:hover {
+  background-color: rgba(132, 109, 85, 0.08);
+}
+
+.luxury-quickview-info .qty-value {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  width: 32px;
+  text-align: center;
+  color: #1A1814;
+}
+
+.luxury-quickview-info .qv-add-to-cart-btn {
+  flex: 1;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: 2px;
+  font-size: 13px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  background-color: #1A1814;
+  color: #FFF;
+  transition: background-color 0.3s;
+}
+
+.luxury-quickview-info .qv-add-to-cart-btn:hover:not(:disabled) {
+  background-color: var(--c-gold, #A48968);
+}
+
+.luxury-quickview-info .qv-add-to-cart-btn:disabled {
+  background-color: #DDD;
+  color: #888;
+  cursor: not-allowed;
+}
+
+.luxury-quickview-info .view-full-details-link {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  color: var(--c-gold, #A48968);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: color 0.3s;
+  align-self: flex-start;
+}
+
+.luxury-quickview-info .view-full-details-link:hover {
+  color: #1A1814;
+}
+
+/* Spinner loader */
+.luxury-quickview-spinner {
+  width: 48px;
+  height: 48px;
+  border: 3px solid rgba(164, 137, 104, 0.2);
+  border-radius: 50%;
+  border-top-color: var(--c-gold, #A48968);
+  animation: qv-spin 1s ease-in-out infinite;
+}
+
+@keyframes qv-spin {
+  to { transform: rotate(360deg); }
+}

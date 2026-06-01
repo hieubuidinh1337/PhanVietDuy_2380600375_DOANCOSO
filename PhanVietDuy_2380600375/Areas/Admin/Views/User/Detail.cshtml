@@ -1,0 +1,170 @@
+@using PhanVietDuy_2380600375.Models.Domain
+@model ApplicationUser
+@{
+  ViewData["Title"] = $"Chi tiết người dùng: {Model.Email}";
+  Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+  var roles = ViewBag.Roles as IList<string> ?? new List<string>();
+  var orders = ViewBag.Orders as List<Order> ?? new List<Order>();
+  var reviews = ViewBag.Reviews as List<Review> ?? new List<Review>();
+}
+
+<div style="display:grid;grid-template-columns:1fr 2fr;gap:24px;margin-bottom:24px">
+  @* Left Column: Profile Card *@
+  <div>
+    <div class="admin-card reveal" style="text-align:center;padding:24px">
+      <div style="margin-bottom:16px">
+        @if (!string.IsNullOrEmpty(Model.AvatarUrl))
+        {
+          <img src="@Model.AvatarUrl" alt="@Model.FullName" style="width:100px;height:100px;object-fit:cover;border-radius:var(--r-full);border:2px solid var(--c-gold)" />
+        }
+        else
+        {
+          <div style="width:100px;height:100px;background:var(--c-border);display:flex;align-items:center;justify-content:center;border-radius:var(--r-full);color:var(--c-ink-lt);margin:0 auto;font-size:32px">
+            <i class="fa-regular fa-user" aria-hidden="true"></i>
+          </div>
+        }
+      </div>
+
+      <h3 class="admin-card__title" style="margin-bottom:4px">@(string.IsNullOrEmpty(Model.FullName) ? "Chưa cập nhật tên" : Model.FullName)</h3>
+      <p style="font-size:var(--fs-sm);color:var(--c-ink-lt);margin-bottom:12px">@Model.Email</p>
+
+      <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-bottom:16px">
+        @foreach (var r in roles)
+        {
+          <span style="font-size:var(--fs-xxs);font-weight:600;text-transform:uppercase;padding:2px 10px;background:var(--c-gold);color:white;border-radius:var(--r-full)">@r</span>
+        }
+      </div>
+
+      <hr style="border:0;border-top:1px solid var(--c-border);margin:16px 0" />
+
+      <div style="text-align:left;display:flex;flex-direction:column;gap:12px">
+        <div>
+          <span style="font-size:var(--fs-xxs);text-transform:uppercase;color:var(--c-ink-lt);display:block">Số điện thoại</span>
+          <span>@(string.IsNullOrEmpty(Model.PhoneNumber) ? "Chưa cung cấp" : Model.PhoneNumber)</span>
+        </div>
+        <div>
+          <span style="font-size:var(--fs-xxs);text-transform:uppercase;color:var(--c-ink-lt);display:block">Tuổi</span>
+          <span>@(Model.Age?.ToString() ?? "Chưa cung cấp")</span>
+        </div>
+        <div>
+          <span style="font-size:var(--fs-xxs);text-transform:uppercase;color:var(--c-ink-lt);display:block">Địa chỉ</span>
+          <span>@(string.IsNullOrEmpty(Model.Address) ? "—" : Model.Address), @(Model.City ?? "—")</span>
+        </div>
+        <div>
+          <span style="font-size:var(--fs-xxs);text-transform:uppercase;color:var(--c-ink-lt);display:block">Ngày tham gia</span>
+          <span>@(Model.CreatedAt?.ToString("dd/MM/yyyy HH:mm") ?? "—")</span>
+        </div>
+      </div>
+
+      <div style="margin-top:24px;display:flex;flex-direction:column;gap:8px">
+        <a href="/admin/nguoi-dung/edit/@Model.Id" class="btn btn--gold btn--sm" style="display:block">Chỉnh sửa vai trò / thông tin</a>
+        <button class="btn btn--ghost btn--sm" type="button" onclick="resetPassword('@Model.Id')">Khôi phục mật khẩu</button>
+      </div>
+    </div>
+  </div>
+
+  @* Right Column: Activity History (Orders, Reviews) *@
+  <div style="display:flex;flex-direction:column;gap:24px">
+    @* Recent Orders *@
+    <div class="data-table-wrap reveal">
+      <div class="data-table-header">
+        <h3 class="data-table-header__title">Đơn hàng gần đây</h3>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="data-table" aria-label="Đơn hàng gần đây">
+          <thead>
+            <tr>
+              <th scope="col">Mã đơn</th>
+              <th scope="col">Tổng tiền</th>
+              <th scope="col">Ngày đặt</th>
+              <th scope="col">Trạng thái</th>
+              <th scope="col"><span class="sr-only">Thao tác</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (orders.Any())
+            {
+              foreach (var order in orders)
+              {
+                <tr>
+                  <td>@order.OrderCode</td>
+                  <td style="font-family:var(--ff-display);font-weight:500">@order.TotalAmount.ToString("C0", new System.Globalization.CultureInfo("vi-VN"))</td>
+                  <td>@order.OrderedAt.ToString("dd/MM/yyyy")</td>
+                  <td>
+                    <span class="status-badge status-badge--@order.Status.ToLower()">
+                      @order.Status
+                    </span>
+                  </td>
+                  <td>
+                    <a href="/admin/don-hang/detail/@order.Id" class="quick-action-btn">Chi tiết</a>
+                  </td>
+                </tr>
+              }
+            }
+            else
+            {
+              <tr>
+                <td colspan="5" style="text-align:center;padding:16px;color:var(--c-ink-lt)">Chưa có đơn hàng nào.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    @* Recent Reviews *@
+    <div class="admin-card reveal">
+      <div class="admin-card__header">
+        <h3 class="admin-card__title">Đánh giá gần đây</h3>
+      </div>
+      <div class="admin-card__body">
+        @if (reviews.Any())
+        {
+          <div style="display:flex;flex-direction:column;gap:16px">
+            @foreach (var review in reviews)
+            {
+              <div style="border-bottom:1px solid var(--c-border);padding-bottom:12px">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+                  <span style="font-weight:500;color:var(--c-ink)">Sản phẩm: @review.ProductId</span>
+                  <span style="font-size:var(--fs-xxs);color:var(--c-ink-lt)">@review.CreatedAt.ToString("dd/MM/yyyy")</span>
+                </div>
+                <div style="display:flex;gap:4px;color:var(--c-gold);margin-bottom:6px">
+                  @for (int i = 1; i <= 5; i++)
+                  {
+                    <i class="@(i <= review.Rating ? "fa-solid" : "fa-regular") fa-star fa-xs"></i>
+                  }
+                </div>
+                <p style="font-size:var(--fs-sm);color:var(--c-ink-mid);margin:0">@review.Content</p>
+              </div>
+            }
+          </div>
+        }
+        else
+        {
+          <div style="text-align:center;color:var(--c-ink-lt);padding:16px">Chưa có đánh giá nào.</div>
+        }
+      </div>
+    </div>
+  </div>
+</div>
+
+@section Scripts {
+  <script>
+    function resetPassword(id) {
+      if (confirm("Khôi phục mật khẩu sẽ gửi token khôi phục đến email người dùng. Xác nhận?")) {
+        fetch(`/admin/nguoi-dung/ResetPassword/${id}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" }
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            alert("Đã gửi yêu cầu khôi phục thành công!");
+          } else {
+            alert("Không thể khôi phục mật khẩu!");
+          }
+        });
+      }
+    }
+  </script>
+}

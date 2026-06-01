@@ -1,0 +1,13 @@
+@* _EmptyState.cshtml
+   Model: (string Icon, string Title, string Text, string? ActionUrl, string? ActionLabel) *@
+@model (string Icon, string Title, string Text, string? ActionUrl, string? ActionLabel)
+
+<div class="empty-state">
+  <i class="@Model.Icon empty-state__icon" aria-hidden="true"></i>
+  <h2 class="empty-state__title">@Model.Title</h2>
+  <p class="empty-state__text">@Model.Text</p>
+  @if (Model.ActionUrl != null)
+  {
+    <a href="@Model.ActionUrl" class="btn btn--outline">@(Model.ActionLabel ?? "Quay lại")</a>
+  }
+</div>
